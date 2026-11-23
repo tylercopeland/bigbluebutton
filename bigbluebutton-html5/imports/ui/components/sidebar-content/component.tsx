@@ -8,6 +8,7 @@ import PollContainer from '/imports/ui/components/poll/container';
 import UserListComponent from '/imports/ui/components/user-list/component';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
 import TimerContainer from '/imports/ui/components/timer/panel/component';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
@@ -48,6 +49,7 @@ const SidebarContent = (props: SidebarContentProps) => {
   const [isResizing, setIsResizing] = useState(false);
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
   const [resizeStartHeight, setResizeStartHeight] = useState(0);
+  const isDocked = useIsNavigationDocked();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
@@ -82,7 +84,9 @@ const SidebarContent = (props: SidebarContentProps) => {
   if (sidebarContentPanel === PANELS.NONE) return null;
 
   const sidebarContentMarginToMedia = window.innerWidth * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
-  const sidebarContentVerticalMargin = window.innerHeight * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;
+  const sidebarContentVerticalMargin = isDocked
+    ? 0
+    : window.innerHeight * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;
 
   const innerPanel = !isMobile ? {
     minWidth: minWidth - sidebarContentMarginToMedia,
@@ -109,6 +113,7 @@ const SidebarContent = (props: SidebarContentProps) => {
           : sidebarContentPanel
       }`}
       isMobile={isMobile}
+      $isDocked={isDocked}
       isRTL={isRTL}
       style={{
         top,
@@ -169,7 +174,7 @@ const SidebarContent = (props: SidebarContentProps) => {
           },
         }}
       >
-        <Styled.SidebarContentPanel isRTL={isRTL} isChrome={isChrome}>
+        <Styled.SidebarContentPanel $isDocked={isDocked} isRTL={isRTL} isChrome={isChrome}>
           {sidebarContentPanel === PANELS.CHAT
             && (
               <ErrorBoundary

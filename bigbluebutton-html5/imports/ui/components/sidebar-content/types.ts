@@ -30,6 +30,7 @@ interface SidebarContentProps {
 }
 
 interface SidebarContentPanelProps {
+  $isDocked?: boolean;
   isRTL: boolean;
   isChrome: boolean;
 }

@@ -26,6 +26,7 @@ pass of the overall architecture. Check an item off when it matches.
 
 ## Panels
 - [ ] Panels are not yet one People/Chat panel with tabs
+- [ ] Panel is 259px wide by default at 1400px; design is 360px
 - [ ] Share media menu opens at the far right, not above its button
 
 ## Stage and webcams

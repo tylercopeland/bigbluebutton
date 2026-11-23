@@ -67,7 +67,8 @@ const roomControls = `
     background-color: ${roomControlHoverBg} !important;
   }
 
-  && .bbb-button--circle.bbb-button--primary > .bbb-button__icon {
+  && .bbb-button--circle.bbb-button--primary > .bbb-button__icon,
+  && .bbb-button--circle.bbb-button--primary:hover > .bbb-button__icon {
     background-color: ${roomControlActiveBg} !important;
     color: ${roomControlActiveColor} !important;
   }

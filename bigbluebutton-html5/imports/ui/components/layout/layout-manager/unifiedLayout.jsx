@@ -496,8 +496,10 @@ const UnifiedLayout = (props) => {
       const sidebarContentMarginToMedia = windowWidth()
         * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
 
-      cameraDockBounds.top = windowHeight() - cameraDockHeight
-        - bannerAreaHeight() - sidebarContentVerticalMargin + sidebarContentMarginToMedia;
+      cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
+      if (!isNavigationDocked) {
+        cameraDockBounds.top += sidebarContentMarginToMedia - sidebarContentVerticalMargin;
+      }
       cameraDockBounds.left = !isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.right = isRTL ? sidebarNavWidth : 0;
       cameraDockBounds.minWidth = sidebarContentWidth;

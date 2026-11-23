@@ -38,7 +38,8 @@ const Dock = styled.div`
     }
   }
 
-  && .bbb-navigation__item--active {
+  && .bbb-navigation__item--active,
+  && .bbb-navigation__item--active:hover {
     background-color: ${roomControlActiveBg} !important;
     color: ${roomControlActiveColor};
   }

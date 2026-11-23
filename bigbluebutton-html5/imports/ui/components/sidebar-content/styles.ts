@@ -20,7 +20,9 @@ import { SidebarContentPanelProps } from './types';
 import Header from '../common/control-header/component';
 import { textFontWeight } from '../../stylesheets/styled-components/typography';
 
-const SidebarContentBackdrop = styled.div<{isRTL: boolean, isMobile: boolean}>`
+const SidebarContentBackdrop = styled.div<{
+  isRTL: boolean, isMobile: boolean, $isDocked?: boolean,
+}>`
   position: absolute;
   background-color: ${colorBackground};
   ${({ isMobile, isRTL }) => !isMobile && `
@@ -30,6 +32,10 @@ const SidebarContentBackdrop = styled.div<{isRTL: boolean, isMobile: boolean}>`
     ` : `
       ${contentSidebarVerticalMargin} ${contentSidebarMarginToMedia} ${contentSidebarVerticalMargin} 0px
     `};
+  `}
+  ${({ $isDocked, isMobile }) => $isDocked && !isMobile && `
+    padding-top: 0;
+    padding-bottom: 0;
   `}
 `;
 
@@ -75,7 +81,7 @@ export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
   flex-direction: column;
   justify-content: space-around;
   overflow: hidden;
-  border-radius: ${contentSidebarBorderRadius};
+  border-radius: ${({ $isDocked }) => ($isDocked ? '0' : contentSidebarBorderRadius)};
   user-select: none;
 
   a {

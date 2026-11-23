@@ -211,9 +211,12 @@ const LayoutEngine = () => {
     let width = 0;
     let horizontalSpaceOccupied = 0;
     if (isNavigationDocked) {
-      // There is no rail: its buttons are in the actions bar. Only the gutter that
-      // keeps the content off the edge of the window is left.
-      horizontalSpaceOccupied = windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+      // There is no rail: its buttons are in the actions bar. An open panel sits flush
+      // with the window edge; without one, a gutter keeps the content off the edge.
+      const isPanelOpen = sidebarContentInput.isOpen || sidebarContentAuxiliaryInput.isOpen;
+      horizontalSpaceOccupied = isPanelOpen
+        ? 0
+        : windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
     } else if (isOpen) {
       if (isMobile) {
         width = sidebarNavWidthMobile;

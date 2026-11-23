@@ -15,7 +15,7 @@ const Navbar = styled.header`
   text-align: center;
   font-size: 1.5rem;
   background-color: ${colorBackground};
-  padding: ${barsPadding} ${barsPadding} 0 ${barsPadding};
+  padding: ${barsPadding} ${({ $isDocked }) => ($isDocked ? '0' : barsPadding)} 0;
 `;
 
 const Top = styled.div`
@@ -33,11 +33,24 @@ const ItemsGroup = `
 const Left = styled.div`
   ${ItemsGroup}
   justify-content: flex-start;
+
+  ${({ $isDocked }) => $isDocked && `
+    flex: 1 1 auto;
+    min-width: 0;
+    gap: .65rem;
+
+    & h1 {
+      font-weight: 700;
+      min-width: 0;
+    }
+  `}
 `;
 
 const Center = styled.div`
   ${ItemsGroup}
   justify-content: center;
+
+  ${({ $isDocked }) => $isDocked && 'flex: 0 1 auto;'}
 
   @media ${smallOnly} {
     min-width: 0;

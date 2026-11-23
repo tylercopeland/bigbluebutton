@@ -18,6 +18,7 @@ import useHasUnreadNotes from '/imports/ui/components/notes/hooks/useHasUnreadNo
 import useHasUnreadChatMessages from '/imports/ui/components/chat/hooks/useHasUnreadChatMessages';
 import { useIsPollingEnabled, useIsTimerFeatureEnabled } from '/imports/ui/services/features';
 import useIsPanelOpened from './hooks/useIsPanelOpened';
+import useIsNavigationDocked from './hooks/useIsNavigationDocked';
 
 const SidebarNavigationContainer = () => {
   const { data: currentUser } = useCurrentUser((u: Partial<User>) => (
@@ -56,6 +57,7 @@ const SidebarNavigationContainer = () => {
   const timerIsRegistered = useMemo(() => (
     Object.keys(registeredApps).includes(TIMER_APP_KEY)), [registeredApps]);
 
+  const isDocked = useIsNavigationDocked();
   const isPanelOpened = useIsPanelOpened();
   const hasUnreadNotes = useHasUnreadNotes({
     isNotesPanelOpened: isPanelOpened(PANELS.SHARED_NOTES),
@@ -80,6 +82,8 @@ const SidebarNavigationContainer = () => {
   };
 
   const pinApp = (id: string) => {
+    // The dock has limited room: these start in the apps gallery instead.
+    if (isDocked) return;
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
       value: {

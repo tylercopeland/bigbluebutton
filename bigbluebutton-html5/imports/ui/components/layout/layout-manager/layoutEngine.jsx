@@ -13,6 +13,7 @@ import PresentationOnlyLayout from '/imports/ui/components/layout/layout-manager
 import ParticipantsAndChatOnlyLayout from '/imports/ui/components/layout/layout-manager/participantsAndChatOnlyLayout';
 import PluginsOnlyLayout from '/imports/ui/components/layout/layout-manager/pluginsOnly';
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import Session from '/imports/ui/services/storage/in-memory';
 import MediaOnlyLayout from './mediaOnlyLayout';
 import { usePrevious } from '../../whiteboard/utils';
@@ -46,6 +47,7 @@ const LayoutEngine = () => {
   const isPresentationEnabled = useIsPresentationEnabled();
   const prevLayout = usePrevious(selectedLayout);
 
+  const isNavigationDocked = useIsNavigationDocked();
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
   const isTablet = deviceType === DEVICE_TYPE.TABLET;
   const windowWidth = () => window.document.documentElement.clientWidth;
@@ -208,7 +210,11 @@ const LayoutEngine = () => {
 
     let width = 0;
     let horizontalSpaceOccupied = 0;
-    if (isOpen) {
+    if (isNavigationDocked) {
+      // There is no rail: its buttons are in the actions bar. Only the gutter that
+      // keeps the content off the edge of the window is left.
+      horizontalSpaceOccupied = windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+    } else if (isOpen) {
       if (isMobile) {
         width = sidebarNavWidthMobile;
         // The navigation sidebar is a floating window on mobile. We say it does not
@@ -367,6 +373,7 @@ const LayoutEngine = () => {
   };
 
   const common = {
+    isNavigationDocked,
     bannerAreaHeight,
     baseCameraDockBounds,
     calculatesNavbarHeight,

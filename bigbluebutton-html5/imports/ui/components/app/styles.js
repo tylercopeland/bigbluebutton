@@ -27,6 +27,8 @@ const DtfInvert = `
     --darkreader-bg--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-text--color-primary: ${colorPrimaryDarkTheme} !important;
     --darkreader-bg--item-focus-border: ${colorPrimaryDarkTheme} !important;
+    --darkreader-bg--room-control-active-bg: #E6EEF9 !important;
+    --darkreader-text--room-control-active-color: #0F1B2B !important;
     --darkreader-bg--list-item-bg-hover: ${colorHoverBgDark} !important;
     --list-item-bg-hover: ${colorHoverBgDark} !important;
   }

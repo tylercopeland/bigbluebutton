@@ -37,6 +37,15 @@ const AppsListItem: React.FC = () => {
     });
   });
 
+  // An unpinned app has no button of its own, so its notification shows here.
+  const hasHiddenAppNotification = layoutSelectInput((i: Input) => {
+    if (isOpened) return false;
+    const { registeredApps, pinnedApps } = i.sidebarNavigation;
+    return Object.entries(registeredApps ?? {}).some(([id, app]) => (
+      Boolean(app?.hasNotification) && !pinnedApps?.includes(id)
+    ));
+  });
+
   return (
     <SidebarNavigationButton
       panel={PANELS.APPS_GALLERY}
@@ -46,7 +55,7 @@ const AppsListItem: React.FC = () => {
       id="apps-gallery-toggle-button"
       ariaDescribedBy="appsGallery"
       dataTest="appsGallerySidebarButton"
-      hasNotification={hasHiddenAppBadge}
+      hasNotification={hasHiddenAppBadge || hasHiddenAppNotification}
     />
   );
 };

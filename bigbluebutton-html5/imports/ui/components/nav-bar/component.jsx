@@ -13,6 +13,8 @@ import OptionsDropdownContainer from './options-dropdown/container';
 import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/component';
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
+import CustomLogo from '/imports/ui/components/sidebar-navigation/custom-logo/component';
+import SessionInfo from './session-info/component';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
@@ -248,10 +250,53 @@ class NavBar extends Component {
     ) : null;
   }
 
+  renderTitle() {
+    const { intl, presentationTitle } = this.props;
+
+    return (
+      <>
+        <Styled.PresentationTitle
+          className="bbb-navbar__title"
+          data-test="presentationTitle"
+          id="presentationTitle"
+        >
+          <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
+            <Styled.TitleButton
+              aria-haspopup="dialog"
+              onClick={() => this.setModalIsOpen(true)}
+            >
+              <Styled.TitleText>{presentationTitle}</Styled.TitleText>
+              <Icon iconName="device_list_selector" rotate />
+            </Styled.TitleButton>
+          </Tooltip>
+        </Styled.PresentationTitle>
+        <ModalRegistration id="SessionDetailsModal" priority="low">
+          {
+            ({
+              isOpen,
+              open,
+              close,
+
+            }) => {
+              this.setModalIsOpen = (value) => {
+                if (!value) {
+                  const { meetingId } = this.props;
+                  SessionStorage.setItem('alreadyShowSessionDetailsOnJoin', meetingId);
+                }
+                if (value) open();
+                else close();
+              };
+              return NavBar.renderModal(isOpen, this.setModalIsOpen, 'low', SessionDetailsModal);
+            }
+          }
+        </ModalRegistration>
+      </>
+    );
+  }
+
   render() {
     const {
       intl,
-      presentationTitle,
       amIModerator,
       style,
       main,
@@ -259,15 +304,25 @@ class NavBar extends Component {
       isDirectLeaveButtonEnabled,
       isConnected,
       hideTopRow,
+      isNavigationDocked,
+      showBrandingArea,
     } = this.props;
     const { leftPluginItems, centerPluginItems, rightPluginItems } = this.splitPluginItems();
 
     const APP_CONFIG = window.meetingClientSettings?.public?.app;
     const enableTalkingIndicator = APP_CONFIG?.enableTalkingIndicator;
 
+    const recordingIndicator = (
+      <RecordingIndicator
+        amIModerator={amIModerator}
+        currentUserId={currentUserId}
+      />
+    );
+
     return (
       <Styled.Navbar
         className="bbb-navbar"
+        $isDocked={isNavigationDocked}
         id="Navbar"
         style={
           main === 'new'
@@ -287,57 +342,24 @@ class NavBar extends Component {
       >
         {!hideTopRow && (
           <Styled.Top>
-            <Styled.Left className="bbb-navbar__left">
+            <Styled.Left className="bbb-navbar__left" $isDocked={isNavigationDocked}>
+              {isNavigationDocked && showBrandingArea && <CustomLogo />}
+              {isNavigationDocked && this.renderTitle()}
+              {isNavigationDocked && recordingIndicator}
+              {isNavigationDocked && <SessionInfo />}
               {renderPluginItems(leftPluginItems)}
             </Styled.Left>
-            <Styled.Center className="bbb-navbar__center">
-              <Styled.PresentationTitle
-                className="bbb-navbar__title"
-                data-test="presentationTitle"
-                id="presentationTitle"
-              >
-                <Tooltip title={intl.formatMessage(intlMessages.openDetailsTooltip)}>
-                  <Styled.TitleButton
-                    aria-haspopup="dialog"
-                    onClick={() => this.setModalIsOpen(true)}
-                  >
-                    <Styled.TitleText>{presentationTitle}</Styled.TitleText>
-                    <Icon iconName="device_list_selector" rotate />
-                  </Styled.TitleButton>
-                </Tooltip>
-              </Styled.PresentationTitle>
-              <ModalRegistration id="SessionDetailsModal" priority="low">
-                {
-                  ({
-                    isOpen,
-                    open,
-                    close,
-
-                  }) => {
-                    this.setModalIsOpen = (value) => {
-                      if (!value) {
-                        const { meetingId } = this.props;
-                        SessionStorage.setItem('alreadyShowSessionDetailsOnJoin', meetingId);
-                      }
-                      if (value) open();
-                      else close();
-                    };
-                    return NavBar.renderModal(isOpen, this.setModalIsOpen, 'low', SessionDetailsModal);
-                  }
-                }
-              </ModalRegistration>
+            <Styled.Center className="bbb-navbar__center" $isDocked={isNavigationDocked}>
+              {!isNavigationDocked && this.renderTitle()}
               {renderPluginItems(centerPluginItems)}
             </Styled.Center>
             <Styled.Right className="bbb-navbar__right">
               <h2 className="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
-              <RecordingIndicator
-                amIModerator={amIModerator}
-                currentUserId={currentUserId}
-              />
+              {!isNavigationDocked && recordingIndicator}
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
-              {isDirectLeaveButtonEnabled && isConnected
+              {!isNavigationDocked && isDirectLeaveButtonEnabled && isConnected
                 ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
               <OptionsDropdownContainer
                 amIModerator={amIModerator}

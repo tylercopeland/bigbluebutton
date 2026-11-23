@@ -1,5 +1,4 @@
 import React, { useContext } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
 import { useReactiveVar } from '@apollo/client';
 import Auth from '/imports/ui/services/auth';
 import getFromUserSettings from '/imports/ui/services/users-settings';
@@ -8,20 +7,13 @@ import { layoutDispatch, layoutSelectOutput } from '../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useMeeting from '../../core/hooks/useMeeting';
-import { registerTitleView } from '/imports/utils/dom-utils';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import connectionStatus from '../../core/graphql/singletons/connectionStatus';
-
-const intlMessages = defineMessages({
-  defaultViewLabel: {
-    id: 'app.title.defaultViewLabel',
-    description: 'view name appended to document title',
-  },
-});
 
 const NavBarContainer = (props) => {
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
-  const intl = useIntl();
 
+  const isNavigationDocked = useIsNavigationDocked();
   const navBar = layoutSelectOutput((i) => i.navBar);
   const layoutContextDispatch = layoutDispatch();
 
@@ -76,6 +68,11 @@ const NavBarContainer = (props) => {
         // TODO: Remove/Replace
         isConnected: connected,
         hideTopRow: navBar.hideTopRow,
+        isNavigationDocked,
+        showBrandingArea: getFromUserSettings(
+          'bbb_display_branding_area',
+          PUBLIC_CONFIG.app.branding.displayBrandingArea,
+        ),
         showSessionDetailsOnJoin: SHOW_SESSION_DETAILS_ON_JOIN,
         ...props,
       }}

@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-access-key */
-import React, { memo } from 'react';
+import React, { memo, useContext } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { PANELS } from '../../layout/enums';
 import { GET_GUEST_WAITING_USERS_SUBSCRIPTION, GuestWaitingUsers } from '/imports/ui/components/user-list/guest-management/waiting-users/queries';
@@ -9,6 +9,7 @@ import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/s
 import { RAISED_HAND_USERS, RaisedHandUsersSubscriptionResponse, USER_AGGREGATE_COUNT_SUBSCRIPTION } from '/imports/ui/core/graphql/queries/users';
 import { UserAggregateCountSubscriptionResponse } from '/imports/ui/components/user-list/types';
 import useIsSpecificPanelOpened from '../hooks/useIsSpecificPanelOpened';
+import NavigationDockContext from '../dock/context';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
@@ -21,6 +22,7 @@ const intlMessages = defineMessages({
 const UsersListItem: React.FC = () => {
   const TOGGLE_USER_LIST_SHORTCUT = useShortcut('toggleUserList');
   const intl = useIntl();
+  const isDocked = useContext(NavigationDockContext);
   const isOpened = useIsSpecificPanelOpened(PANELS.USERLIST);
 
   const {
@@ -54,11 +56,14 @@ const UsersListItem: React.FC = () => {
       dataTest="usersListSidebarButton"
       hasNotification={hasNotification}
     >
-      <Styled.GuestNumberIndicatorWrapper $count={usersCount}>
-        <Styled.GuestNumberIndicator>
-          {usersCount}
-        </Styled.GuestNumberIndicator>
-      </Styled.GuestNumberIndicatorWrapper>
+      {/* Docked, the count is shown in the nav bar instead */}
+      {!isDocked && (
+        <Styled.GuestNumberIndicatorWrapper $count={usersCount}>
+          <Styled.GuestNumberIndicator>
+            {usersCount}
+          </Styled.GuestNumberIndicator>
+        </Styled.GuestNumberIndicatorWrapper>
+      )}
     </SidebarNavigationButton>
   );
 };

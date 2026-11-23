@@ -4,6 +4,7 @@ import {
   useMemo,
   useState,
 } from 'react';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import {
   layoutDispatch,
   layoutSelectInput,
@@ -55,6 +56,7 @@ const BreakoutRoomsAppObserver = () => {
   const isBreakoutRoomsEnabled = useIsBreakoutRoomsEnabled();
 
   const intl = useIntl();
+  const isDocked = useIsNavigationDocked();
   const sidebarNavigationInput = layoutSelectInput((i: Input) => i.sidebarNavigation);
   const { sidebarContentPanel } = layoutSelectInput((o: Input) => o.sidebarContent);
   const {
@@ -96,6 +98,8 @@ const BreakoutRoomsAppObserver = () => {
   };
 
   const pinApp = (id: string) => {
+    // The dock has limited room: this starts in the apps gallery instead.
+    if (isDocked) return;
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_PIN_APP,
       value: {

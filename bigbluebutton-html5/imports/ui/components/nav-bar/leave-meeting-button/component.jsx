@@ -53,12 +53,14 @@ const propTypes = {
   ismobile: PropTypes.bool.isRequired,
   userLeaveMeeting: PropTypes.func.isRequired,
   openLeaveMenu: PropTypes.string,
+  isDocked: PropTypes.bool,
 };
 
 const defaultProps = {
   amIModerator: false,
   isBreakoutRoom: false,
   isDropdownOpen: false,
+  isDocked: false,
 };
 
 class LeaveMeetingButton extends PureComponent {
@@ -128,11 +130,12 @@ class LeaveMeetingButton extends PureComponent {
       isRTL,
       openLeaveMenu,
       connected,
+      isDocked,
     } = this.props;
 
     const enableExitLabel = window?.meetingClientSettings?.public?.layout?.showLeaveSessionLabel;
 
-    const customStyles = { top: '1rem' };
+    const customStyles = { top: isDocked ? '-.75rem' : '1rem' };
 
     const actions = this.renderMenuItems();
 
@@ -143,13 +146,14 @@ class LeaveMeetingButton extends PureComponent {
     const isDisabled = actions.length === 0 && !connected;
 
     return (
-      <Styled.LeaveButtonWrapper className="bbb-leave-button">
+      <Styled.LeaveButtonWrapper className="bbb-leave-button" $isDocked={isDocked}>
         <BBBMenu
           customStyles={!ismobile ? customStyles : null}
           trigger={(
             <Styled.LeaveButton
               state={isDropdownOpen ? 'open' : 'closed'}
               $isMobile={ismobile}
+              $isDocked={isDocked}
               accessKey={openLeaveMenu}
               aria-label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
               label={intl.formatMessage(intlMessages.leaveMeetingBtnLabel)}
@@ -159,7 +163,7 @@ class LeaveMeetingButton extends PureComponent {
               icon="logout"
               color="danger"
               size="lg"
-              hideLabel={!enableExitLabel}
+              hideLabel={isDocked || !enableExitLabel}
               disabled={isDisabled}
               // FIXME: Without onClick react proptypes keep warning
               // even after the DropdownTrigger inject an onClick handler
@@ -176,8 +180,11 @@ class LeaveMeetingButton extends PureComponent {
             elevation: 3,
             getcontentanchorel: null,
             fullwidth: 'true',
-            anchorOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
+            anchorOrigin: { vertical: isDocked ? 'top' : 'bottom', horizontal: isRTL ? 'left' : 'right' },
             transformorigin: { vertical: 'top', horizontal: isRTL ? 'left' : 'right' },
+            ...(isDocked && {
+              transformOrigin: { vertical: 'bottom', horizontal: isRTL ? 'left' : 'right' },
+            }),
           }}
         />
         <ModalRegistration id="leaveMeetingMenuModal" priority="low">

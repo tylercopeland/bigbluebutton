@@ -597,6 +597,7 @@
     "app.requestPresenter.notification.confirm.label": "Allow",
     "app.requestPresenter.notification.deny.label": "Cancel",
     "app.requestPresenter.notification.denied": "Your request to present was denied by the moderator.",
+    "app.navBar.peopleCount": "{count, plural, one {# person} other {# people}}",
     "app.navBar.leaveMeetingBtnLabel": "Leave",
     "app.navBar.leaveMeetingBtnDesc": "Leave the session",
     "app.navBar.optionsDropdown.optionsLabel": "Options",

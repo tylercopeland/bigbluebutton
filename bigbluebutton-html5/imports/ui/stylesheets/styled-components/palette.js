@@ -29,7 +29,7 @@ const colorUserModerator = 'var(--color-user-moderator, #7B209F)';
 const colorUserYou = 'var(--color-user-you, #19237C)';
 const colorUserViewer = 'var(--color-user-viewer, #2296C9)';
 
-const colorPrimary = 'var(--color-primary, #0F70D7)';
+const colorPrimary = 'var(--color-primary, #1F62D0)';
 const colorStandout = 'var(--color-standout, #A16207)';
 const colorDanger = 'var(--color-danger, #DF2721)';
 const colorDangerDark = 'var(--color-danger-dark, #AE1010)';
@@ -39,7 +39,7 @@ const colorOffline = `var(--color-offline, ${colorGrayLight})`;
 const colorMuted = 'var(--color-muted, #586571)';
 const colorMutedBackground = 'var(--color-muted-background, #F3F6F9)';
 
-const colorBackground = 'var(--color-background, #102133)';
+const colorBackground = 'var(--color-background, #0B1220)';
 const colorOverlay = 'var(--color-overlay, rgba(6, 23, 42, 0.75))';
 
 const userListBg = `var(--user-list-bg, ${colorOffWhite})`;
@@ -69,11 +69,11 @@ const btnDefaultGhostActiveBg = 'var(--btn-default-active-bg, rgba(255, 255, 255
 const btnRecordingActiveBg = `var(--btn-recording-active-bg, color-mix(in srgb, ${colorDanger} 22%, transparent))`;
 const btnRecordingActiveBorder = `var(--btn-recording-active-border, ${colorDanger})`;
 
-const btnPrimaryBorder = 'var(--btn-primary-border, rgba(15, 112, 215, 0.5))'; // colorPrimary, 50%
+const btnPrimaryBorder = 'var(--btn-primary-border, rgba(31, 98, 208, 0.5))'; // colorPrimary, 50%
 const btnPrimaryColor = `var(--btn-primary-color, ${colorWhite})`;
 const btnPrimaryBg = `var(--btn-primary-bg, ${colorPrimary})`;
-const btnPrimaryHoverBg = 'var(--btn-primary-hover-bg, #0C57A7)';
-const btnPrimaryActiveBg = 'var(--btn-primary-active-bg, #0A4B8F)';
+const btnPrimaryHoverBg = 'var(--btn-primary-hover-bg, #1A54B3)';
+const btnPrimaryActiveBg = 'var(--btn-primary-active-bg, #164796)';
 
 const btnSuccessBorder = `var(--btn-success-border, ${colorSuccess})`;
 const btnSuccessColor = `var(--btn-success-color, ${colorWhite})`;
@@ -127,7 +127,7 @@ const toolbarListColor = `var(--toolbar-list-color, ${colorGray})`;
 const toolbarButtonBg = `var(--toolbar-button-bg, ${btnDefaultBg})`;
 const toolbarListBg = 'var(--toolbar-list-bg, #DDD)';
 const toolbarListBgFocus = 'var(--toolbar-list-bg-focus, #C6C6C6)';
-const colorContentBackground = 'var(--color-content-background, #1B2A3A)';
+const colorContentBackground = 'var(--color-content-background, #131F31)';
 
 const dropdownBg = `var(--dropdown-bg, ${colorWhite})`;
 
@@ -146,7 +146,7 @@ const toastSuccessBg = `var(--toast-success-bg, ${colorSuccess})`;
 const toastErrorColor = `var(--toast-error-color, ${colorWhite})`;
 const toastErrorBg = `var(--toast-error-bg, ${colorDanger})`;
 
-const webcamBackgroundColor = 'var(--webcam-background-color, #001428FF)';
+const webcamBackgroundColor = 'var(--webcam-background-color, #131F31)';
 const webcamPlaceholderBorder = 'var(--webcam-placeholder-border, rgba(255, 255, 255, 0.5))'; // colorWhite, 50%
 
 // rgba version of colorPrimary (0F70D7) with 15% opacity for talking indicator background
@@ -155,6 +155,22 @@ const webcamTalkingBackgroundColor = 'var(--webcam-talking-background-color, rgb
 const toastWarningColor = `var(--toast-warning-color, ${colorWhite})`;
 const toastWarningBg = `var(--toast-warning-bg, ${colorWarning})`;
 const defaultBorder = 'var(--default-border, #B0BDC9)';
+
+// Meeting room chrome: controls that sit directly on colorBackground
+const roomControlBg = 'var(--room-control-bg, #1C2738)';
+const roomControlHoverBg = 'var(--room-control-hover-bg, #2A3850)';
+const roomControlColor = 'var(--room-control-color, #E6EDF5)';
+const roomControlActiveBg = 'var(--room-control-active-bg, #E6EEF9)';
+const roomControlActiveColor = 'var(--room-control-active-color, #0F1B2B)';
+const roomLive = 'var(--room-live, #3ECF8E)';
+const roomMutedText = 'var(--room-muted-text, #A9B6C6)';
+const roomRecording = 'var(--room-recording, #FF5A5F)';
+const roomRecordingText = 'var(--room-recording-text, #FF8A8F)';
+const roomLeaveBg = 'var(--room-leave-bg, #2A161B)';
+const roomLeaveHoverBg = 'var(--room-leave-hover-bg, #421E26)';
+const roomLeaveBorder = 'var(--room-leave-border, #6B2F36)';
+const roomLeaveColor = 'var(--room-leave-color, #FF9EA1)';
+const roomFocusRing = 'var(--room-focus-ring, #8AB4FF)';
 
 // DARK THEME COLORS
 const colorBackgroundDarkTheme = 'var(--color-background-dark-theme, #181A23)';
@@ -184,6 +200,20 @@ const colorGreen600 = 'var(--color-green-600, #16A34A)';
 const colorGreen100 = 'var(--color-green-100, #DCFCE7)';
 
 export {
+  roomControlBg,
+  roomControlHoverBg,
+  roomControlColor,
+  roomControlActiveBg,
+  roomControlActiveColor,
+  roomLive,
+  roomMutedText,
+  roomRecording,
+  roomRecordingText,
+  roomLeaveBg,
+  roomLeaveHoverBg,
+  roomLeaveBorder,
+  roomLeaveColor,
+  roomFocusRing,
   colorWhite,
   colorOffWhite,
   colorTldrawBackground,

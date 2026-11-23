@@ -1,5 +1,5 @@
 /* eslint-disable jsx-a11y/no-access-key */
-import React, { useCallback, memo } from 'react';
+import React, { useCallback, useContext, memo } from 'react';
 import cx from 'classnames';
 import KEYS from '/imports/utils/keys';
 import resolveIcon from '/imports/ui/components/plugins/plugin-icon/utils';
@@ -8,6 +8,7 @@ import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { SidebarNavigationButtonProps } from './types';
+import NavigationDockContext from '../dock/context';
 import Styled from './styles';
 import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
 
@@ -29,6 +30,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   children,
   ariaDescribedBy,
 }) => {
+  const isDocked = useContext(NavigationDockContext);
   const layoutContextDispatch = layoutDispatch();
   const sidebarContentAuxiliaryInput = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
   const {
@@ -90,7 +92,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   return (
     <TooltipContainer
       title={label}
-      position="right"
+      position={isDocked ? 'top' : 'right'}
     >
       <Styled.ListItem
         id={id}

@@ -23,7 +23,7 @@ const max = (value1, value2) => (value1 >= value2 ? value1 : value2);
 const UnifiedLayout = (props) => {
   const {
     bannerAreaHeight, calculatesActionbarHeight, calculatesNavbarHeight, isMobile,
-    prevLayout,
+    prevLayout, isNavigationDocked,
   } = props;
 
   function usePrevious(value) {
@@ -61,6 +61,8 @@ const UnifiedLayout = (props) => {
   const prevIsResizing = usePrevious(isResizing);
   const { isPresentationEnabled } = props;
 
+  // The calls below are deferred, they run after every function is defined.
+  // eslint-disable-next-line no-use-before-define
   const throttledCalculatesLayout = throttle(() => calculatesLayout(),
     50, { trailing: true, leading: true });
 
@@ -82,11 +84,13 @@ const UnifiedLayout = (props) => {
     if (deviceType !== prevDeviceType) {
       // reset layout if deviceType changed
       // not all options is supported in all devices
+      // eslint-disable-next-line no-use-before-define
       init();
     } else {
       throttledCalculatesLayout();
     }
-  }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled]);
+    return () => null;
+  }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled, isNavigationDocked]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { sidebarContentAuxiliary } = input;
@@ -669,7 +673,8 @@ const UnifiedLayout = (props) => {
       cameraDockBounds,
     );
     const sidebarSize = sidebarContentWidth.width
-      + sidebarContentAuxiliaryWidth.width + sidebarNavWidth.width;
+      + sidebarContentAuxiliaryWidth.width
+      + (isNavigationDocked ? sidebarNavWidth.horizontalSpaceOccupied : sidebarNavWidth.width);
     const { height: actionBarHeight } = calculatesActionbarHeight();
 
     let horizontalCameraDiff = 0;
@@ -801,7 +806,8 @@ const UnifiedLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_MEDIA_AREA_SIZE,
       value: {
-        width: windowWidth() - sidebarNavWidth.width - sidebarContentWidth.width
+        width: windowWidth() - sidebarContentWidth.width
+          - (isNavigationDocked ? sidebarNavWidth.horizontalSpaceOccupied : sidebarNavWidth.width)
           - (windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH),
         height: windowHeight() - DEFAULT_VALUES.navBarHeight - actionBarHeight,
       },

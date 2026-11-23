@@ -1,12 +1,21 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { smPaddingX, smPaddingY, barsPadding } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  smPaddingX, smPaddingY, barsPadding, roomDockRadius, roomDockSize,
+} from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorWhite,
   colorBackground,
   btnDefaultBg,
   btnDefaultColor,
   defaultBorder,
+  roomControlBg,
+  roomControlHoverBg,
+  roomControlColor,
+  roomControlActiveBg,
+  roomControlActiveColor,
+  roomLive,
+  roomFocusRing,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -23,6 +32,14 @@ const ActionsBarWrapper = styled.section`
   background-color: ${colorBackground};
   position: relative;
   order: 3;
+
+  ${({ $isCompact }) => $isCompact && `
+    --room-dock-size: 36px;
+    --room-control-size: 2.5rem;
+    --room-bar-gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+  `}
 `;
 
 const ItemsGroup = `
@@ -30,7 +47,38 @@ const ItemsGroup = `
   align-items: center;
   flex-grow: 1;
   flex-shrink: 1;
-  gap: ${smPaddingX};
+  gap: var(--room-bar-gap, ${smPaddingX});
+`;
+
+// Round media controls: dark at rest, light when on.
+const roomControls = `
+  && .bbb-button--circle > .bbb-button__icon,
+  && .bbb-button--circle:focus > .bbb-button__icon {
+    width: var(--room-control-size, 3rem);
+    height: var(--room-control-size, 3rem);
+    background-color: ${roomControlBg} !important;
+    color: ${roomControlColor} !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  && .bbb-button--circle:hover > .bbb-button__icon {
+    background-color: ${roomControlHoverBg} !important;
+  }
+
+  && .bbb-button--circle.bbb-button--primary > .bbb-button__icon {
+    background-color: ${roomControlActiveBg} !important;
+    color: ${roomControlActiveColor} !important;
+  }
+
+  && .bbb-button--circle:focus-visible > .bbb-button__icon {
+    box-shadow: 0 0 0 2px ${colorBackground}, 0 0 0 4px ${roomFocusRing} !important;
+  }
+
+  && .bbb-mute-toggle.bbb-button--primary > .bbb-button__icon {
+    box-shadow: 0 0 0 2px ${colorBackground}, 0 0 0 4px ${roomLive} !important;
+  }
 `;
 
 const Left = styled.div`
@@ -55,6 +103,7 @@ const Left = styled.div`
 
 const Center = styled.div`
   ${ItemsGroup}
+  ${roomControls}
   justify-content: center;
 `;
 
@@ -63,6 +112,7 @@ const Right = styled.div`
   flex-basis: 0;
   justify-content: flex-end;
   position: relative;
+  gap: var(--room-bar-gap, 6px);
   [dir="rtl"] & {
     right: auto;
     left: ${smPaddingX};
@@ -92,6 +142,31 @@ const PresentationButtonsWrapper = styled.div`
       margin-right: ${smPaddingX};
     }
   }
+
+  ${({ $isDocked }) => $isDocked && `
+    && {
+      background-color: transparent;
+      height: auto;
+    }
+
+    && .bbb-button--circle > .bbb-button__icon {
+      width: ${roomDockSize};
+      height: ${roomDockSize};
+      border-radius: ${roomDockRadius};
+      background-color: ${roomControlBg} !important;
+      color: ${roomControlColor} !important;
+      border-color: transparent !important;
+      box-shadow: none !important;
+    }
+
+    && .bbb-button--circle:hover > .bbb-button__icon {
+      background-color: ${roomControlHoverBg} !important;
+    }
+
+    && .bbb-button--circle:focus-visible > .bbb-button__icon {
+      box-shadow: 0 0 0 2px ${roomFocusRing} !important;
+    }
+  `}
 `;
 
 const Divider = styled.div`

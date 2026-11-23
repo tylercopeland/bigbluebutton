@@ -4,6 +4,8 @@ import {
   SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH,
 } from '/imports/ui/components/layout/defaultValues';
 
+const roomDockSize = 'var(--room-dock-size, 44px)';
+const roomDockRadius = '12px';
 const borderSizeSmall = '1px';
 const borderSize = '2px';
 const borderSizeLarge = '3px';
@@ -145,6 +147,8 @@ const appsModalPadding = '3rem';
 const appsModalPaddingBottom = '1.5rem';
 
 export {
+  roomDockSize,
+  roomDockRadius,
   borderSizeSmall,
   borderSize,
   borderSizeLarge,

@@ -39,6 +39,7 @@ import connectionStatus from '../../core/graphql/singletons/connectionStatus';
 import useSettings from '/imports/ui/services/settings/hooks/useSettings';
 import { SETTINGS } from '/imports/ui/services/settings/enums';
 import deviceInfo from '/imports/utils/deviceInfo';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 
 const isLayeredView = window.matchMedia(`(max-width: ${SMALL_VIEWPORT_BREAKPOINT}px)`);
 
@@ -88,6 +89,7 @@ const ActionsBarContainer = (props) => {
   const amIPresenter = currentUserData?.presenter;
   const amIModerator = currentUserData?.isModerator;
 
+  const isNavigationDocked = useIsNavigationDocked();
   const isMobile = layoutSelect((i) => i.deviceType === DEVICE_TYPE.MOBILE);
 
   const allowExternalVideo = useIsExternalVideoEnabled();
@@ -160,6 +162,11 @@ const ActionsBarContainer = (props) => {
         ariaHidden,
         isDarkThemeEnabled: darkModeIsEnabled,
         isMobile,
+        isNavigationDocked,
+        isDirectLeaveButtonEnabled: getFromUserSettings(
+          'bbb_direct_leave_button',
+          window.meetingClientSettings.public.app.defaultSettings.application.directLeaveButton,
+        ),
         selectedLayout,
       }
     }

@@ -17,6 +17,8 @@ import RaiseHandButtonContainer from '/imports/ui/components/actions-bar/raise-h
 import Selector from '/imports/ui/components/common/selector/component';
 import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
 import Separator from '/imports/ui/components/common/separator/component';
+import NavigationDock from '/imports/ui/components/sidebar-navigation/dock/component';
+import LeaveMeetingButtonContainer from '/imports/ui/components/nav-bar/leave-meeting-button/container';
 import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
@@ -25,6 +27,9 @@ const intlMessages = defineMessages({
     description: 'Aria-label for ActionsBar Section',
   },
 });
+
+// Below this bar width (px) the docked controls shrink to fit
+const DOCK_COMPACT_WIDTH = 720;
 
 class ActionsBar extends PureComponent {
   constructor(props) {
@@ -120,6 +125,45 @@ class ActionsBar extends PureComponent {
     );
   }
 
+  renderMediaArea() {
+    const {
+      amIPresenter,
+      amIModerator,
+      intl,
+      isSharingVideo,
+      hasCameraAsContent,
+      stopExternalVideoShare,
+      isTimerActive,
+      isTimerEnabled,
+      isConnected,
+      isPollingEnabled,
+      isThereCurrentPresentation,
+      allowExternalVideo,
+      presentationIsOpen,
+      setPresentationFitToWidth,
+    } = this.props;
+
+    return (
+      <MediaAreaContainer {...{
+        amIPresenter,
+        amIModerator,
+        isPollingEnabled,
+        allowExternalVideo,
+        intl,
+        isSharingVideo,
+        stopExternalVideoShare,
+        isTimerActive,
+        isTimerEnabled,
+        isConnected,
+        presentationIsOpen,
+        hasCameraAsContent,
+        setPresentationFitToWidth,
+        hasPresentation: isThereCurrentPresentation,
+      }}
+      />
+    );
+  }
+
   renderReactionsButton() {
     return (
       <>
@@ -137,20 +181,16 @@ class ActionsBar extends PureComponent {
       setPresentationIsOpen,
       intl,
       isSharingVideo,
+      isNavigationDocked,
+      isDirectLeaveButtonEnabled,
       isSharedNotesPinned,
       hasScreenshare,
       hasGenericContent,
       hasCameraAsContent,
-      stopExternalVideoShare,
-      isTimerActive,
-      isTimerEnabled,
       isConnected,
-      isPollingEnabled,
       isThereCurrentPresentation,
-      allowExternalVideo,
       layoutContextDispatch,
       actionsBarStyle,
-      setPresentationFitToWidth,
       isPresentationEnabled,
       ariaHidden,
       isDarkThemeEnabled,
@@ -173,6 +213,7 @@ class ActionsBar extends PureComponent {
     return shouldRenderActionBar && (
       <Styled.ActionsBarWrapper
         className="bbb-actions-bar"
+        $isCompact={isNavigationDocked && actionsBarStyle.width < DOCK_COMPACT_WIDTH}
         id="ActionsBar"
         role="region"
         aria-label={intl.formatMessage(intlMessages.actionsBarLabel)}
@@ -184,7 +225,9 @@ class ActionsBar extends PureComponent {
             left: actionsBarStyle.left,
             height: actionsBarStyle.height,
             width: actionsBarStyle.width,
-            padding: actionsBarStyle.padding,
+            padding: isNavigationDocked
+              ? `${actionsBarStyle.padding}px 0`
+              : actionsBarStyle.padding,
             ...(isMobile && { overflowX: 'auto' }),
             ...(isMobile && { overflowY: 'hidden' }),
           }
@@ -200,6 +243,7 @@ class ActionsBar extends PureComponent {
           }
         >
           <Styled.Left className="bbb-actions-bar__left">
+            {isNavigationDocked && <NavigationDock section="start" />}
             {this.renderPluginsActionBarItems(ActionsBarPosition.LEFT)}
             <AudioCaptionsButtonContainer />
 
@@ -211,7 +255,8 @@ class ActionsBar extends PureComponent {
                 <JoinVideoOptionsContainer />
               )
               : null}
-            {shouldShowPresentationButton && (
+            {isNavigationDocked && this.renderMediaArea()}
+            {!isNavigationDocked && shouldShowPresentationButton && (
               <ScreenshareButtonContainer {...{
                 amIPresenter,
                 isConnected,
@@ -223,7 +268,10 @@ class ActionsBar extends PureComponent {
             {this.renderPluginsActionBarItems(ActionsBarPosition.RIGHT)}
           </Styled.Center>
           <Styled.Right className="bbb-actions-bar__right">
-            <Styled.PresentationButtonsWrapper className="bbb-actions-bar__media-buttons">
+            <Styled.PresentationButtonsWrapper
+              className="bbb-actions-bar__media-buttons"
+              $isDocked={isNavigationDocked}
+            >
               {shouldShowPresentationButton && shouldShowOptionsButton
                 && (
                   <PresentationOptionsContainer
@@ -239,31 +287,18 @@ class ActionsBar extends PureComponent {
                     isDarkThemeEnabled={isDarkThemeEnabled}
                   />
                 )}
-              {((amIPresenter || amIModerator)
+              {!isNavigationDocked && ((amIPresenter || amIModerator)
                 && shouldShowOptionsButton) && (<Styled.Divider />)}
-              <MediaAreaContainer {...{
-                amIPresenter,
-                amIModerator,
-                isPollingEnabled,
-                allowExternalVideo,
-                intl,
-                isSharingVideo,
-                stopExternalVideoShare,
-                isTimerActive,
-                isTimerEnabled,
-                isConnected,
-                presentationIsOpen,
-                hasCameraAsContent,
-                setPresentationFitToWidth,
-                hasPresentation: isThereCurrentPresentation,
-              }}
-              />
+              {!isNavigationDocked && this.renderMediaArea()}
             </Styled.PresentationButtonsWrapper>
             <Styled.Gap>
               {
                 showScreenshareQuickSwapButton && <SwapPresentationButton />
               }
             </Styled.Gap>
+            {isNavigationDocked && <NavigationDock section="end" />}
+            {isNavigationDocked && isDirectLeaveButtonEnabled && isConnected
+              && <LeaveMeetingButtonContainer amIModerator={amIModerator} isDocked />}
           </Styled.Right>
         </Styled.ActionsBar>
       </Styled.ActionsBarWrapper>

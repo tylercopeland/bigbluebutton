@@ -1,7 +1,18 @@
 import styled from 'styled-components';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
-import { mobileNavbarButtonSize } from '/imports/ui/stylesheets/styled-components/general';
+import {
+  mobileNavbarButtonSize,
+  roomDockRadius,
+  roomDockSize,
+} from '/imports/ui/stylesheets/styled-components/general';
+import {
+  roomLeaveBg,
+  roomLeaveBorder,
+  roomLeaveColor,
+  roomLeaveHoverBg,
+  roomFocusRing,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 const LeaveButton = styled(Button)`
   border-radius: 1.1rem;
@@ -41,10 +52,35 @@ const LeaveButton = styled(Button)`
       display: none !important;
     }
   }
+
+  ${({ $isDocked }) => $isDocked && `
+    && {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: ${roomDockSize};
+      height: ${roomDockSize};
+      padding: 0;
+      box-sizing: border-box;
+      border: 1px solid ${roomLeaveBorder};
+      border-radius: ${roomDockRadius};
+      background-color: ${roomLeaveBg} !important;
+      color: ${roomLeaveColor} !important;
+      box-shadow: none;
+    }
+
+    &&:hover {
+      background-color: ${roomLeaveHoverBg} !important;
+    }
+
+    &&:focus-visible {
+      box-shadow: 0 0 0 2px ${roomFocusRing} !important;
+    }
+  `}
 `;
 
 const LeaveButtonWrapper = styled.div`
-  margin: 0px 0.5rem;
+  margin: ${({ $isDocked }) => ($isDocked ? '0' : '0 0.5rem')};
 
   @media ${smallOnly} {
     padding-left: 0.3rem;

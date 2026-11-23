@@ -30,6 +30,12 @@ export const Title = styled.h2`
   line-height: normal;
   color: ${colorText};
   text-transform: uppercase;
+
+  ${({ $plain }) => $plain && `
+    font-size: 1.15rem;
+    font-weight: 700;
+    text-transform: none;
+  `}
 `;
 
 export default {

@@ -4,6 +4,7 @@ import Styled from '/imports/ui/components/sidebar-content/styles';
 import MultifunctionalModeButton from '../multifunctional-mode-button/component';
 import PeopleChatTabs from './people-chat-tabs/component';
 import useShowPeopleChatTabs from './people-chat-tabs/useShowPeopleChatTabs';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import usePanelClose from './usePanelClose';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -54,6 +55,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   const intl = useIntl();
   const { closePanel } = usePanelClose(panelId, onBeforeClose);
   const showTabs = useShowPeopleChatTabs(panelId);
+  const isDocked = useIsNavigationDocked();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const resolvedCloseLabel = closeButtonLabel
@@ -73,11 +75,12 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
       isRTL={isRTL}
       data-test={dataTest}
       title={title}
+      isPlain={isDocked}
       customTitle={showTabs ? <PeopleChatTabs panelId={panelId} /> : undefined}
       rightButtonProps={{
         'aria-label': resolvedCloseLabel,
         'data-test': closeButtonDataTest,
-        icon: showTabs ? 'close' : 'minus',
+        icon: showTabs || isDocked ? 'close' : 'minus',
         label: resolvedCloseLabel,
         onClick: closePanel,
         ...closeButtonProps,

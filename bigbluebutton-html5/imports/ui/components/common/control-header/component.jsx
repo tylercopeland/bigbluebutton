@@ -9,6 +9,7 @@ const Header = ({
   rightButtonProps,
   customRightButton,
   customTitle,
+  isPlain,
   title,
   className,
   'data-test': dataTest,
@@ -20,7 +21,7 @@ const Header = ({
     {...rest}
   >
     {customTitle || (
-      <Styled.Title className="bbb-panel-header__title">{title}</Styled.Title>
+      <Styled.Title className="bbb-panel-header__title" $plain={isPlain}>{title}</Styled.Title>
     )}
     {customRightButton && (
       <Styled.RightWrapper>
@@ -40,6 +41,7 @@ Header.propTypes = {
   rightButtonProps: PropTypes.shape({}),
   customRightButton: PropTypes.element,
   customTitle: PropTypes.element,
+  isPlain: PropTypes.bool,
   className: PropTypes.string,
 };
 

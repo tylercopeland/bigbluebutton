@@ -1,13 +1,10 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
+import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
 import {
-  lgPaddingY,
-  smPaddingY,
-  borderSize,
-  smPaddingX,
-} from '/imports/ui/stylesheets/styled-components/general';
-import {
-  listItemBgHover,
-  itemFocusBorder,
+  colorWhite,
+  panelLive,
+  panelRowHoverBg,
+  roomFocusRing,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
@@ -23,80 +20,44 @@ interface AvatarProps {
   isSkeleton?: boolean;
 }
 
-interface RaisedHandAvatarProps extends AvatarProps {
-  children?: React.ReactNode;
-}
-
 interface UserItemContentsProps {
-  selected?: boolean;
-  isActionsOpen?: boolean;
+  $isActionsOpen?: boolean;
 }
 
 const UserItemContents = styled.div<UserItemContentsProps>`
-  position: static;
-  padding-right: 0.5rem;
-  padding-left: 0.5rem;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-  width: 100%;
-  overflow: hidden;
-  min-height: 3rem;
-
-  ${({ selected }) => selected && `
-    background-color: ${listItemBgHover};
-    border-top-left-radius: ${smPaddingY};
-    border-bottom-left-radius: ${smPaddingY};
-
-    &:focus {
-      box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder};
-    }
-  `}
-
-  ${({ isActionsOpen }) => !isActionsOpen && `
-    display: flex;
-    flex-flow: row;
-    border-top-left-radius: 5px;
-    border-bottom-left-radius: 5px;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-
-    [dir="rtl"] & {
-      border-top-left-radius: 0;
-      border-bottom-left-radius: 0;
-      border-top-right-radius: 5px;
-      border-bottom-right-radius: 5px;
-    }
-
-    &:first-child {
-      margin-top: 0;
-    }
-
-    flex-flow: column;
-    flex-shrink: 0;
-  `}
-
-  ${({ isActionsOpen }) => isActionsOpen && `
-    outline: transparent;
-    outline-width: ${borderSize};
-    outline-style: solid;
-    background-color: ${listItemBgHover};
-    box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder};
-    border-top-left-radius: ${smPaddingY};
-    border-bottom-left-radius: ${smPaddingY};
-
-    &:focus {
-      outline-style: solid;
-      outline-color: transparent !important;
-    }
-  `}
-
-  flex-grow: 0;
+  position: relative;
   display: flex;
-  flex-flow: row;
-  border: 3px solid transparent;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 2px 8px;
+  border-radius: 10px;
 
-  [dir="rtl"] & {
-    padding: ${lgPaddingY} ${lgPaddingY} ${lgPaddingY} 0;
+  ${({ $isActionsOpen }) => $isActionsOpen && css`
+    background-color: ${panelRowHoverBg};
+  `}
+
+  &:hover,
+  &:focus-within {
+    background-color: ${panelRowHoverBg};
+  }
+
+  &:hover .bbb-user-list-item__actions,
+  &:focus-within .bbb-user-list-item__actions {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  &:focus {
+    outline: none;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: -2px;
   }
 `;
 
@@ -104,14 +65,26 @@ const UserItemContents = styled.div<UserItemContentsProps>`
 
 const Avatar = styled(UserAvatar)<AvatarProps>`
   position: relative;
+  flex-shrink: 0;
+  margin: 0 4px;
+  border: 0;
   text-align: center;
-  font-size: .85rem;
-  border: 2px solid transparent;
+  font-size: .75rem;
+  font-weight: 700;
   user-select: none;
-  width: 2.5rem;
-  min-width: 2.5rem;
-  height: 2.5rem;
-  min-height: 2.5rem;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  min-height: 32px;
+
+  /* A steady ring replaces the pulse, which is the avatar's first child. */
+  &.bbb-avatar--talking {
+    box-shadow: 0 0 0 2px ${colorWhite}, 0 0 0 4px ${panelLive};
+
+    > :first-child {
+      display: none;
+    }
+  }
 `;
 
 // ======================== Icon Right Container ========================
@@ -130,24 +103,10 @@ const SvgContentUserListIconMargin = styled(PluginButtonIcon)`
   margin-right: ${smPaddingX};
 `;
 
-// ===== Raised-Hands Avatar =====
-const RaiseHandAvatar = styled(UserAvatar as React.ComponentType<RaisedHandAvatarProps>)<RaisedHandAvatarProps>`
-  position: relative;
-  text-align: center;
-  font-size: .85rem;
-  border: 2px solid transparent;
-  user-select: none;
-  width: 2.5rem;
-  min-width: 2.5rem;
-  height: 2.5rem;
-  min-height: 2.5rem;
-`;
-
 export default {
   Avatar,
   UserItemContents,
   IconRightContainer,
   SvgContentUserListIcon,
   SvgContentUserListIconMargin,
-  RaiseHandAvatar,
 };

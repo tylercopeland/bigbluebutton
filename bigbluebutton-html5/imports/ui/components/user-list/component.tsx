@@ -8,6 +8,7 @@ import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import UserListParticipants from './user-list-participants/component';
 import GuestManagement from './guest-management/component';
 import RaisedHandsContainer from './raised-hands/component';
+import UserListFilters, { UserListFilter } from './filters/component';
 import UserSearchContainer from './user-search/container';
 import isUserListSearchEnabled from './user-search/service';
 import { makeUserSearchWhere, onSaveUserNames } from './service';
@@ -57,6 +58,20 @@ const intlMessages = defineMessages({
     id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Label for the minimize button in the user list panel',
   },
+  everyone: {
+    id: 'app.userList.everyone',
+    description: 'Title of the section with everyone whose hand is not raised',
+    defaultMessage: 'Everyone',
+  },
+  noSearchResults: {
+    id: 'app.userList.noSearchResults',
+    description: 'Message shown when no participants match the search',
+  },
+  noRaisedHands: {
+    id: 'app.userList.noRaisedHands',
+    description: 'Message shown when filtering by raised hands and there are none',
+    defaultMessage: 'No raised hands',
+  },
   saveUsersNames: {
     id: 'app.actionsBar.actionsDropdown.saveUserNames',
     description: 'Label for the save user names button',
@@ -66,6 +81,7 @@ const intlMessages = defineMessages({
 const UserList: React.FC<UserListComponentProps> = () => {
   const intl = useIntl();
   const parentRef = React.useRef<HTMLDivElement | null>(null);
+  const [filter, setFilter] = useState<UserListFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const searchWhere = useMemo(() => makeUserSearchWhere(searchQuery), [searchQuery]);
   const { data: currentUserData } = useCurrentUser((user) => ({
@@ -88,7 +104,8 @@ const UserList: React.FC<UserListComponentProps> = () => {
   const { data: raisedHandsData } = useDeduplicatedSubscription<{
     user: RaisedHandUser[]
   }>(RAISED_HAND_USERS);
-  const hasRaisedHands = (raisedHandsData?.user?.length ?? 0) > 0;
+  const raisedHandsCount = raisedHandsData?.user?.length ?? 0;
+  const hasRaisedHands = raisedHandsCount > 0;
   const { data: meetingInfo } = useMeeting((meeting) => ({
     name: meeting?.name,
     lockSettings: meeting?.lockSettings,
@@ -128,27 +145,44 @@ const UserList: React.FC<UserListComponentProps> = () => {
     return <GuestManagement searchQuery={searchQuery} />;
   }, [currentUserData, meetingInfo, searchQuery]);
 
-  const renderScrollableSection = useCallback(() => {
-    if (hasRaisedHands) {
-      return (
-        <Styled.SplitScrollContainer id="scroll-box" ref={parentRef}>
-          {renderGuestManagement()}
-          <RaisedHandsContainer searchQuery={searchQuery} />
-          <Styled.ParticipantsScrollSection>
-            <UserListParticipants parentRef={parentRef} searchQuery={searchQuery} />
-          </Styled.ParticipantsScrollSection>
-        </Styled.SplitScrollContainer>
-      );
-    }
+  const isSearching = isUserListSearchEnabled() && !!searchQuery.trim();
+  const isRaisedHandsOnly = filter === 'raisedHands';
+  // Search results are one flat list, where raised hands show up as any other match
+  const showRaisedHands = isRaisedHandsOnly || !isSearching;
+  const raisedHandsEmptyMessage = intl.formatMessage(
+    isSearching && hasRaisedHands ? intlMessages.noSearchResults : intlMessages.noRaisedHands,
+  );
+  const everyoneLabel = intl.formatMessage(intlMessages.everyone);
 
-    return (
-      <Styled.ScrollableSection id="scroll-box" ref={parentRef}>
-        {renderGuestManagement()}
-        <RaisedHandsContainer searchQuery={searchQuery} />
-        <UserListParticipants parentRef={parentRef} searchQuery={searchQuery} />
-      </Styled.ScrollableSection>
-    );
-  }, [renderGuestManagement, searchQuery]);
+  const renderScrollableSection = () => (
+    <Styled.ScrollableSection id="scroll-box" ref={parentRef}>
+      {!isRaisedHandsOnly && renderGuestManagement()}
+      {showRaisedHands && (
+        <RaisedHandsContainer
+          searchQuery={searchQuery}
+          emptyMessage={isRaisedHandsOnly ? raisedHandsEmptyMessage : undefined}
+        />
+      )}
+      {/* Hidden rather than unmounted, as plugins rely on the loaded list */}
+      <Styled.Everyone hidden={isRaisedHandsOnly}>
+        {hasRaisedHands && !isSearching && (
+          <Styled.SectionHeader>
+            <Styled.SectionTitle>
+              {everyoneLabel}
+              {!hideUserList && (
+                <Styled.SectionCount>{Math.max(0, count - raisedHandsCount)}</Styled.SectionCount>
+              )}
+            </Styled.SectionTitle>
+          </Styled.SectionHeader>
+        )}
+        <UserListParticipants
+          parentRef={parentRef}
+          searchQuery={searchQuery}
+          label={everyoneLabel}
+        />
+      </Styled.Everyone>
+    </Styled.ScrollableSection>
+  );
 
   const renderCrowdActionButtons = useCallback(() => {
     if (!currentUserData?.isModerator) return null;
@@ -189,6 +223,12 @@ const UserList: React.FC<UserListComponentProps> = () => {
       <UserSearchContainer
         onSearchChange={setSearchQuery}
         isQueryLoading={searchCountLoading}
+      />
+      <UserListFilters
+        selected={filter}
+        onSelect={setFilter}
+        userCount={hideUserList ? null : count}
+        raisedHandsCount={raisedHandsCount}
       />
       {renderScrollableSection()}
       {renderCrowdActionButtons()}

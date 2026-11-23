@@ -176,6 +176,19 @@ const roomFocusRing = 'var(--room-focus-ring, #8AB4FF)';
 const panelTabsBg = 'var(--panel-tabs-bg, #EEF1F5)';
 const panelTabColor = 'var(--panel-tab-color, #4B5563)';
 const panelTabActiveColor = 'var(--panel-tab-active-color, #111827)';
+const panelText = 'var(--panel-text, #111827)';
+const panelMutedText = 'var(--panel-muted-text, #6B7280)';
+const panelBorder = 'var(--panel-border, #CBD3DD)';
+const panelRowHoverBg = 'var(--panel-row-hover-bg, #F4F6F9)';
+const panelRowActionBg = 'var(--panel-row-action-bg, #E6EAF0)';
+const panelRowActionHoverBg = 'var(--panel-row-action-hover-bg, #D6DCE5)';
+const panelRowActionColor = 'var(--panel-row-action-color, #374151)';
+const panelLive = 'var(--panel-live, #12A150)';
+const panelStatusColor = 'var(--panel-status-color, #7A8594)';
+const panelStatusFaintColor = 'var(--panel-status-faint-color, #B3BCC8)';
+const panelCameraColor = 'var(--panel-camera-color, #6B7280)';
+const panelRaisedHandText = 'var(--panel-raised-hand-text, #9A5B00)';
+const panelChipActiveBg = 'var(--panel-chip-active-bg, #1F2933)';
 const panelRaisedHandBadge = 'var(--panel-raised-hand-badge, #A86A0F)';
 
 // DARK THEME COLORS
@@ -224,6 +237,19 @@ export {
   panelTabColor,
   panelTabActiveColor,
   panelRaisedHandBadge,
+  panelText,
+  panelMutedText,
+  panelBorder,
+  panelRowHoverBg,
+  panelRowActionBg,
+  panelRowActionHoverBg,
+  panelRowActionColor,
+  panelLive,
+  panelStatusColor,
+  panelStatusFaintColor,
+  panelCameraColor,
+  panelRaisedHandText,
+  panelChipActiveBg,
   colorWhite,
   colorOffWhite,
   colorTldrawBackground,

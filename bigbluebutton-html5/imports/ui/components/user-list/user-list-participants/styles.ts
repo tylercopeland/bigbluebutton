@@ -1,6 +1,5 @@
 import styled, { css, keyframes } from 'styled-components';
 import {
-  contentSidebarUserListPadding,
   smPaddingX,
   smPaddingY,
   lgPaddingY,
@@ -11,6 +10,7 @@ import {
   colorGrayDark,
   listItemBgHover,
   itemFocusBorder,
+  roomFocusRing,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface AvatarProps {
@@ -88,7 +88,12 @@ const UserListColumn = styled.div`
   flex-flow: column;
   min-height: 0;
   flex-grow: 1;
-  padding: 0.5rem 0rem 0rem ${contentSidebarUserListPadding};
+  border-radius: 10px;
+
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: -2px;
+  }
 `;
 
 const pulse = (color: string) => keyframes`
@@ -102,6 +107,8 @@ const pulse = (color: string) => keyframes`
 `;
 
 const VirtualizedList = styled.div`
+  margin: 0;
+  list-style: none;
   display: flex;
   flex-flow: column;
   padding: 0px;

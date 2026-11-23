@@ -1,68 +1,73 @@
 import styled from 'styled-components';
-import { colorGrayDark, colorGrayIcons } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorPrimary,
+  panelMutedText,
+  panelRaisedHandText,
+  panelText,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import { smPaddingX } from '/imports/ui/stylesheets/styled-components/general';
-import { textFontWeight, titlesFontWeight } from '/imports/ui/stylesheets/styled-components/typography';
 import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { PluginButtonIcon } from '/imports/ui/components/plugins/plugin-icon/styles';
 
 const UserNameContainer = styled.div`
   display: flex;
   flex-flow: column;
+  flex: 1 1 auto;
   min-width: 0;
-  flex-grow: 1;
-  margin: 0 0 0 ${smPaddingX};
   justify-content: center;
-  font-size: 90%;
-
-  [dir="rtl"]  & {
-    margin: 0 ${smPaddingX} 0 0;
-  }
 `;
 
 const UserName = styled.span`
-  margin: 0;
-  font-size: 90%;
+  display: block;
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-weight: 400;
-  color: ${colorGrayDark};
-  display: flex;
-  flex-direction: row;
+  font-size: .9375rem;
+  line-height: 1.25;
+  font-weight: 600;
+  color: ${panelText};
+  /* Truncate at the end of the name, whichever way it is written */
+  unicode-bidi: plaintext;
+  text-align: left;
 
-  > span {
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
+  [dir="rtl"] & {
+    text-align: right;
   }
+`;
 
-  &.animationsEnabled {
-    transition: all .3s;
-  }`;
+const You = styled.span`
+  font-weight: 500;
+  color: ${panelMutedText};
+`;
 
 const UserNameSub = styled.span`
-  margin: 0;
-  font-size: 0.75rem;
-  font-weight: 400;
-  color: ${colorGrayIcons};
+  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: .78rem;
+  line-height: 1.35;
+  font-weight: 400;
+  color: ${panelMutedText};
 
   i {
     line-height: 0;
     font-size: 75%;
   }
+
+  svg {
+    vertical-align: -1px;
+    margin-inline-end: 4px;
+  }
 `;
 
-const StrongName = styled.span`
-  font-weight: ${titlesFontWeight};
-  font-size: 1rem;
+const RaisedHand = styled.span`
+  color: ${panelRaisedHandText};
 `;
 
-const RegularName = styled.span`
-  font-weight: ${textFontWeight};
-  font-size: 1rem;
+const Presenter = styled.span`
+  color: ${colorPrimary};
 `;
 
 const UserAdditionalInformationIcon = styled(Icon)`
@@ -82,8 +87,9 @@ export default {
   UserNameContainer,
   UserName,
   UserNameSub,
-  StrongName,
-  RegularName,
+  You,
+  RaisedHand,
+  Presenter,
   UserAdditionalInformationIcon,
   SvgContentUserListIcon,
   SvgContentUserListIconMargin,

@@ -28,12 +28,18 @@ pass of the overall architecture. Check an item off when it matches.
 - [x] People and Chat share one panel with tabs, 360px wide by default
 - [ ] People tab keeps the download button, Chat tab keeps its options menu
 - [ ] Chat uses BBB's public/private buttons, not an Everyone/Direct switch
-- [ ] People list: no filters, wait times, calmer status icons or hover actions
+- [x] People list: raised hands with wait times, status columns, hover actions, All and Raised hands filters
+- [ ] People list: no Low engagement filter
+- [ ] People list: keeps the search box, Lower all hands and role labels (Presenter, Moderator, Guest...)
+- [ ] People list: says "Presenter", not "Presenting"; adds a "Can draw" label (whiteboard access moved into the menu)
+- [ ] People list: the mic icon is also the mute button; raised hands add a lower hand button on hover
+- [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials
+- [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
 - [ ] Mute all and permissions buttons are kept at the bottom of People
 - [ ] Other panels (Notes, Apps, Profile, Poll, Timer) keep BBB's header
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
-- [ ] New strings (tabs, people count) are English only
+- [ ] New strings (tabs, people count, filters, statuses) are English only
 - [x] Share media menu opens above its button
 - [ ] Share media menu keeps BBB's layout (design: previews above a row of media types)
 
@@ -43,4 +49,6 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Webcam tile styling and "+N more" tile not built
 
 ## Not yet tested
-- [ ] Active recording, webcams, real screen sharing, breakout rooms, production build
+- [ ] People list: large meetings (over 50 people), guests waiting, locked viewers, listen-only, plugins
+- [ ] BBB's own Playwright tests still expect the old people list (rank badge, duplicate rows, pinned whiteboard button)
+- [ ] Active recording, webcam tiles, real screen sharing, breakout rooms, production build

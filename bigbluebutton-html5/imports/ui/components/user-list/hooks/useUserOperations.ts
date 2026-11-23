@@ -15,38 +15,14 @@ import {
 } from '/imports/ui/core/graphql/mutations/userMutations';
 import { useModalRegistration } from '/imports/ui/core/singletons/modalController';
 
-export const mapRaisedHandToUser = (raisedHandUser: RaisedHandUser): User => {
-  const voiceData = raisedHandUser.voice || {};
-
-  const user: User = {
-    ...raisedHandUser,
-
-    avatar: '',
-    cameras: [],
-    whiteboardWriteAccess: raisedHandUser.whiteboardWriteAccess ?? false,
-    presenter: raisedHandUser.presenter ?? false,
-    isModerator: raisedHandUser.isModerator ?? false,
-    raiseHand: raisedHandUser.raiseHand ?? true,
-    raiseHandTime: raisedHandUser.raiseHandTime,
-    locked: false,
-    voice: {
-      joined: voiceData.joined ?? false,
-      talking: false,
-      muted: false,
-      listenOnly: voiceData.listenOnly ?? false,
-      listenOnlyInputDevice: undefined,
-      deafened: voiceData.deafened ?? false,
-    },
-
-    emoji: 'none',
-    loggedOut: false,
-    guest: false,
-    authed: true,
-    waitingForAcceptance: false,
-  } as User;
-
-  return user;
-};
+// Fills in what the raised hands subscription may leave out, so a raised hand
+// renders with the same row as any other participant.
+export const mapRaisedHandToUser = (raisedHandUser: RaisedHandUser): User => ({
+  ...raisedHandUser,
+  avatar: raisedHandUser.avatar ?? '',
+  cameras: raisedHandUser.cameras ?? [],
+  raiseHand: raisedHandUser.raiseHand ?? true,
+} as User);
 
 export const useUserOperations = (userId?: string) => {
   const intl = useIntl();

@@ -14,6 +14,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
 import UserItemToolbar from './user-item-toolbar/component';
 import ConfirmationModal from '/imports/ui/components/common/modal/confirmation/component';
+import AudioCameraStatus from './audio-camera-status/component';
 import AvatarContent from './avatar-content/component';
 import {
   generateActionsPermissions,
@@ -103,7 +104,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
   setOpenUserAction,
   open,
   pageId,
-  type,
+  section = 'everyone',
 }) => {
   const { intl, operations, modal } = useUserOperations(user.userId);
 
@@ -141,12 +142,12 @@ const UserListItem: React.FC<UserListItemProps> = ({
     isBreakout,
     isChatEnabled,
     isPrivateChatEnabled,
-    type,
   );
 
   const {
     pinnedToolbarOptions,
     otherToolbarOptions,
+    resolveAudioOption,
   } = createToolbarOptions(
     intl,
     user,
@@ -167,12 +168,16 @@ const UserListItem: React.FC<UserListItemProps> = ({
     operations.setUserChatLocked,
   );
 
+  const participantDataTest = isMe(user.userId) ? 'userListItemCurrent' : 'userListItem';
+  const rowDataTest = section === 'raisedHands' ? 'raisedHandsListItem' : participantDataTest;
+
   return (
     <Styled.UserItemContents
-      id={`user-index-${index}`}
+      id={`${section === 'raisedHands' ? 'raised-user' : 'user-index'}-${index}`}
       className="bbb-user-list-item"
       tabIndex={-1}
-      data-test={(isMe(user.userId)) ? 'userListItemCurrent' : 'userListItem'}
+      data-test={rowDataTest}
+      $isActionsOpen={open}
       role="listitem"
       aria-label={user.name}
       data-id={user.extId}
@@ -212,6 +217,7 @@ const UserListItem: React.FC<UserListItemProps> = ({
         open={open}
         userListDropdownItems={userListDropdownItems}
       />
+      <AudioCameraStatus user={user} resolveAudioOption={resolveAudioOption} />
     </Styled.UserItemContents>
   );
 };

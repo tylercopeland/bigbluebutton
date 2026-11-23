@@ -13,23 +13,24 @@ import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedS
 import UserListParticipantsPageContainer from './page/component';
 import IntersectionWatcher from './intersection-watcher/intersectionWatcher';
 import { setLocalUserList } from '/imports/ui/core/hooks/useLoadedUserList';
-import roveBuilder from '/imports/ui/core/utils/keyboardRove';
+import handleRowNavigation from '/imports/ui/components/user-list/hooks/handleRowNavigation';
 
 interface UserListParticipantsProps {
   count: number;
   parentRef: React.RefObject<HTMLDivElement | null>;
   searchQuery: string;
+  label: string;
 }
 
 const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   count,
   parentRef,
   searchQuery,
+  label,
 }) => {
   const [visibleUsers, setVisibleUsers] = React.useState<{
     [key: number]: User[];
   }>({});
-  const selectedUserRef = React.useRef<HTMLElement | null>(null);
   const usersPerUserListPage = getUsersPerUserListPage();
 
   useEffect(() => {
@@ -47,8 +48,6 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
       setLocalUserList(visibleUserArr);
     }
   }, [visibleUsers]);
-
-  const rove = useMemo(() => roveBuilder(selectedUserRef, 'user-index'), []);
 
   // --- Plugin related code ---
   useEffect(() => {
@@ -132,7 +131,8 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
   return (
     <>
       <Styled.UserListColumn
-        onKeyDown={rove}
+        onKeyDown={handleRowNavigation}
+        aria-label={label}
         tabIndex={0}
         role="list"
       >
@@ -147,11 +147,13 @@ const UserListParticipants: React.FC<UserListParticipantsProps> = ({
 interface UserListParticipantsContainerProps {
   parentRef: React.RefObject<HTMLDivElement | null>;
   searchQuery: string;
+  label: string;
 }
 
 const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps> = ({
   parentRef,
   searchQuery,
+  label,
 }) => {
   const where = useMemo(() => makeUserSearchWhere(searchQuery), [searchQuery]);
 
@@ -168,6 +170,7 @@ const UserListParticipantsContainer: React.FC<UserListParticipantsContainerProps
       count={count}
       parentRef={parentRef}
       searchQuery={searchQuery}
+      label={label}
     />
   );
 };

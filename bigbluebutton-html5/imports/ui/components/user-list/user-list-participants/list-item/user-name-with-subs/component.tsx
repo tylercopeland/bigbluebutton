@@ -7,6 +7,8 @@ import Icon from '/imports/ui/components/common/icon/icon-ts/component';
 import { isMe } from '../service';
 import Styled from './styles';
 import { UserNameWithSubsProps } from './types';
+import RaisedHandTime from '../raised-hand-time/component';
+import { HandIcon, PresenterIcon } from '../icons/component';
 import { uniqueId } from '/imports/utils/string-utils';
 
 const intlMessages = defineMessages({
@@ -38,9 +40,10 @@ const intlMessages = defineMessages({
     id: 'app.createBreakoutRoom.room',
     description: 'breakout room',
   },
-  sharingWebcam: {
-    id: 'app.userList.sharingWebcam',
-    description: 'Text for identifying who is sharing webcam',
+  canDraw: {
+    id: 'app.userList.status.canDraw',
+    description: 'Text for identifying a user with whiteboard access',
+    defaultMessage: 'Can draw',
   },
   you: {
     id: 'app.userList.you',
@@ -91,11 +94,27 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
   // Labels are wrapped in <span> rather than pushed as bare strings: a bare text
   // node rendered as a sibling of element nodes is what browser translators
   // rewrite, desyncing React and crashing the list on re-render (see main.html).
+  if (subjectUser.raiseHand) {
+    subs.push(
+      <Styled.RaisedHand key="bbb-raised-hand" data-test="raisedHandTime">
+        <HandIcon />
+        <RaisedHandTime raiseHandTime={subjectUser.raiseHandTime} />
+      </Styled.RaisedHand>,
+    );
+  }
   if (subjectUser.presenter && LABEL.presenter) {
-    subs.push(<span key="bbb-presenter">{intl.formatMessage(intlMessages.presenter)}</span>);
+    subs.push(
+      <Styled.Presenter key="bbb-presenter">
+        <PresenterIcon />
+        {intl.formatMessage(intlMessages.presenter)}
+      </Styled.Presenter>,
+    );
   }
   if (subjectUser.isModerator && LABEL.moderator) {
     subs.push(<span key="bbb-moderator">{intl.formatMessage(intlMessages.moderator)}</span>);
+  }
+  if (subjectUser.whiteboardWriteAccess && !subjectUser.presenter) {
+    subs.push(<span key="bbb-can-draw">{intl.formatMessage(intlMessages.canDraw)}</span>);
   }
   if (subjectUser.guest && LABEL.guest) {
     subs.push(<span key="bbb-guest">{intl.formatMessage(intlMessages.guest)}</span>);
@@ -129,18 +148,6 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
       </span>,
     );
   }
-  if (subjectUser.cameras.length > 0 && LABEL.sharingWebcam) {
-    subs.push(
-      <span key={uniqueId('breakout-')}>
-        {subjectUser.pinned === true
-          ? <Icon iconName="pin-video_on" />
-          : <Icon iconName="video" />}
-        &nbsp;
-        {intl.formatMessage(intlMessages.sharingWebcam)}
-      </span>,
-    );
-  }
-
   userItemsFromPlugin.filter(
     (item) => item.type === UserListItemAdditionalInformationType.LABEL,
   ).forEach((item) => {
@@ -160,7 +167,7 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
     elements.forEach((element, index) => {
       modifiedElements.push(element);
       if (index !== elements.length - 1) {
-        modifiedElements.push(<span key={uniqueId('separator-')}> | </span>);
+        modifiedElements.push(<span key={uniqueId('separator-')}> · </span>);
       }
     });
     return modifiedElements;
@@ -172,20 +179,17 @@ const UserNameWithSubs: React.FC<UserNameWithSubsProps> = ({
     <Styled.UserNameContainer>
       <Styled.UserName className="bbb-user-list-item__name">
         <TooltipContainer title={subjectUser.name}>
-          {isMe(subjectUser.userId) ? (
-            <Styled.StrongName>
-              {subjectUser.name}
-              &nbsp;
-              {`(${intl.formatMessage(intlMessages.you)})`}
-            </Styled.StrongName>
-          ) : (
-            <Styled.RegularName>{subjectUser.name}</Styled.RegularName>
-          )}
+          <span>
+            <bdi>{subjectUser.name}</bdi>
+            {isMe(subjectUser.userId) && (
+              <Styled.You>{` (${intl.formatMessage(intlMessages.you)})`}</Styled.You>
+            )}
+          </span>
         </TooltipContainer>
       </Styled.UserName>
-      <Styled.UserNameSub data-test="userNameSubs">
-        {subsWithSeparators.length ? subsWithSeparators : null}
-      </Styled.UserNameSub>
+      {subsWithSeparators.length > 0 && (
+        <Styled.UserNameSub data-test="userNameSubs">{subsWithSeparators}</Styled.UserNameSub>
+      )}
     </Styled.UserNameContainer>
   );
 };

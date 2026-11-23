@@ -93,7 +93,6 @@ const UsersListParticipantsPage: React.FC<UsersListParticipantsPage> = ({
                 open={user.userId === openUserAction}
                 setOpenUserAction={setOpenUserAction}
                 isBreakout={isBreakout}
-                type="participant"
               />
             </Styled.UserListItem>
           );
@@ -212,8 +211,11 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
       return users;
     }
 
-    const usersWithoutCurrent = users.filter((u: User) => u.userId !== currentUser?.userId);
-    const shouldPinCurrentUser = offset === 0 && !!currentUser;
+    // Raised hands have their own section, except in search results
+    const usersWithoutCurrent = users.filter((u: User) => (
+      u.userId !== currentUser?.userId && !u.raiseHand
+    ));
+    const shouldPinCurrentUser = offset === 0 && !!currentUser && !currentUser.raiseHand;
 
     return shouldPinCurrentUser
       ? [currentUser as User, ...usersWithoutCurrent]
@@ -239,7 +241,7 @@ const UserListParticipantsPageContainer: React.FC<UserListParticipantsContainerP
     return null;
   }
 
-  if (index === 0 && displayUsers.length === 0) {
+  if (index === 0 && users.length === 0) {
     return (
       <LocalStyled.EmptySearchMessage>
         {intl.formatMessage(intlMessages.noSearchResults)}

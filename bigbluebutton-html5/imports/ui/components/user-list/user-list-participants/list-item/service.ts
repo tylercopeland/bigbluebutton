@@ -141,7 +141,6 @@ export const generateActionsPermissions = (
   isBreakout: boolean,
   isChatEnabled: boolean,
   isPrivateChatEnabled: boolean,
-  type: string,
 ) => {
   const subjectUserVoice = subjectUser.voice;
   const subjectUserInAudio = subjectUserVoice?.joined && !subjectUserVoice?.deafened;
@@ -168,80 +167,68 @@ export const generateActionsPermissions = (
   const unlockedUserCondition = !userChatIsLocked
     && isPrivateChatEnabled && isChatEnabled && !isDialInUser;
   const allowedToChatPrivately = preventSelfChat
-    && (moderatorOverride || viewerToModeratorOverride || regularUserCondition || unlockedUserCondition)
-    && type === 'participant';
+    && (moderatorOverride || viewerToModeratorOverride || regularUserCondition || unlockedUserCondition);
 
   // Neither checks the mute state; the audio entry consults the one that applies.
   const allowedToMuteAudio = hasAuthority
     && subjectUserInAudio
     && !subjectUserVoice?.listenOnly
-    && !isSubjectUserBot
-    && (type === 'participant' || type === 'raised-hand');
+    && !isSubjectUserBot;
 
   const allowedToUnmuteAudio = hasAuthority
     && subjectUserInAudio
     && !subjectUserVoice?.listenOnly
     && (amISubjectUser || usersPolicies?.allowModsToUnmuteUsers)
-    && !lockSettings?.disableMic
-    && (type === 'participant' || type === 'raised-hand');
+    && !lockSettings?.disableMic;
 
   const allowedToChangeWhiteboardAccess = currentUserIsPresenter
       && !amISubjectUser && !subjectUser.presenter
       && !isSubjectUserBot
-      && !isDialInUser
-      && (type === 'participant' || type === 'raised-hand');
+      && !isDialInUser;
 
   const allowedToSetPresenter = (amIModerator || isBreakout)
       && !subjectUser.presenter
       && !isSubjectUserBot
-      && !isDialInUser
-      && (type === 'participant' || type === 'raised-hand');
+      && !isDialInUser;
 
   // if currentUser is a moderator, allow removing other users
   const allowedToRemove = amIModerator
-    && !amISubjectUser
-    && (type === 'participant' || type === 'raised-hand');
+    && !amISubjectUser;
 
   const allowedToPromote = amIModerator
     && !amISubjectUser
     && !isSubjectUserModerator
     && !isDialInUser
     && !isSubjectUserBot
-    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator)
-    && (type === 'participant' || type === 'raised-hand');
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
   const allowedToDemote = amIModerator
     && !amISubjectUser
     && isSubjectUserModerator
     && !isDialInUser
     && !isSubjectUserBot
-    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator)
-    && (type === 'participant' || type === 'raised-hand');
+    && !(isSubjectUserGuest && usersPolicies?.authenticatedGuest && !usersPolicies?.allowPromoteGuestToModerator);
 
   const allowedToChangeUserLockStatus = amIModerator
     && !isSubjectUserModerator
     && !isSubjectUserBot
-    && lockSettings?.hasActiveLockSetting
-    && (type === 'participant' || type === 'raised-hand');
+    && lockSettings?.hasActiveLockSetting;
 
   // Per-user public chat lock (as in 3.0): independent of the meeting-wide lock settings
   const allowedToLockPublicChat = isChatEnabled
     && amIModerator
     && !isSubjectUserModerator
     && !isDialInUser
-    && !isSubjectUserBot
-    && type === 'participant';
+    && !isSubjectUserBot;
 
   const allowedToEjectCameras = amIModerator
     && !amISubjectUser
     && usersPolicies?.allowModsToEjectCameras
-    && subjectUser.cameras.length > 0
-    && (type === 'participant' || type === 'raised-hand');
+    && subjectUser.cameras.length > 0;
 
   const allowedToLowerHand = subjectUser.raiseHand
     && (amIModerator
-    || amISubjectUser)
-    && type === 'raised-hand';
+    || amISubjectUser);
 
   return {
     allowedToChatPrivately,
@@ -426,6 +413,9 @@ export const createToolbarOptions = (
   };
 
   return {
+    // Absent while the user is out of audio. Takes the mute state, which the status
+    // column reads itself so that a mute change does not re-render the row.
+    resolveAudioOption: subjectUserInAudio ? getAudioStateOption : null,
     pinnedToolbarOptions: [
       {
         allowed: allowedToLowerHand,
@@ -453,7 +443,8 @@ export const createToolbarOptions = (
         icon: 'group_chat',
         dataTest: 'startPrivateChat',
       },
-      ...(subjectUserInAudio ? [{ key: 'audio', allowed: true, resolve: getAudioStateOption }] : []),
+    ],
+    otherToolbarOptions: [
       {
         allowed: allowedToChangeWhiteboardAccess && !!pageId,
         key: 'changeWhiteboardAccess',
@@ -466,8 +457,6 @@ export const createToolbarOptions = (
         icon: whiteboardAccess ? 'pen_tool' : 'pen_tool_off',
         dataTest: 'changeWhiteboardAccessUser',
       },
-    ],
-    otherToolbarOptions: [
       {
         allowed: allowedToSetPresenter,
         key: 'setPresenter',

@@ -1,42 +1,72 @@
 import styled from 'styled-components';
 import {
-  colorGrayIcons,
-  colorGrayUserListToolbar,
-  colorPrimary,
+  panelRowActionBg,
+  panelRowActionColor,
+  panelRowActionHoverBg,
+  panelRowHoverBg,
+  roomFocusRing,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const ToolbarContainer = styled.div`
-  border-radius: 1.5rem;
-  background-color: ${colorGrayUserListToolbar};
+// Floats over the end of the name until the row is hovered or focused, so names
+// get the full width. Without a hover-capable pointer it is always in the row.
+const ToolbarContainer = styled.div<{ $isOpen?: boolean }>`
   display: flex;
-  gap: 0.5rem;
-  padding: 0.25rem 1rem;
+  flex-shrink: 0;
   align-items: center;
+  gap: 4px;
+
+  @media (hover: hover) {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    inset-inline-end: 58px;
+    padding-inline: 8px;
+    background-color: ${panelRowHoverBg};
+    opacity: 0;
+    pointer-events: none;
+
+    ${({ $isOpen }) => $isOpen && `
+      opacity: 1;
+      pointer-events: auto;
+    `}
+  }
 `;
 
-const ToolbarItem = styled.div<{ disabled?: boolean, hasText?: boolean }>`
+const ToolbarButton = styled.button`
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: 0;
+  border-radius: 7px;
+  background-color: ${panelRowActionBg};
+  color: ${panelRowActionColor};
+  font-size: .85rem;
   cursor: pointer;
-  color: ${({ hasText }) => (hasText ? colorPrimary : colorGrayIcons)};
 
-  line-height: 1;
+  &:hover {
+    background-color: ${panelRowActionHoverBg};
+  }
 
-  ${({ disabled }) => disabled && `
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: 1px;
+  }
+
+  &:disabled {
     cursor: not-allowed;
-  `}
-`;
+  }
 
-const MoreItems = styled.div`
-  cursor: pointer;
-  color: ${colorGrayIcons};
-`;
-
-const Pipe = styled.span`
-  color: ${colorGrayIcons};
+  @media (hover: none) {
+    width: 32px;
+    height: 32px;
+  }
 `;
 
 export default {
   ToolbarContainer,
-  ToolbarItem,
-  MoreItems,
-  Pipe,
+  ToolbarButton,
 };

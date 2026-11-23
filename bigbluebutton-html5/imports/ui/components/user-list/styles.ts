@@ -7,6 +7,8 @@ import {
   colorGray,
   listItemBgHover,
   itemFocusBorder,
+  panelMutedText,
+  panelRaisedHandText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -34,21 +36,43 @@ const ScrollableSection = styled(ScrollboxVertical)`
   margin-top: 0;
 `;
 
-const SplitScrollContainer = styled.div`
+const SectionHeader = styled.div`
   display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  margin: ${mdPadding};
-  margin-top: 0;
-  overflow: hidden;
-  min-height: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 8px 4px;
 `;
 
-const ParticipantsScrollSection = styled(ScrollboxVertical)`
-  flex-grow: 1;
-  flex-shrink: 1;
-  min-height: 0;
-  padding-bottom: ${contentSidebarBottomScrollPadding};
+const SectionTitle = styled.h2<{ $isRaisedHands?: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: ${({ $isRaisedHands }) => ($isRaisedHands ? panelRaisedHandText : panelMutedText)};
+`;
+
+const SectionCount = styled.span`
+  font-weight: 600;
+  color: ${panelMutedText};
+`;
+
+const Everyone = styled.div`
+  &[hidden] {
+    display: none;
+  }
+`;
+
+const EmptyMessage = styled.div`
+  padding: 24px 8px;
+  text-align: center;
+  font-size: .9rem;
+  color: ${panelMutedText};
 `;
 
 const UserList = styled(FlexColumn)`
@@ -117,8 +141,11 @@ export default {
   PanelContent,
   Separator,
   ScrollableSection,
-  SplitScrollContainer,
-  ParticipantsScrollSection,
+  SectionHeader,
+  SectionTitle,
+  SectionCount,
+  Everyone,
+  EmptyMessage,
   UserList,
   SmallTitle,
   ListItem,

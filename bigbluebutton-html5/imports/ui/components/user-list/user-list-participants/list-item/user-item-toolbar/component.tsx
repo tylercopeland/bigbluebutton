@@ -2,13 +2,12 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import * as PluginSdk from 'bigbluebutton-html-plugin-sdk';
 import { UserListDropdownItemType } from 'bigbluebutton-html-plugin-sdk/dist/cjs/extensible-areas/user-list-dropdown-item/enums';
-import UserItemToolbarProps, { MuteStateToolbarEntry, ToolbarEntry } from './types';
+import UserItemToolbarProps, { ToolbarEntry } from './types';
 import Icon from '/imports/ui/components/common/icon/component';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import BBBMenu from '/imports/ui/components/common/menu/component';
-import useWhoIsUnmuted from '/imports/ui/core/hooks/useWhoIsUnmuted';
+import { MessageIcon, MoreIcon } from '../icons/component';
 import Styled from './styles';
-import { uniqueId } from '/imports/utils/string-utils';
 import makeDropdownPluginItem from './service';
 
 const intlMessages = defineMessages({
@@ -18,56 +17,22 @@ const intlMessages = defineMessages({
   },
 });
 
-const renderPinnedToolbarOption = (pinnedToolbarOption: Omit<ToolbarEntry, 'allowed'>) => {
-  const {
-    key,
-    onClick,
-    dataTest,
-    label,
-    icon,
-    disabled,
-  } = pinnedToolbarOption;
-
-  if (icon) {
-    return (
-      <Styled.ToolbarItem
-        key={key}
-        onClick={onClick}
-        data-test={dataTest}
-        disabled={disabled}
-      >
-        <Tooltip
-          title={label}
-        >
-          <Icon iconName={icon} />
-        </Tooltip>
-      </Styled.ToolbarItem>
-    );
-  }
-
-  return (
-    <Styled.ToolbarItem
-      key={key}
+const renderPinnedToolbarOption = ({
+  key, onClick, dataTest, label, icon, disabled,
+}: ToolbarEntry) => (
+  <Tooltip key={key} title={label}>
+    <Styled.ToolbarButton
+      type="button"
+      tabIndex={-1}
+      aria-label={label}
       onClick={onClick}
       data-test={dataTest}
       disabled={disabled}
-      hasText
     >
-      {label}
-    </Styled.ToolbarItem>
-  );
-};
-
-interface MuteStateToolbarItemProps {
-  userId: string;
-  resolve: MuteStateToolbarEntry['resolve'];
-}
-
-const MuteStateToolbarItem: React.FC<MuteStateToolbarItemProps> = ({ userId, resolve }) => {
-  const { data: isUnmuted } = useWhoIsUnmuted(userId);
-
-  return renderPinnedToolbarOption(resolve(!isUnmuted));
-};
+      {key === 'privateChat' ? <MessageIcon /> : <Icon iconName={icon} />}
+    </Styled.ToolbarButton>
+  </Tooltip>
+);
 
 const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
   subjectUser,
@@ -82,7 +47,6 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
     (item: PluginSdk.UserListDropdownInterface) => (subjectUser?.userId === item?.userId),
   );
   const renderOtherToolbarOptions = (
-    addSeparator: boolean,
     allowedOtherToolbarOptions: ToolbarEntry[],
     userDropdownItems: PluginSdk.UserListDropdownInterface[],
   ) => {
@@ -109,20 +73,22 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
       ].filter((action) => action.allowed);
       return (
         <>
-          {addSeparator && <Styled.Pipe key={uniqueId('separator-toolbar')}> | </Styled.Pipe>}
           <BBBMenu
             trigger={
               (
-                <Styled.MoreItems
-                  onClick={() => setOpenUserAction(subjectUser.userId)}
-                  data-test="moreOptionsUserItemButton"
-                >
-                  <Tooltip
-                    title={intl.formatMessage(intlMessages.more)}
+                <Tooltip title={intl.formatMessage(intlMessages.more)}>
+                  <Styled.ToolbarButton
+                    type="button"
+                    tabIndex={-1}
+                    aria-label={intl.formatMessage(intlMessages.more)}
+                    aria-haspopup="menu"
+                    aria-expanded={open}
+                    onClick={() => setOpenUserAction(subjectUser.userId)}
+                    data-test="moreOptionsUserItemButton"
                   >
-                    <Icon iconName="more" />
-                  </Tooltip>
-                </Styled.MoreItems>
+                    <MoreIcon />
+                  </Styled.ToolbarButton>
+                </Tooltip>
               )
             }
             actions={actions}
@@ -137,30 +103,19 @@ const UserItemToolbar: React.FC<UserItemToolbarProps> = ({
     return null;
   };
 
-  if (pinnedToolbarOptions.length === 0 && otherToolbarOptions.length === 0) return null;
-
   const onlyAllowedPinnedToolbarOptions = pinnedToolbarOptions.filter((pinnedToolbarOption) => (
     pinnedToolbarOption.allowed));
   const onlyAllowedOtherToolbarOptions = otherToolbarOptions.filter((otherToolbarOption) => (
     otherToolbarOption.allowed));
 
-  if (onlyAllowedPinnedToolbarOptions.length === 0 && onlyAllowedOtherToolbarOptions.length === 0) return null;
-  const addSeparator = onlyAllowedPinnedToolbarOptions.length > 0;
+  if (onlyAllowedPinnedToolbarOptions.length === 0
+    && onlyAllowedOtherToolbarOptions.length === 0
+    && userDropdownItems.length === 0) return null;
 
   return (
-    <Styled.ToolbarContainer>
-      {onlyAllowedPinnedToolbarOptions.map((allowedPinnedToolbarOption) => (
-        'resolve' in allowedPinnedToolbarOption
-          ? (
-            <MuteStateToolbarItem
-              key={allowedPinnedToolbarOption.key}
-              userId={subjectUser.userId}
-              resolve={allowedPinnedToolbarOption.resolve}
-            />
-          )
-          : renderPinnedToolbarOption(allowedPinnedToolbarOption)
-      ))}
-      {renderOtherToolbarOptions(addSeparator, onlyAllowedOtherToolbarOptions, userDropdownItems)}
+    <Styled.ToolbarContainer className="bbb-user-list-item__actions" $isOpen={open}>
+      {onlyAllowedPinnedToolbarOptions.map(renderPinnedToolbarOption)}
+      {renderOtherToolbarOptions(onlyAllowedOtherToolbarOptions, userDropdownItems)}
     </Styled.ToolbarContainer>
   );
 };

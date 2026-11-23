@@ -34,6 +34,7 @@ subscription UserListSubscription($offset: Int!, $limit: Int!, $where: user_bool
     avatar
     away
     raiseHand
+    raiseHandTime
     reactionEmoji
     avatar
     presenter
@@ -127,10 +128,19 @@ subscription RaisedHandUsers {
     ]) {
     meetingId
     userId
+    extId
     name
     color
+    avatar
+    away
+    reactionEmoji
     presenter
+    pinned
     isModerator
+    isDialIn
+    guest
+    mobile
+    bot
     raiseHand
     raiseHandTime
     whiteboardWriteAccess
@@ -138,6 +148,19 @@ subscription RaisedHandUsers {
       joined
       listenOnly
       deafened
+      listenOnlyInputDevice
+    }
+    cameras {
+      streamId
+    }
+    lastBreakoutRoom {
+      isDefaultName
+      sequence
+      shortName
+      isUserCurrentlyInRoom
+    }
+    userLockSettings {
+      disablePublicChat
     }
     locked
   }

@@ -28,7 +28,7 @@ export interface UserListItemProps {
   open: boolean;
   setOpenUserAction: React.Dispatch<React.SetStateAction<string | null>>;
   pageId: string;
-  type: 'raised-hand' | 'participant';
+  section?: 'raisedHands' | 'everyone';
 }
 
 export interface UserActionPermissions {

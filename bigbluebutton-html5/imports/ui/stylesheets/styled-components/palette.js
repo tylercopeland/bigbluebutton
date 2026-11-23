@@ -189,6 +189,14 @@ const panelStatusFaintColor = 'var(--panel-status-faint-color, #B3BCC8)';
 const panelCameraColor = 'var(--panel-camera-color, #6B7280)';
 const panelRaisedHandText = 'var(--panel-raised-hand-text, #9A5B00)';
 const panelChipActiveBg = 'var(--panel-chip-active-bg, #1F2933)';
+// Webcam tiles
+const webcamTileBorder = 'var(--webcam-tile-border, #22324A)';
+const webcamVideoBackground = 'var(--webcam-video-background, #2A3542)';
+const webcamLabelBg = 'var(--webcam-label-bg, rgba(4, 12, 24, 0.75))';
+const webcamRaisedHandBg = 'var(--webcam-raised-hand-bg, #F5A524)';
+const webcamRaisedHandColor = 'var(--webcam-raised-hand-color, #1F1300)';
+const webcamOverflowBorder = 'var(--webcam-overflow-border, #3A4D66)';
+
 // Controls over the slide
 const stageControlBorder = 'var(--stage-control-border, #E1E6EC)';
 const stageControlColor = 'var(--stage-control-color, #374151)';
@@ -244,6 +252,12 @@ export {
   panelTabColor,
   panelTabActiveColor,
   panelRaisedHandBadge,
+  webcamTileBorder,
+  webcamVideoBackground,
+  webcamLabelBg,
+  webcamRaisedHandBg,
+  webcamRaisedHandColor,
+  webcamOverflowBorder,
   stageControlBorder,
   stageControlColor,
   stageControlActiveBg,

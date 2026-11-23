@@ -20,6 +20,7 @@ import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import DropAreaContainer from './drop-areas/container';
 import VideoProviderContainer from '/imports/ui/components/video-provider/container';
 import VideoService from '/imports/ui/components/video-provider/service';
+import Session from '/imports/ui/services/storage/in-memory';
 import Storage from '/imports/ui/services/storage/session';
 import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
@@ -234,6 +235,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
     const dropAreaId = (e.target as HTMLDivElement).id;
 
     if (Object.values(CAMERADOCK_POSITION).includes(dropAreaId) && draggedAtLeastOneTime) {
+      Session.setItem('cameraDockWasMoved', true);
       const layout = document.getElementById('layout');
       layout?.setAttribute('data-cam-position', dropAreaId);
 

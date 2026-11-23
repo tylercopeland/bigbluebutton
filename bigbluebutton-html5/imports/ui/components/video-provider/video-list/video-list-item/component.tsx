@@ -17,6 +17,7 @@ import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import VideoService from '/imports/ui/components/video-provider/service';
 import Styled from './styles';
 import withDragAndDrop from './drag-and-drop/component';
+import { HandIcon } from '/imports/ui/components/user-list/user-list-participants/list-item/icons/component';
 import Auth from '/imports/ui/services/auth';
 import { User, VideoItem } from '/imports/ui/components/video-provider/types';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
@@ -407,7 +408,7 @@ const VideoListItem: React.FC<VideoListItemProps> = (props) => {
     return (
       <Styled.RaiseHand data-test="webcamItemRaisedHand">
         {raisedHandPosition > 0 && <Styled.RaiseHandNumber>{raisedHandPosition}</Styled.RaiseHandNumber>}
-        <Styled.RaiseHandEmoji>✋</Styled.RaiseHandEmoji>
+        <HandIcon />
       </Styled.RaiseHand>
     );
   };

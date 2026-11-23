@@ -14,11 +14,22 @@ const UserAvatarStyled = styled(UserAvatar)<{
   presenter: boolean;
   whiteboardAccess: boolean;
 }>`
-  height: 60%;
-  width: 45%;
-  max-width: 66px;
-  max-height: 66px;
-  scale: 1.5;
+  width: auto;
+  height: 40%;
+  min-height: 28px;
+  max-height: 96px;
+  border: 0;
+  container-type: size;
+  font-weight: 700;
+
+  /* The green tile border already shows who is talking */
+  &.bbb-avatar--talking > :first-child {
+    display: none;
+  }
+
+  > :last-child {
+    font-size: 38cqh;
+  }
 
   ${({ unhealthyStream }) => unhealthyStream && `
     filter: grayscale(50%) opacity(50%);

@@ -50,8 +50,9 @@ import { SETTINGS } from '/imports/ui/services/settings/enums';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
 import ConnectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
-import { layoutSelect } from '/imports/ui/components/layout/context';
-import { Layout } from '/imports/ui/components/layout/layoutTypes';
+import { layoutSelect, layoutSelectInput } from '/imports/ui/components/layout/context';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
+import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import { LAYOUT_TYPE } from '/imports/ui/components/layout/enums';
 import createUseSubscription, { useCreateUseSubscription } from '/imports/ui/core/hooks/createUseSubscription';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
@@ -561,8 +562,21 @@ export const useCurrentVideoPageIndex = () => {
   return currentVideoPageIndex;
 };
 
+// Next to the presentation, the dock also shows people without a camera, up to
+// a few tiles. It only appears once someone shares a camera.
+const CAMERA_STRIP_SIZE = 5;
+
+const useIsCameraStrip = () => {
+  const isNavigationDocked = useIsNavigationDocked();
+  const numCameras = layoutSelectInput((i: Input) => i.cameraDock.numCameras);
+  const isPresentationOpen = layoutSelectInput((i: Input) => i.presentation.isOpen);
+
+  return isNavigationDocked && isPresentationOpen && numCameras > 0;
+};
+
 export const useGridSize = () => {
   let size;
+  const isCameraStrip = useIsCameraStrip();
   const myRole = useMyRole();
   const ROLE_MODERATOR = videoService.getRoleModerator();
   const ROLE_VIEWER = videoService.getRoleViewer();
@@ -584,14 +598,15 @@ export const useGridSize = () => {
       size = gridSizes.viewer;
   }
 
-  return size;
+  return isCameraStrip ? Math.min(size, CAMERA_STRIP_SIZE) : size;
 };
 
 export const useIsGridEnabled = () => {
   const isGridLayout = useStorageKey('isGridEnabled');
+  const isCameraStrip = useIsCameraStrip();
   const isWebcamGridEnabled = useIsWebcamGridEnabled();
 
-  return !!isGridLayout && isWebcamGridEnabled;
+  return (!!isGridLayout || isCameraStrip) && isWebcamGridEnabled;
 };
 
 export const useAudioOnlyUsers = (): AudioOnlyStream[] => {

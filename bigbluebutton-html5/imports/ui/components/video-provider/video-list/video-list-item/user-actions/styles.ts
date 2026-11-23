@@ -1,25 +1,28 @@
 // @ts-nocheck
 /* eslint-disable */
 import styled from 'styled-components';
-import { colorOffWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorOffWhite, webcamLabelBg } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmaller } from '/imports/ui/stylesheets/styled-components/typography';
 import Button from '/imports/ui/components/common/button/component';
 import { TextElipsis, DivElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { landscape, mediumUp } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
+// The caret only shows on hover or focus
 const DropdownTrigger = styled(DivElipsis)<{
   $isRTL: boolean;
 }>`
   user-select: none;
   position: relative;
   // Keep the background with 0.5 opacity, but leave the text with 1
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
+  background-color: ${webcamLabelBg};
+  border-radius: 5px;
   color: ${colorOffWhite};
   padding: 0 1rem 0 .5rem !important;
-  font-size: 80%;
+  font-size: .72rem;
+  font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
+  unicode-bidi: plaintext;
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -35,6 +38,19 @@ const DropdownTrigger = styled(DivElipsis)<{
     width: 0;
     line-height: 0;
     right: .45rem;
+    opacity: 0;
+  }
+
+  &:hover::after,
+  &:focus-visible::after,
+  .bbb-webcam:hover &::after {
+    opacity: 1;
+  }
+
+  @media (hover: none) {
+    &::after {
+      opacity: 1;
+    }
   }
 `;
 
@@ -45,7 +61,8 @@ const UserName = styled(TextElipsis)<{
   // Keep the background with 0.5 opacity, but leave the text with 1
   color: ${colorOffWhite};
   padding: 0 1rem 0 .5rem !important;
-  font-size: 80%;
+  font-size: .72rem;
+  font-weight: 600;
 
   ${({ $noMenu }) => $noMenu && `
     padding: 0 .5rem 0 .5rem !important;
@@ -57,8 +74,8 @@ const Dropdown = styled.div<{
 }>`
   display: flex;
   outline: none !important;
-  background-color: rgba(0, 0, 0, 0.5);
-  border-radius: 10px;
+  background-color: ${webcamLabelBg};
+  border-radius: 5px;
   display: inline-block;
 
   @media ${mediumUp} {
@@ -80,7 +97,8 @@ const Dropdown = styled.div<{
 `;
 
 const MenuWrapper = styled.div`
-  max-width: 60%;
+  min-width: 0;
+  max-width: 75%;
 `;
 
 const MenuWrapperSqueezed = styled.div`

@@ -167,8 +167,8 @@ const PresentationContainer = styled.div`
     .tlui-layout__bottom,
     .tlui-toolbar__extras,
     #WhiteboardOptionButton {
-      opacity: 0;
-      transition: opacity .15s ease;
+      opacity: 0 !important;
+      transition: opacity .15s ease !important;
     }
 
     &:hover,
@@ -179,7 +179,7 @@ const PresentationContainer = styled.div`
       .tlui-layout__bottom,
       .tlui-toolbar__extras,
       #WhiteboardOptionButton {
-        opacity: 1;
+        opacity: 1 !important;
       }
     }
 

@@ -104,12 +104,12 @@ const VideoList = styled.div`
   display: grid;
 
   grid-auto-flow: dense;
-  grid-gap: 1px;
+  grid-gap: 4px;
 
   justify-content: center;
 
   @media ${mediumUp} {
-    grid-gap: 2px;
+    grid-gap: 8px;
   }
 `;
 

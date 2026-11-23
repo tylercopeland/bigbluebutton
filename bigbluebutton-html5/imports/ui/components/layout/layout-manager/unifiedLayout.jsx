@@ -304,9 +304,39 @@ const UnifiedLayout = (props) => {
     && !isMediaContentOff();
 
   // CONTENT_RIGHT mirrors under RTL, as every other camera position does.
-  const getCameraDockPosition = () => (isSideBySideCamerasEnforced()
-    ? CAMERADOCK_POSITION.CONTENT_RIGHT
-    : cameraDockInput.position);
+  const isCameraDockUnmoved = () => isNavigationDocked
+    && cameraDockInput.position === CAMERADOCK_POSITION.CONTENT_TOP
+    && !Session.getItem('cameraDockWasMoved');
+
+  const hasAutomaticCameraPosition = () => isCameraDockUnmoved()
+    && presentationInput.isOpen
+    && !isMediaContentOff();
+
+  // Until the dock is moved, it goes wherever it leaves the larger slide.
+  const isSideLargerThanTop = () => {
+    const {
+      calculatesSidebarNavWidth, calculatesSidebarContentWidth, calculatesMediaAreaBounds,
+    } = props;
+    const { cameraDockMinHeight, cameraDockDockedWidth, camerasMargin } = DEFAULT_VALUES;
+    const { width, height } = calculatesMediaAreaBounds(
+      calculatesSidebarNavWidth().horizontalSpaceOccupied,
+      calculatesSidebarContentWidth().width + calculatesSidebarContentWidth(true).width,
+    );
+    const { size } = presentationInput.currentSlide;
+    const ratio = size?.width && size?.height ? size.width / size.height : 16 / 9;
+    const slideWidth = (w, h) => min(w, h * ratio);
+
+    return slideWidth(width - cameraDockDockedWidth - camerasMargin * 2, height)
+      > slideWidth(width, height - cameraDockMinHeight - camerasMargin);
+  };
+
+  const getCameraDockPosition = () => {
+    if (isSideBySideCamerasEnforced()) return CAMERADOCK_POSITION.CONTENT_RIGHT;
+    if (hasAutomaticCameraPosition() && isSideLargerThanTop()) {
+      return CAMERADOCK_POSITION.CONTENT_RIGHT;
+    }
+    return cameraDockInput.position;
+  };
 
   const calculatesSidebarContentHeight = (cameraDockHeight) => {
     const { isOpen } = presentationInput;
@@ -352,6 +382,7 @@ const UnifiedLayout = (props) => {
       camerasMargin,
       cameraDockMinHeight,
       cameraDockMinWidth,
+      cameraDockDockedWidth,
       phoneLandscapeCameraWidthPercentage,
       presentationToolbarMinWidth,
       sidebarContentMinHeight,
@@ -400,7 +431,7 @@ const UnifiedLayout = (props) => {
     if (isCameraTop || isCameraBottom) {
       if ((lastHeight === 0 && !isResizing) || (isCameraTop && isMobile)) {
         cameraDockHeight = min(
-          max(mediaAreaBounds.height * 0.2, cameraDockMinHeight),
+          max(isNavigationDocked ? 0 : mediaAreaBounds.height * 0.2, cameraDockMinHeight),
           mediaAreaBounds.height - cameraDockMinHeight,
         );
       } else {
@@ -440,7 +471,10 @@ const UnifiedLayout = (props) => {
         );
       } else if (lastWidth === 0 && !isResizing) {
         cameraDockWidth = min(
-          max(mediaAreaBounds.width * 0.2, cameraDockMinWidth),
+          max(
+            isNavigationDocked ? cameraDockDockedWidth : mediaAreaBounds.width * 0.2,
+            cameraDockMinWidth,
+          ),
           mediaAreaBounds.width - cameraDockMinWidth,
         );
       } else {
@@ -838,23 +872,23 @@ const UnifiedLayout = (props) => {
         resizableEdge: {
           top:
           canResizeCameraDock
-            && (input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_BOTTOM
-            || (input.cameraDock.position === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
+            && (cameraPosition === CAMERADOCK_POSITION.CONTENT_BOTTOM
+            || (cameraPosition === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM
             && input.sidebarContent.isOpen)),
           right:
             canResizeCameraDock
-            && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)
-            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)),
+            && ((!isRTL && cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT)
+            || (isRTL && cameraPosition === CAMERADOCK_POSITION.CONTENT_RIGHT)),
           bottom: canResizeCameraDock
-            && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_TOP,
+            && cameraPosition === CAMERADOCK_POSITION.CONTENT_TOP,
           left:
           canResizeCameraDock
-            && ((!isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_RIGHT)
-            || (isRTL && input.cameraDock.position === CAMERADOCK_POSITION.CONTENT_LEFT)),
+            && ((!isRTL && cameraPosition === CAMERADOCK_POSITION.CONTENT_RIGHT)
+            || (isRTL && cameraPosition === CAMERADOCK_POSITION.CONTENT_LEFT)),
         },
         zIndex: cameraDockBounds.zIndex,
         focusedId: input.cameraDock.focusedId,
-        isLocalOnly: isPhoneLandscape(input.browser),
+        isLocalOnly: isPhoneLandscape(input.browser) || isCameraDockUnmoved(),
       },
     });
 

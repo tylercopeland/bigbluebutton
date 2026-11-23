@@ -2,13 +2,14 @@
 /* eslint-disable */
 import styled, { keyframes, css } from 'styled-components';
 import {
-  colorPrimary,
-  colorBlack,
   colorWhite,
   webcamBackgroundColor,
   colorDanger,
-  webcamPlaceholderBorder,
-  webcamTalkingBackgroundColor,
+  roomLive,
+  webcamTileBorder,
+  webcamVideoBackground,
+  webcamRaisedHandBg,
+  webcamRaisedHandColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { TextElipsis } from '/imports/ui/stylesheets/styled-components/placeholders';
 import { UserCameraButtonsContainerWrapperProps } from './types'
@@ -52,15 +53,11 @@ const Content = styled.div<{
     bottom: 0;
     left: 0;
     pointer-events: none;
-    border: 2px solid ${colorBlack};
+    border: 1px solid ${webcamTileBorder};
     border-radius: 10px;
 
-    ${({ isStream }) => !isStream && `
-      border: 2px solid ${webcamPlaceholderBorder};
-    `}
-
     ${({ talking }) => talking && `
-      border: 2px solid ${colorPrimary};
+      border: 2px solid ${roomLive};
     `}
 
     ${({ talking, customHighlight }) => talking && customHighlight && customHighlight.length > 0 && `
@@ -113,10 +110,6 @@ const WebcamConnecting = styled.div<{
   background-color: ${webcamBackgroundColor};
   z-index: 0;
 
-  ${({ talking }) => talking && `
-    background-color: ${webcamTalkingBackgroundColor};
-  `}
-
   ${({ talking, customHighlight }) => talking && customHighlight && customHighlight.length > 0 && `
     background-color: rgba(${customHighlight[0]}, ${customHighlight[1]}, ${customHighlight[2]}, 0.15);
   `}
@@ -161,7 +154,7 @@ const Video = styled.video<{
   height: 100%;
   width: calc(100% - 1px);
   object-fit: contain;
-  background-color: ${colorBlack};
+  background-color: ${webcamVideoBackground};
   border-radius: 10px;
 
   ${({ mirrored }) => mirrored && `
@@ -199,8 +192,8 @@ const TopBar = styled.div`
   width: 100%;
   z-index: 1;
   top: 0;
-  padding: 5px;
-  justify-content: flex-start;
+  padding: 6px;
+  justify-content: space-between;
   gap: 4px;
 `;
 
@@ -210,8 +203,10 @@ const BottomBar = styled.div`
   width: 100%;
   z-index: 1;
   bottom: 0;
-  padding: 1px 7px;
+  padding: 0 6px 6px;
+  align-items: flex-end;
   justify-content: space-between;
+  gap: 6px;
 `;
 
 const SqueezedName = styled(TextElipsis)`
@@ -224,33 +219,25 @@ const SqueezedName = styled(TextElipsis)`
 `;
 
 const RaiseHand = styled.div`
-  position: relative;
-  display: inline-block;
-`;
-
-const RaiseHandNumber = styled.div`
-  position: absolute;
-  top: 14px;
-  left: 45%;
-  transform: translateX(-50%);
-  font-size: 15px;
-  font-weight: 700;
-  color: white;
-  background-color: rgba(0, 0, 0, 0.55);
-  border-radius: 50%;
-  width: 16px;
-  height: 16px;
-  display: flex;
+  display: inline-flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  line-height: 1;
-  z-index: 1;
+  gap: 3px;
+  min-width: 24px;
+  height: 24px;
+  box-sizing: border-box;
+  margin-inline-start: auto;
+  padding: 0 5px;
+  border-radius: 12px;
+  background-color: ${webcamRaisedHandBg};
+  color: ${webcamRaisedHandColor};
 `;
 
-const RaiseHandEmoji = styled.div`
-  font-size: 32px;
+const RaiseHandNumber = styled.span`
+  font-size: 11px;
+  font-weight: 700;
   line-height: 1;
-  display: block;
 `;
 
 const UserCameraButtonsContainerWrapper = styled.div<UserCameraButtonsContainerWrapperProps>`
@@ -288,5 +275,4 @@ export default {
   VideoDisabled,
   RaiseHand,
   RaiseHandNumber,
-  RaiseHandEmoji,
 };

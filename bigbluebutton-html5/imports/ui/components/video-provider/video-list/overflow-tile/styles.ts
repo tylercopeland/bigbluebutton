@@ -1,118 +1,38 @@
 import styled from 'styled-components';
 import {
   colorWhite,
-  webcamBackgroundColor,
-  webcamPlaceholderBorder,
+  roomControlBg,
+  roomFocusRing,
+  webcamOverflowBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  avatarBorderRadius,
-  moderatorAvatarBorderRadius,
-} from '/imports/ui/stylesheets/styled-components/general';
 
-const OverflowTileContainer = styled.div<{ isClickable: boolean }>`
-  position: relative;
+const OverflowTile = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   height: 100%;
   min-width: 100%;
-  background-color: ${webcamBackgroundColor};
+  padding: 4px;
+  border: 1px dashed ${webcamOverflowBorder};
   border-radius: 10px;
-  cursor: ${({ isClickable }) => (isClickable ? 'pointer' : 'default')};
-  transition: opacity 0.2s ease;
+  background-color: transparent;
+  color: ${colorWhite};
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
 
-  ${({ isClickable }) => isClickable && `
-    &:hover {
-      opacity: 0.8;
-    }
-  `}
+  &:hover {
+    background-color: ${roomControlBg};
+  }
 
-  &::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    pointer-events: none;
-    border: 2px solid ${webcamPlaceholderBorder};
-    border-radius: 10px;
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: -3px;
   }
 `;
 
-const OverflowTileContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  z-index: 1;
-  gap: 0.75rem;
-`;
-
-const AvatarsContainer = styled.div<{ $count: number }>`
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 60px;
-  width: ${({ $count }) => {
-    if ($count === 1) return '50px';
-    if ($count === 2) return '78px';
-    return '106px';
-  }};
-`;
-
-const AvatarWrapper = styled.div<{ $index: number }>`
-  position: absolute;
-  left: ${({ $index }) => $index * 28}px;
-  z-index: ${({ $index }) => 3 - $index};
-`;
-
-const Avatar = styled.div<{ $color: string; $avatar?: string; $moderator?: boolean }>`
-  width: 50px;
-  height: 50px;
-  border-radius: ${({ $moderator }) => ($moderator ? moderatorAvatarBorderRadius : avatarBorderRadius)};
-  background-color: ${({ $color }) => $color};
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid ${webcamBackgroundColor};
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  overflow: hidden;
-
-  ${({ $avatar }) => $avatar && `
-    background-image: url(${$avatar});
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-  `}
-`;
-
-const AvatarInitials = styled.span`
-  font-size: 1rem;
-  font-weight: 600;
-  color: ${colorWhite};
-  user-select: none;
-  text-transform: capitalize;
-`;
-
-const OverflowText = styled.div`
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: ${colorWhite};
-  text-align: center;
-  user-select: none;
-`;
-
 export default {
-  OverflowTileContainer,
-  OverflowTileContent,
-  AvatarsContainer,
-  AvatarWrapper,
-  Avatar,
-  AvatarInitials,
-  OverflowText,
+  OverflowTile,
 };

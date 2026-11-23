@@ -1,37 +1,33 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from './styles';
-import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
-import { Input } from '/imports/ui/components/layout/layoutTypes';
+import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { PANELS, ACTIONS } from '/imports/ui/components/layout/enums';
-import { GridItem } from '/imports/ui/components/video-provider/types';
 
 interface OverflowTileProps {
   overflowCount: number;
-  overflowUsers: GridItem[];
 }
 
 const intlMessages = defineMessages({
-  overflowUsers: {
-    id: 'app.video.overflowUsers',
-    description: 'display +overflowCount users label',
+  more: {
+    id: 'app.video.overflowMore',
+    description: 'Number of people who do not fit next to the presentation',
+    defaultMessage: '+{count} more',
+  },
+  showPeople: {
+    id: 'app.video.overflowShowPeople',
+    description: 'Accessible label for the tile that opens the people list',
+    defaultMessage: '+{count} more, show people',
   },
 });
 
-const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount, overflowUsers }) => {
+const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount }) => {
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
-
-  const sidebarNavigation = layoutSelectInput((i: Input) => i.sidebarNavigation);
-
-  const isUserListPanelOpen = sidebarNavigation.isOpen
-    && sidebarNavigation.sidebarNavPanel === PANELS.USERLIST;
 
   if (overflowCount <= 0) return null;
 
   const handleOpenUserList = () => {
-    if (isUserListPanelOpen) return;
-
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
       value: true,
@@ -47,31 +43,13 @@ const OverflowTile: React.FC<OverflowTileProps> = ({ overflowCount, overflowUser
   };
 
   return (
-    <Styled.OverflowTileContainer
-      isClickable={!isUserListPanelOpen}
-      onClick={() => handleOpenUserList()}
+    <Styled.OverflowTile
+      type="button"
+      aria-label={intl.formatMessage(intlMessages.showPeople, { count: overflowCount })}
+      onClick={handleOpenUserList}
     >
-      <Styled.OverflowTileContent>
-        {overflowUsers.length > 0 && (
-          <Styled.AvatarsContainer $count={overflowUsers.length}>
-            {overflowUsers.map((user, index) => (
-              <Styled.AvatarWrapper key={user.userId} $index={index}>
-                <Styled.Avatar $color={user.color} $avatar={user.avatar} $moderator={user.isModerator}>
-                  {!user.avatar && (
-                    <Styled.AvatarInitials>
-                      {user.name.toLowerCase().slice(0, 2)}
-                    </Styled.AvatarInitials>
-                  )}
-                </Styled.Avatar>
-              </Styled.AvatarWrapper>
-            ))}
-          </Styled.AvatarsContainer>
-        )}
-        <Styled.OverflowText>
-          {intl.formatMessage(intlMessages.overflowUsers, { overflowCount })}
-        </Styled.OverflowText>
-      </Styled.OverflowTileContent>
-    </Styled.OverflowTileContainer>
+      <bdi>{intl.formatMessage(intlMessages.more, { count: overflowCount })}</bdi>
+    </Styled.OverflowTile>
   );
 };
 

@@ -14,7 +14,7 @@ import VideoService from '/imports/ui/components/video-provider/service';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
-import { GridItem, VideoItem } from '/imports/ui/components/video-provider/types';
+import { VideoItem } from '/imports/ui/components/video-provider/types';
 import { VIDEO_TYPES } from '/imports/ui/components/video-provider/enums';
 import { UserCameraHelperAreas } from '../../plugins-engine/extensible-areas/components/user-camera-helper/types';
 
@@ -73,7 +73,7 @@ const findOptimalGrid = (
   };
 };
 
-const ASPECT_RATIO = 4 / 3;
+const ASPECT_RATIO = 16 / 9;
 const MOBILE_MAX_DOTS = 10;
 const MOBILE_SWIPE_THRESHOLD = 50;
 const MOBILE_PAGE_ANIM_MS = 220;
@@ -92,7 +92,6 @@ interface VideoListProps {
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
   overflowCount: number;
-  overflowUsers: GridItem[];
   streams: VideoItem[];
   intl: IntlShape;
   setUserCamerasRequestedFromPlugin: React.Dispatch<React.SetStateAction<UpdatedDataForUserCameraDomElement[]>>;
@@ -509,7 +508,6 @@ class VideoList extends Component<VideoListProps, VideoListState> {
       pluginUserCameraHelperPerPosition,
       isGridEnabled,
       overflowCount,
-      overflowUsers,
       raisedHandPositions,
     } = this.props;
     const numOfStreams = streams.filter(
@@ -583,7 +581,7 @@ class VideoList extends Component<VideoListProps, VideoListState> {
           data-test="overflowTile"
           data-overflow-count={overflowCount}
         >
-          <OverflowTile overflowCount={overflowCount} overflowUsers={overflowUsers} />
+          <OverflowTile overflowCount={overflowCount} />
         </Styled.VideoListItem>,
       );
     }

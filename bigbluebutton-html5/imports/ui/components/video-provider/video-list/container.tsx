@@ -33,6 +33,8 @@ interface VideoListContainerProps {
   handleVideoFocus: (id: string) => void;
   isGridEnabled: boolean;
   overflowCount: number;
+  // Passed by the camera bridges; the tile only shows the count
+  // eslint-disable-next-line react/no-unused-prop-types
   overflowUsers: GridItem[];
   onVideoItemMount: (stream: string, video: HTMLVideoElement) => void;
   onVideoItemUnmount: (stream: string) => void;
@@ -57,7 +59,6 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
     handleVideoFocus,
     isGridEnabled,
     overflowCount,
-    overflowUsers,
     onVideoItemMount,
     onVideoItemUnmount,
     onVirtualBgDrop,
@@ -156,7 +157,6 @@ const VideoListContainer: React.FC<VideoListContainerProps> = (props) => {
           handleVideoFocus={handleVideoFocus}
           isGridEnabled={isGridEnabled}
           overflowCount={overflowCount}
-          overflowUsers={overflowUsers}
           streams={streams}
           onVideoItemMount={onVideoItemMount}
           onVideoItemUnmount={onVideoItemUnmount}

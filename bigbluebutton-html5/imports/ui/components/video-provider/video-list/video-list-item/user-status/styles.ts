@@ -1,35 +1,32 @@
 // @ts-nocheck
 /* eslint-disable */
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import Icon from '/imports/ui/components/common/icon/component';
-import { colorDanger, colorSuccess, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import { roomLive, roomMutedText, webcamLabelBg } from '/imports/ui/stylesheets/styled-components/palette';
 
-const Voice = styled(Icon)`
-  height: 1.1rem;
-  width: 1.1rem;
-  margin-left: 0.5rem;
-  color: ${colorWhite};
-  border-radius: 50%;
+const badge = css`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 1.25rem;
+  width: 1.25rem;
+  border-radius: 5px;
+  margin-inline-start: 4px;
+  background-color: ${webcamLabelBg};
 
   &::before {
-    font-size: 80%;
+    font-size: 75%;
   }
+`;
 
-  background-color: ${colorSuccess};
+const Voice = styled(Icon)`
+  ${badge}
+  color: ${roomLive};
 `;
 
 const Muted = styled(Icon)`
-  height: 1.1rem;
-  width: 1.1rem;
-  color: ${colorWhite};
-  border-radius: 50%;
-  margin-left: 0.5rem;
-
-  &::before {
-    font-size: 80%;
-  }
-
-  background-color: ${colorDanger};
+  ${badge}
+  color: ${roomMutedText};
 `;
 
 export default {

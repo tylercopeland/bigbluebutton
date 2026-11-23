@@ -45,7 +45,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Other panels (Notes, Apps, Profile, Poll, Timer) keep BBB's header
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
-- [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders and slide controls) are English only
+- [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls and webcam overflow) are English only
 - [ ] Chat input placeholder was translated in BBB and is now English only
 - [x] Share media menu opens above its button
 - [ ] Share media menu keeps BBB's layout (design: previews above a row of media types)
@@ -60,12 +60,20 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Phones, touch devices, small and portrait slides keep BBB's toolbars (design: pager under the slide, annotate mode)
 - [ ] Minimized presentation does not become a tile in the webcam grid
 - [ ] Dark mode: white divider lines in the whiteboard tools
-- [ ] Webcams default to the top; design puts them on the right when no panel is open
-- [ ] Webcam tile styling and "+N more" tile not built
+- [x] Webcams go on the top or the right, wherever the slide ends up larger, until someone moves them
+- [x] Webcam tiles restyled, with initials for people without a camera and a "+N more" tile
+- [ ] Webcams: the strip only appears once someone shares a camera (design: always)
+- [ ] Webcams: people without a camera are listed by name, not by speaker or raised hand
+- [ ] Webcams: more than five cameras all show; only people without a camera are capped
+- [ ] Webcams: keeps mute badges, presenter badge and full names; strip is 120px tall (design: 95px)
+- [ ] Webcams: 4:3 cameras show bars at the sides of the widescreen tiles
+- [ ] Webcams: "+N more" keeps the full tile size at the side (design: short bar)
+- [ ] Phones: BBB's webcam placement, with the new tile look
 
 ## Not yet tested
 - [ ] People list: large meetings (over 50 people), guests waiting, locked viewers, listen-only, plugins
 - [ ] BBB's own Playwright tests still expect the old people list, chat buttons and slide toolbar
 - [ ] Chat: direct messages on phone, locked chat, offline participants, pinned messages, polls, plugins, chat in the second panel
 - [ ] Slide controls: infinite whiteboard, long decks in All slides, plugin toolbar items, screen magnifiers
-- [ ] Active recording, webcam tiles, real screen sharing, breakout rooms, production build
+- [ ] Webcams: more than 8 people, pinning, focus, virtual backgrounds, plugins, locked webcams, LiveKit, screen share with webcams, dark mode
+- [ ] Active recording, real screen sharing, breakout rooms, production build

@@ -20,6 +20,14 @@ import {
   colorOffWhite,
   colorGrayUserListToolbar,
   appsPanelTextColor,
+  colorWhite,
+  panelBorder,
+  panelMutedText,
+  panelRowActionColor,
+  panelRowHoverBg,
+  panelText,
+  stageControlActiveBg,
+  stageControlBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 const UploadIcon = styled(BackupIcon)`
@@ -203,7 +211,171 @@ const PresentationItemName = styled.div`
   font-weight: ${textFontWeight};
 `;
 
+// Share media tray: the upload tile and the presentations share one grid
+const TrayGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+`;
+
+const TrayDropzone = styled(Dropzone)`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  min-height: 136px;
+  padding: 6px;
+  box-sizing: border-box;
+  border: 1.5px dashed ${panelBorder};
+  border-radius: 12px;
+  background-color: ${colorWhite};
+  color: ${panelRowActionColor};
+  text-align: center;
+  cursor: pointer;
+
+  &:hover,
+  &.dropzoneActive {
+    background-color: ${panelRowHoverBg};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 1px;
+  }
+`;
+
+const TrayDropzoneTitle = styled.span`
+  font-size: .85rem;
+  font-weight: 700;
+`;
+
+const TrayDropzoneHint = styled.span`
+  color: ${panelMutedText};
+  font-size: .72rem;
+`;
+
+const TrayItem = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+  padding: 6px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background-color: ${panelRowHoverBg};
+  box-shadow: inset 0 0 0 1px ${stageControlBorder};
+
+  ${({ $selected }) => $selected && `
+    background-color: ${stageControlActiveBg};
+    box-shadow: inset 0 0 0 2.5px ${colorPrimary};
+  `}
+`;
+
+const TrayThumbnail = styled.button`
+  display: block;
+  width: 100%;
+  height: 98px;
+  padding: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  border: 1px solid ${stageControlBorder};
+  border-radius: 7px;
+  background-color: ${colorWhite};
+  cursor: pointer;
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 1px;
+  }
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+`;
+
+const TrayItemFooter = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 24px;
+
+  /* The bar this tray opens from gives its buttons a round dark box */
+  && button,
+  &&& .buttonWrapper > .bbb-button__icon.bbb-button__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+    box-shadow: none !important;
+    color: ${panelRowActionColor} !important;
+    filter: none !important;
+  }
+
+  && button i {
+    margin: 0;
+    color: inherit;
+    font-size: 1rem;
+  }
+
+  && button:focus-visible {
+    outline: 2px solid ${colorPrimary} !important;
+  }
+`;
+
+const TrayItemName = styled.span`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: ${panelText};
+  font-size: .78rem;
+  font-weight: 700;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const TrayCheck = styled.span`
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-start-start-radius: 12px;
+  border-end-end-radius: 10px;
+  background-color: ${colorPrimary};
+  color: ${colorWhite};
+  pointer-events: none;
+
+  svg {
+    width: 13px;
+    height: 13px;
+    stroke-width: 3;
+  }
+`;
+
 export default {
+  TrayGrid,
+  TrayDropzone,
+  TrayDropzoneTitle,
+  TrayDropzoneHint,
+  TrayItem,
+  TrayThumbnail,
+  TrayItemFooter,
+  TrayItemName,
+  TrayCheck,
   PresentationsContainer,
   PresentationItemContainer,
   PresentationThumbnail,

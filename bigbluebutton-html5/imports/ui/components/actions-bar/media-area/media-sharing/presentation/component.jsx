@@ -12,6 +12,7 @@ import PresentationDownloadDropdown from './presentation-download-dropdown/compo
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Session from '/imports/ui/services/storage/in-memory';
 import Auth from '/imports/ui/services/auth';
+import { AddIcon, CheckIcon } from '../media-tabs/icons';
 import ModalStyled from '../styles';
 
 const { isMobile } = deviceInfo;
@@ -34,6 +35,8 @@ const propTypes = {
     current: PropTypes.bool.isRequired,
   })).isRequired,
   currentPresentation: PropTypes.string.isRequired,
+  // Compact look for the Share media tray
+  isTray: PropTypes.bool,
   handleFiledrop: PropTypes.func.isRequired,
   isPresenter: PropTypes.bool.isRequired,
   exportPresentation: PropTypes.func.isRequired,
@@ -48,6 +51,7 @@ const propTypes = {
 };
 
 const defaultProps = {
+  isTray: false,
   externalUploadData: {},
 };
 
@@ -123,6 +127,21 @@ const intlMessages = defineMessages({
   exporting: {
     id: 'app.presentationUploader.exporting',
     description: 'presentation is being sent to chat',
+  },
+  addSlides: {
+    id: 'app.mediaSharing.tray.addSlides',
+    description: 'Label of the tile that uploads a presentation',
+    defaultMessage: 'Add slides',
+  },
+  addSlidesHint: {
+    id: 'app.mediaSharing.tray.addSlidesHint',
+    description: 'Kinds of files that can be uploaded as a presentation',
+    defaultMessage: 'PDF, Office files or images',
+  },
+  present: {
+    id: 'app.mediaSharing.tray.present',
+    description: 'Label of the tile that starts presenting a file',
+    defaultMessage: 'Present {name}',
   },
   shareLabel: {
     id: 'app.mediaSharing.modal.share',
@@ -487,6 +506,7 @@ class PresentationUploader extends Component {
     const { presentations } = this.state;
     const {
       currentPresentation: currentPresentationId,
+      isTray,
     } = this.props; // Added currentPresentationId
 
     let presentationsSorted = [];
@@ -523,6 +543,11 @@ class PresentationUploader extends Component {
       presentationsSorted = presentations;
     }
 
+    if (isTray) {
+      return unique(presentationsSorted, (p) => p.presentationId)
+        .map((item) => this.renderPresentationItem(item));
+    }
+
     return (
       <Styled.PresentationsContainer>
         {unique(presentationsSorted, (p) => p.presentationId)
@@ -541,6 +566,8 @@ class PresentationUploader extends Component {
       allowDownloadConverted,
       allowDownloadWithAnnotations,
       onActionCompleted,
+      isTray,
+      setPresentation,
     } = this.props;
 
     const isVisuallySelected = activeThumbnailId
@@ -577,6 +604,69 @@ class PresentationUploader extends Component {
     // only render the item if it has finished processing and has a thumbnail URL
     if (isProcessing || !firstPageThumbnailUrl) return null;
 
+    const options = (
+      <>
+        {allowDownloadOriginal || allowDownloadWithAnnotations || allowDownloadConverted ? (
+          <PresentationDownloadDropdown
+            disabled={disableExportDropdown}
+            data-test="exportPresentation"
+            aria-label={formattedDownloadAriaLabel}
+            color="primary"
+            isDownloadable={downloadable}
+            allowDownloadOriginal={allowDownloadOriginal}
+            allowDownloadConverted={allowDownloadConverted}
+            allowDownloadWithAnnotations={allowDownloadWithAnnotations}
+            handleDownloadableChange={this.handleDownloadableChange}
+            item={item}
+            closeModal={() => onActionCompleted()}
+            handleDownloadingOfPresentation={(fileStateType) => this
+              .handleDownloadingOfPresentation(item, fileStateType)}
+          />
+        ) : null}
+        {removable ? (
+          <Styled.RemoveButton
+            label={intl.formatMessage(intlMessages.removePresentation)}
+            data-test="removePresentation"
+            aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.name}`}
+            size="sm"
+            icon="delete"
+            hideLabel
+            onClick={() => this.handleRemove(item)}
+            animations={animations}
+          />
+        ) : null}
+      </>
+    );
+
+    if (isTray) {
+      return (
+        <Styled.TrayItem
+          data-test="presentationItem"
+          key={item.presentationId}
+          $selected={item.current}
+        >
+          <Styled.TrayThumbnail
+            type="button"
+            data-test="presentationThumbnail"
+            aria-pressed={!!item.current}
+            aria-label={intl.formatMessage(intlMessages.present, { name: item.name })}
+            onClick={() => {
+              if (!item.current) setPresentation(item.presentationId);
+            }}
+          >
+            <img src={Auth.authenticateURL(firstPageThumbnailUrl)} alt="" />
+          </Styled.TrayThumbnail>
+          <Styled.TrayItemFooter>
+            <Styled.TrayItemName data-test="presentationName" title={item.name}>
+              <bdi>{item.name}</bdi>
+            </Styled.TrayItemName>
+            {options}
+          </Styled.TrayItemFooter>
+          {item.current && <Styled.TrayCheck aria-hidden><CheckIcon /></Styled.TrayCheck>}
+        </Styled.TrayItem>
+      );
+    }
+
     return (
       <Styled.PresentationItemContainer data-test="presentationItem" key={item.presentationId}>
         <Styled.PresentationThumbnail
@@ -593,35 +683,7 @@ class PresentationUploader extends Component {
           <Styled.PresentationItemName data-test="presentationName">
             {item.name}
           </Styled.PresentationItemName>
-          {allowDownloadOriginal || allowDownloadWithAnnotations || allowDownloadConverted ? (
-            <PresentationDownloadDropdown
-              disabled={disableExportDropdown}
-              data-test="exportPresentation"
-              aria-label={formattedDownloadAriaLabel}
-              color="primary"
-              isDownloadable={downloadable}
-              allowDownloadOriginal={allowDownloadOriginal}
-              allowDownloadConverted={allowDownloadConverted}
-              allowDownloadWithAnnotations={allowDownloadWithAnnotations}
-              handleDownloadableChange={this.handleDownloadableChange}
-              item={item}
-              closeModal={() => onActionCompleted()}
-              handleDownloadingOfPresentation={(fileStateType) => this
-                .handleDownloadingOfPresentation(item, fileStateType)}
-            />
-          ) : null}
-          {removable ? (
-            <Styled.RemoveButton
-              label={intl.formatMessage(intlMessages.removePresentation)}
-              data-test="removePresentation"
-              aria-label={`${intl.formatMessage(intlMessages.removePresentation)} ${item.name}`}
-              size="sm"
-              icon="delete"
-              hideLabel
-              onClick={() => this.handleRemove(item)}
-              animations={animations}
-            />
-          ) : null}
+          {options}
         </Styled.PresentationItemBottomContainer>
       </Styled.PresentationItemContainer>
     );
@@ -654,6 +716,42 @@ class PresentationUploader extends Component {
           </Styled.DropzoneLink>
         </Styled.DropzoneMessage>
       </Styled.UploaderDropzone>
+    );
+  }
+
+  renderTray() {
+    const {
+      intl,
+      fileValidMimeTypes,
+      handleFiledrop,
+      fileUploadConstraintsHint,
+    } = this.props;
+
+    return (
+      <div id="upload-modal">
+        <Styled.TrayGrid>
+          <Styled.TrayDropzone
+            multiple
+            activeClassName="dropzoneActive"
+            accept={isMobile ? 'image/*' : fileValidMimeTypes.map((fileValid) => fileValid.extension)}
+            disablepreview="true"
+            data-test="fileUploadDropZone"
+            aria-label={intl.formatMessage(intlMessages.addSlides)}
+            onDrop={(files, files2) => handleFiledrop(files, files2, this, intl, intlMessages)}
+          >
+            <AddIcon />
+            <Styled.TrayDropzoneTitle>
+              {intl.formatMessage(intlMessages.addSlides)}
+            </Styled.TrayDropzoneTitle>
+            <Styled.TrayDropzoneHint>
+              {intl.formatMessage(intlMessages.addSlidesHint)}
+            </Styled.TrayDropzoneHint>
+          </Styled.TrayDropzone>
+          {this.renderPresentationList()}
+        </Styled.TrayGrid>
+        {fileUploadConstraintsHint ? this.renderExtraHint() : null}
+        {this.renderExternalUpload()}
+      </div>
     );
   }
 
@@ -737,8 +835,10 @@ class PresentationUploader extends Component {
       currentPresentation,
       fileUploadConstraintsHint,
       intl,
+      isTray,
     } = this.props;
     if (!isPresenter) return null;
+    if (isTray) return this.renderTray();
     const {
       activeThumbnailId,
     } = this.state;

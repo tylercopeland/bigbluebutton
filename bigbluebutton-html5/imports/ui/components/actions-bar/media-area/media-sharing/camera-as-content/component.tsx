@@ -23,6 +23,8 @@ interface CameraAsContentViewProps {
   onActionCompleted: () => void;
   hasCameraAsContent: boolean;
   stopExternalVideoShare: () => void;
+  /** Compact look for the Share media tray */
+  isTray?: boolean;
 }
 
 const intlMessages: { [key: string]: { id: string; description?: string } } = defineMessages({
@@ -53,6 +55,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
   hasCameraAsContent,
   onActionCompleted,
   stopExternalVideoShare,
+  isTray = false,
 }) => {
   const { formatMessage } = intl;
   // @ts-ignore
@@ -60,6 +63,9 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
   const initialWebcamDeviceId = useStorageKey('WebcamDeviceId', settingsStorage) as string || null;
   const [isTransitioning, setIsTransitioning] = useState(false);
 
+  // The tray has its own button to stop sharing the screen or the camera.
+  const isScreenBroadcasting = ScreenShareService.useIsScreenBroadcasting();
+  const isSharing = hasCameraAsContent || isScreenBroadcasting;
   const allStreams = useStreams();
   const stopVideo = useStopVideo();
 
@@ -225,7 +231,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
 
   return (
     <>
-      <Styled.Content>
+      <Styled.Content $isTray={isTray}>
         {renderWebcamPreview()}
         <ProfileStyled.DeviceContainer>
           <ProfileStyled.IconCamera />
@@ -246,7 +252,8 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
             : <span>{formatMessage(intlMessages.webcamNotFoundLabel)}</span>}
         </ProfileStyled.DeviceContainer>
       </Styled.Content>
-      <ModalStyled.FooterContainer>
+      {!(isTray && isSharing) && (
+      <ModalStyled.FooterContainer $isTray={isTray}>
         <BBButton
           dataTest={!hasCameraAsContent ? 'StartCameraAsContent' : 'StopCameraAsContent'}
           label={!hasCameraAsContent
@@ -284,6 +291,7 @@ const CameraAsContentView: React.FC<CameraAsContentViewProps> = ({
           fullWidth
         />
       </ModalStyled.FooterContainer>
+      )}
     </>
   );
 };

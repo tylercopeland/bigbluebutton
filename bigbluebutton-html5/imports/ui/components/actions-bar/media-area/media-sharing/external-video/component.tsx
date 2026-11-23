@@ -26,6 +26,16 @@ const intlMessages = defineMessages({
     id: 'app.externalVideo.urlInput',
     description: 'URL input field placeholder',
   },
+  videoLink: {
+    id: 'app.mediaSharing.tray.videoLink',
+    description: 'Label of the video link field',
+    defaultMessage: 'Video link',
+  },
+  shareVideo: {
+    id: 'app.mediaSharing.tray.shareVideo',
+    description: 'Label for the button that shares the video link',
+    defaultMessage: 'Share video',
+  },
   noteSupported: {
     id: 'app.externalVideo.noteLabelSupported',
     description: 'provides hint about supported Shared External videos',
@@ -41,6 +51,8 @@ interface ExternalVideoViewProps {
   isSharingVideo: boolean;
   onActionCompleted: () => void;
   stopExternalVideoShare: () => void;
+  /** Compact look for the Share media tray */
+  isTray?: boolean;
 }
 
 const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
@@ -48,6 +60,7 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
   onActionCompleted,
   isSharingVideo,
   stopExternalVideoShare,
+  isTray = false,
 }) => {
   const [videoUrl, setVideoUrl] = React.useState('');
   const [startExternalVideoMutation] = useMutation(EXTERNAL_VIDEO_START);
@@ -56,6 +69,50 @@ const ExternalVideoView: React.FC<ExternalVideoViewProps> = ({
   const valid = isUrlValid(videoUrl);
 
   const canStartSharing = (videoUrl !== '' && valid) && !isSharingVideo;
+
+  if (isTray) {
+    const hasError = !valid && videoUrl !== '';
+    return (
+      <Styled.TrayForm
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!canStartSharing) return;
+          startWatchingImp(videoUrl);
+          onActionCompleted();
+        }}
+      >
+        <Styled.TrayLabel htmlFor="external-video-url-input">
+          {intl.formatMessage(intlMessages.videoLink)}
+        </Styled.TrayLabel>
+        <Styled.TrayInput
+          id="external-video-url-input"
+          data-test="externalVideoUrlInput"
+          type="url"
+          dir="ltr"
+          autoComplete="off"
+          value={videoUrl}
+          disabled={isSharingVideo}
+          $hasError={hasError}
+          aria-invalid={hasError}
+          aria-describedby="external-video-note"
+          placeholder={intl.formatMessage(intlMessages.urlInput)}
+          onChange={(event) => setVideoUrl(event.target.value.trim())}
+        />
+        <Styled.TrayRow>
+          <Styled.TrayNote id="external-video-note" $hasError={hasError} aria-live="polite">
+            {intl.formatMessage(hasError ? intlMessages.urlError : intlMessages.noteWarning)}
+          </Styled.TrayNote>
+          <Styled.TrayButton
+            type="submit"
+            data-test="ShareExternalVideo"
+            disabled={!canStartSharing}
+          >
+            {intl.formatMessage(intlMessages.shareVideo)}
+          </Styled.TrayButton>
+        </Styled.TrayRow>
+      </Styled.TrayForm>
+    );
+  }
 
   return (
     <>

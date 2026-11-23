@@ -26,7 +26,7 @@ import usePresentationFitToWidth from '/imports/ui/components/presentation/hooks
 
 const PresentationUploaderContainer = (props) => {
   const {
-    amIPresenter, onActionCompleted, ...restProps
+    amIPresenter, onActionCompleted, isTray = false, ...restProps
   } = props;
 
   const { data: presentationData } = useDeduplicatedSubscription(PRESENTATIONS_SUBSCRIPTION);
@@ -106,6 +106,7 @@ const PresentationUploaderContainer = (props) => {
         dispatchDisableDownloadable={Service.dispatchDisableDownloadable}
         dispatchEnableDownloadable={Service.dispatchEnableDownloadable}
         onActionCompleted={onActionCompleted}
+        isTray={isTray}
         {...restProps}
       />
     </ErrorBoundary>
@@ -115,6 +116,8 @@ const PresentationUploaderContainer = (props) => {
 PresentationUploaderContainer.propTypes = {
   amIPresenter: PropTypes.bool.isRequired,
   onActionCompleted: PropTypes.func.isRequired,
+  // eslint-disable-next-line react/require-default-props
+  isTray: PropTypes.bool,
 };
 
 export default PresentationUploaderContainer;

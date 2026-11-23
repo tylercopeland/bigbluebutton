@@ -18,6 +18,9 @@ import { SCREENSHARING_ERRORS } from '/imports/api/screenshare/client/bridge/err
 import { EXTERNAL_VIDEO_STOP } from '/imports/ui/components/external-video-player/mutations';
 import { MediaButton } from '/imports/ui/components/actions-bar/media-area/media-sharing/media-button/component';
 import Icon from '/imports/ui/components/common/icon/component';
+import TrayButton from '/imports/ui/components/actions-bar/media-area/media-sharing/tray-button/styles';
+import TabsStyled from '/imports/ui/components/actions-bar/media-area/media-sharing/media-tabs/styles';
+import { ScreenIcon } from '/imports/ui/components/actions-bar/media-area/media-sharing/media-tabs/icons';
 
 const { isMobile } = deviceInfo;
 const { isSafari, isTabletApp } = browserInfo;
@@ -30,6 +33,8 @@ const propTypes = {
   isScreenGloballyBroadcasting: PropTypes.bool.isRequired,
   isConnected: PropTypes.bool.isRequired,
   screenshareDataSavingSetting: PropTypes.bool,
+  // eslint-disable-next-line react/require-default-props
+  isTray: PropTypes.bool,
 };
 
 const intlMessages = defineMessages({
@@ -64,6 +69,21 @@ const intlMessages = defineMessages({
   permissionError: {
     id: 'app.screenshare.screensharePermissionError',
     description: 'Screen sharing failure due to lack of permission',
+  },
+  trayTitle: {
+    id: 'app.mediaSharing.tray.screenTitle',
+    description: 'Title of the screen share tab',
+    defaultMessage: 'Share your screen',
+  },
+  trayHint: {
+    id: 'app.mediaSharing.tray.screenHint',
+    description: 'Explains what can be shared from the screen share tab',
+    defaultMessage: 'Your browser asks you to choose your screen, a window or a tab.',
+  },
+  trayStart: {
+    id: 'app.mediaSharing.tray.screenStart',
+    description: 'Button that starts sharing the screen',
+    defaultMessage: 'Start sharing',
   },
   toastHelpLabel: {
     id: 'app.screenshare.screenshareToastHelpLabel',
@@ -121,6 +141,7 @@ const ScreenshareButton = ({
   amIPresenter = false,
   isConnected,
   screenshareDataSavingSetting,
+  isTray = false,
 }) => {
   // eslint-disable-next-line max-len
   const TROUBLESHOOTING_URLS = window.meetingClientSettings.public.media.screenshareTroubleshootingLinks;
@@ -182,10 +203,38 @@ const ScreenshareButton = ({
   const dataTest = isScreenBroadcasting ? 'stopScreenShare' : 'startScreenShare';
   const loading = isScreenBroadcasting && !isScreenGloballyBroadcasting;
 
+  const startSharing = () => {
+    if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
+      setScreenshareUnavailableModalIsOpen(true);
+    } else {
+      // eslint-disable-next-line max-len
+      shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
+    }
+  };
+
+  const trayContent = (
+    <TabsStyled.Action>
+      <TabsStyled.ActionIcon><ScreenIcon /></TabsStyled.ActionIcon>
+      <TabsStyled.ActionText>
+        {intl.formatMessage(intlMessages.trayTitle)}
+        <TabsStyled.ActionHint>{intl.formatMessage(intlMessages.trayHint)}</TabsStyled.ActionHint>
+      </TabsStyled.ActionText>
+      <TrayButton
+        type="button"
+        data-test="startScreenShare"
+        disabled={!isConnected || !screenshareDataSavingSetting || amIBroadcasting}
+        onClick={startSharing}
+      >
+        {intl.formatMessage(intlMessages.trayStart)}
+      </TrayButton>
+    </TabsStyled.Action>
+  );
+
   return (
     <>
+      {shouldAllowScreensharing && isTray && trayContent}
       {
-        shouldAllowScreensharing
+        shouldAllowScreensharing && !isTray
           ? (
             <MediaButton
               disabled={
@@ -198,14 +247,7 @@ const ScreenshareButton = ({
               icon={<Icon iconName="desktop" />}
               onClick={amIBroadcasting
                 ? screenshareHasEnded
-                : () => {
-                  if (isSafari && !ScreenshareBridgeService.HAS_DISPLAY_MEDIA) {
-                    setScreenshareUnavailableModalIsOpen(true);
-                  } else {
-                    // eslint-disable-next-line max-len
-                    shareScreen(isCameraAsContentBroadcasting, stopExternalVideoShare, amIPresenter, handleFailure);
-                  }
-                }}
+                : startSharing}
               id="share-screen-button"
             />
           ) : null

@@ -51,7 +51,14 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls, webcam overflow and raised hands chip) are English only
 - [ ] Chat input placeholder was translated in BBB and is now English only
 - [x] Share media menu opens above its button
-- [ ] Share media menu keeps BBB's layout (design: previews above a row of media types)
+- [x] Share media menu shows previews above a row of media types (Slides, Video, Screen, Camera, More)
+- [ ] Share media: no Audio or URL tab, BBB has no such feature (tab audio comes with screen share)
+- [ ] Share media: Camera tab kept (BBB feature, not in the design); More only shows with plugins and has no whiteboard or poll shortcut
+- [ ] Share media: one Start sharing button, since the browser asks for screen, window or tab (design: three buttons)
+- [ ] Share media: no video file upload
+- [ ] Share media: a Stop sharing button shows above the tabs while sharing; presentation cards keep download and delete
+- [ ] Share media: picking a presentation shows it to everyone right away (BBB asked for Share); phones and viewers keep BBB's menu
+- [ ] Share media: while the screen is shared, the camera can only be shared after Stop sharing (BBB stopped the screen share for you)
 
 ## Stage and webcams
 - [x] Slide pager, All slides grid, whiteboard tools and minimize sit on the slide and show on hover

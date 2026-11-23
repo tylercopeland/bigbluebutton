@@ -28,6 +28,7 @@ const ModalContainer = styled.div<{
   isMobile: boolean,
   isRTL: boolean,
   actionsBarHeight: number,
+  $isDocked?: boolean,
 }>`
   position: fixed;
   background: ${colorWhite};
@@ -54,6 +55,13 @@ const ModalContainer = styled.div<{
       left: auto;
     `}
   `)}
+
+  ${({ $isDocked }) => $isDocked && `
+    width: 452px;
+    max-width: calc(100vw - 16px);
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, .5);
+  `}
 `;
 
 // Header container to hold the title and close button.
@@ -91,9 +99,9 @@ const MediaGrid = styled.div<{ isMobile: boolean }>`
 `;
 
 // Footer container for the start/stop sharing button.
-const FooterContainer = styled.div`
-  padding: 1rem;
-  border-top: 1px solid ${appsGalleryOutlineColor};
+const FooterContainer = styled.div<{ $isTray?: boolean }>`
+  padding: ${({ $isTray }) => ($isTray ? '0 2px' : '1rem')};
+  border-top: ${({ $isTray }) => ($isTray ? '0' : `1px solid ${appsGalleryOutlineColor}`)};
   display: flex;
   justify-content: center;
 `;

@@ -14,12 +14,21 @@ import {
 } from '../../../stylesheets/styled-components/general';
 import {
   colorGrayDark,
-  colorBorder,
   colorWhite,
   colorPrimary,
   colorBlueLighter,
   colorText,
   colorGray,
+  panelBorder,
+  panelMutedText,
+  panelRowActionColor,
+  panelRowHoverBg,
+  panelTabActiveColor,
+  panelTabColor,
+  panelTabsBg,
+  panelText,
+  stageControlActiveBg,
+  timerLowText,
 } from '../../../stylesheets/styled-components/palette';
 import { TextElipsis } from '../../../stylesheets/styled-components/placeholders';
 import Button from '/imports/ui/components/common/button/component';
@@ -83,27 +92,65 @@ const TimerContent = styled.div`
   min-height: 100%;
 `;
 
-const TimerCurrent = styled.span`
-  border-bottom: 1px solid ${colorBorder};
-  display: flex;
-  font-size: 2.5rem;
-  justify-content: center;
-  padding: 0.5rem 0 1.45rem 0;
-`;
-
 const TimerType = styled.div`
   display: flex;
-  width: 100%;
-  justify-content: center;
-  padding-bottom: 2rem;
+  padding: 3px;
+  margin-bottom: 1.5rem;
+  border-radius: 10px;
+  background-color: ${panelTabsBg};
 `;
-// @ts-ignore - JS code
-const TimerSwitchButton = styled(Button)`
-  width: 100%;
-  height: 3rem;
-  border-radius: ${lgBorderRadius};
-  margin: 0 .5rem;
-  font-size: ${fontSizeBase};
+
+const RingWrapper = styled.div`
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0 1.5rem;
+`;
+
+const RingLabel = styled.div`
+  position: absolute;
+  inset: 1rem 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+`;
+
+const RingTime = styled.span<{ $low: boolean; $small: boolean }>`
+  font-size: ${({ $small }) => ($small ? '28px' : '42px')};
+  font-weight: 700;
+  line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+  color: ${({ $low }) => ($low ? timerLowText : panelText)};
+`;
+
+const RingStatus = styled.span`
+  font-size: .85rem;
+  font-weight: 600;
+  color: ${panelMutedText};
+`;
+const TimerSwitchButton = styled.button<{ $selected: boolean }>`
+  flex: 1;
+  height: 32px;
+  border: 0;
+  border-radius: 7px;
+  background-color: ${({ $selected }) => ($selected ? colorWhite : 'transparent')};
+  color: ${({ $selected }) => ($selected ? panelTabActiveColor : panelTabColor)};
+  ${({ $selected }) => $selected && 'box-shadow: 0 1px 3px rgba(15, 23, 36, .14);'}
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 1px;
+  }
 `;
 
 const TimeInputWrapper = styled.div`
@@ -114,8 +161,7 @@ const TimeInputWrapper = styled.div`
   gap: 0.5rem;
   margin-top: 0;
   width: 100%;
-  border-bottom: 1px solid ${colorBorder};
-  padding: 0.5rem 0 1.3rem 0;
+  padding: 0.5rem 0 0;
 `;
 
 const TimeInputGroup = styled.div`
@@ -142,11 +188,12 @@ const TimerSongsWrapper = styled.div`
   display: flex;
   align-items: flex-start;
   flex-flow: column;
-  margin-top: 2rem;
+  margin-top: 1.5rem;
   width: 100%;
-  padding: 0.75rem;
-  border: 1px solid color-mix(in srgb, ${colorBlueLighter} 50%, transparent);
-  border-radius: 0.5rem;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background-color: ${panelRowHoverBg};
 `;
 
 const TimerRow = `
@@ -420,49 +467,43 @@ const TimerPresetsRow = styled.div`
   color: ${colorGrayDark};
 `;
 
-const TimerPresetButton = styled.button<{disabled?: boolean; isActive?: boolean}>`
-  all: unset;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  font-size: ${fontSizeBase};
-  line-height: 1;
-  color: ${colorGrayDark};
-  opacity: ${({ disabled }) => (disabled ? 0.4 : 0.7)};
-  transition: opacity 120ms ease, color 120ms ease, background-color 120ms ease,
-    border-color 120ms ease, transform 120ms ease, box-shadow 120ms ease;
-  padding: 0.25rem 0.35rem;
-  border: 1px solid ${colorBorder};
-  border-radius: 0.35rem;
-  text-align: center;
+const timerChip = css`
+  min-width: 44px;
+  height: 30px;
+  padding: 0 11px;
+  box-sizing: border-box;
+  border: 1px solid ${panelBorder};
+  border-radius: 15px;
+  background-color: ${colorWhite};
+  color: ${panelRowActionColor};
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
 
-  ${({ isActive }) => isActive && css`
-    opacity: 1;
-    transform: scale(1.05);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.06);
-    font-size: 1.1rem;
-  `}
-
-  &:hover, &:focus {
-    opacity: 1;
-    color: ${colorGrayDark};
+  &:hover:not(:disabled) {
+    background-color: ${panelRowHoverBg};
   }
 
-  &:active:not(:disabled) {
-    background-color: color-mix(in srgb, ${colorPrimary} 15%, transparent);
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 1px;
+  }
+
+  &:disabled {
+    opacity: .5;
+    cursor: not-allowed;
+  }
+`;
+
+const TimerPresetButton = styled.button<{ $selected: boolean }>`
+  ${timerChip}
+  ${({ $selected }) => $selected && css`
     border-color: ${colorPrimary};
+    background-color: ${stageControlActiveBg};
     color: ${colorPrimary};
-    animation: preset-click-feedback 300ms ease;
-  }
-
-  @keyframes preset-click-feedback {
-    0% {
-      background-color: color-mix(in srgb, ${colorPrimary} 25%, transparent);
-      border-color: ${colorPrimary};
-    }
-    100% {
-      background-color: transparent;
-      border-color: ${colorBorder};
-    }
-  }
+  `}
 `;
 
 // @ts-ignore - JS code
@@ -493,20 +534,8 @@ const TimerAddsRow = styled.div`
   padding: 0.5rem 0 0.25rem 0;
 `;
 
-const TimerAddButton = styled.button<{disabled?: boolean}>`
-  all: unset;
-  cursor: ${({ disabled }) => (disabled ? 'not-allowed' : 'pointer')};
-  font-size: ${fontSizeBase};
-  line-height: 1.5;
-  color: ${colorPrimary};
-  background-color: color-mix(in srgb, ${colorBlueLighter} 20%, transparent);
-  border-radius: 0.35rem;
-  padding: 0.2rem 0.4rem;
-  opacity: ${({ disabled }) => (disabled ? 0.5 : 1)};
-  transition: filter 120ms ease, transform 60ms ease;
-
-  &:hover, &:focus { filter: brightness(0.98); }
-  &:active { transform: translateY(1px); }
+const TimerAddButton = styled.button`
+  ${timerChip}
 `;
 
 const ControlsContainer = styled.div`
@@ -520,6 +549,12 @@ const ControlsContainer = styled.div`
 
 const ButtonRow = styled.div`
   display: flex;
+
+  button {
+    min-height: 44px;
+    border-radius: 12px;
+  }
+
   width: 100%;
   gap: 1rem;
 `;
@@ -536,7 +571,10 @@ export default {
   TimerTitle,
   TimerMinimizeButton,
   TimerContent,
-  TimerCurrent,
+  RingWrapper,
+  RingLabel,
+  RingTime,
+  RingStatus,
   TimerType,
   TimerSwitchButton,
   TimeInputWrapper,

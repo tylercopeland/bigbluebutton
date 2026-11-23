@@ -13,6 +13,8 @@ import {
   TIMER_SET_TIME,
 } from '../../mutations';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
+import TimerRing from '../../ring/component';
+import { getRingColor, getRingProgress, isTimerLow } from '../../ring/service';
 import TimerSingleton from '/imports/ui/core/singletons/timer';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import {
@@ -50,6 +52,21 @@ const intlMessages = defineMessages({
   presetMinutes: {
     id: 'app.timer.preset.minutes',
     description: 'Preset label for minutes with abbreviation (e.g., 5min)',
+  },
+  statusRunning: {
+    id: 'app.timer.status.running',
+    description: 'Shown while the timer is running',
+    defaultMessage: 'Running',
+  },
+  statusPaused: {
+    id: 'app.timer.status.paused',
+    description: 'Shown while the timer is paused',
+    defaultMessage: 'Paused',
+  },
+  statusDone: {
+    id: 'app.timer.status.done',
+    description: 'Shown when the timer reaches zero',
+    defaultMessage: 'Time is up',
   },
   setTimerTo: {
     id: 'app.timer.aria.setTo',
@@ -118,6 +135,17 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
   const QUICK_ADD_BUTTONS: number[] = Array.isArray(TIMER_CONFIG.quickAddButtons)
     ? TIMER_CONFIG.quickAddButtons.filter((item): item is number => typeof item === 'number' && item > 0)
     : [30, 60, 300];
+
+  // e.g. 30s, 5m, 1h; anything that isn't a whole unit keeps the clock format
+  const formatShortDuration = (totalSeconds: number) => {
+    const options = { style: 'unit', unitDisplay: 'narrow' } as const;
+    if (totalSeconds < 60) return intl.formatNumber(totalSeconds, { ...options, unit: 'second' });
+    if (totalSeconds % 3600 === 0) return intl.formatNumber(totalSeconds / 3600, { ...options, unit: 'hour' });
+    if (totalSeconds % 60 === 0 && totalSeconds < 3600) {
+      return intl.formatNumber(totalSeconds / 60, { ...options, unit: 'minute' });
+    }
+    return formatPresetLabel(totalSeconds);
+  };
 
   // Local subscription to TimerSingleton — isolated tick, does not bubble up
   const [timePassed, setTimePassed] = useState<number>(0);
@@ -314,16 +342,52 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
     }, 1000);
   }, [running, localHours, localMinutes, localSeconds, syncTimeWithBackend]);
 
-  if (stopwatch) {
+  const renderRing = (dataTest: string) => {
+    const state = { timePassed, time, stopwatch };
+    const label = humanizeSeconds(timeInSeconds);
+    let status = '';
+    if (!stopwatch && timeInSeconds <= 0) {
+      status = intl.formatMessage(intlMessages.statusDone);
+    } else if (running) {
+      status = intl.formatMessage(intlMessages.statusRunning);
+    } else if (isPaused) {
+      status = intl.formatMessage(intlMessages.statusPaused);
+    }
+
     return (
-      <Styled.TimerCurrent
-        aria-hidden
-        data-test="stopwatchCurrent"
-      >
-        {humanizeSeconds(Math.floor(timePassed / 1000))}
-      </Styled.TimerCurrent>
+      <Styled.RingWrapper>
+        <TimerRing
+          size={168}
+          stroke={12}
+          color={getRingColor(state)}
+          progress={getRingProgress(state)}
+        />
+        <Styled.RingLabel>
+          <Styled.RingTime
+            aria-hidden
+            dir="ltr"
+            data-test={dataTest}
+            $low={isTimerLow(state)}
+            $small={label.length > 5}
+          >
+            {label}
+          </Styled.RingTime>
+          {status && <Styled.RingStatus>{status}</Styled.RingStatus>}
+        </Styled.RingLabel>
+      </Styled.RingWrapper>
     );
+  };
+
+  if (stopwatch) {
+    return renderRing('stopwatchCurrent');
   }
+
+  // While it runs the duration can't be edited, so the ring takes the inputs' place.
+  if (running) {
+    return renderRing('timerCurrent');
+  }
+
+  const selectedSeconds = localHours * 3600 + localMinutes * 60 + localSeconds;
 
   return (
     <>
@@ -339,10 +403,12 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
           hideLabel
           data-test="prevPreset"
         />
-        {visiblePresets.map(({ secs, isActive, idx }) => (
+        {visiblePresets.map(({ secs, idx }) => (
           <Styled.TimerPresetButton
             key={`preset-${secs}-${idx}`}
-            isActive={isActive}
+            type="button"
+            $selected={secs === selectedSeconds}
+            aria-pressed={secs === selectedSeconds}
             onClick={() => setAbsoluteTime(secs)}
             disabled={running}
             aria-label={intl.formatMessage(
@@ -351,7 +417,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
             )}
             data-test={`preset-${secs}`}
           >
-            {formatPresetLabel(secs)}
+            {formatShortDuration(secs)}
           </Styled.TimerPresetButton>
         ))}
         <Styled.PresetArrowButton
@@ -517,13 +583,7 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
               ? `${Math.floor(addSeconds / 60)} minute${Math.floor(addSeconds / 60) > 1 ? 's' : ''}`
               : `${addSeconds} second${addSeconds > 1 ? 's' : ''}`;
 
-            const h = Math.floor(addSeconds / 3600);
-            const m = Math.floor((addSeconds % 3600) / 60);
-            const s = addSeconds % 60;
-            const fmt = (n: number) => (n < 10 ? `0${n}` : n.toString());
-            const displayLabel = h > 0
-              ? `+${fmt(h)}:${fmt(m)}:${fmt(s)}`
-              : `+${fmt(m)}:${fmt(s)}`;
+            const displayLabel = `+${formatShortDuration(addSeconds)}`;
             const tooltipMessage = intl.formatMessage(intlMessages.addTime, { time: timeLabel });
 
             return (
@@ -532,12 +592,13 @@ const TimerTimeSectionComponent: React.FC<TimerTimeSectionProps> = ({
                 title={tooltipMessage}
               >
                 <Styled.TimerAddButton
+                  type="button"
                   onClick={() => changeTime(addSeconds)}
                   disabled={running}
                   aria-label={tooltipMessage}
                   data-test={testId}
                 >
-                  {displayLabel}
+                  <bdi>{displayLabel}</bdi>
                 </Styled.TimerAddButton>
               </TooltipContainer>
             );

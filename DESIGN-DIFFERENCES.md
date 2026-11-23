@@ -45,6 +45,8 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials
 - [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
 - [ ] Mute all and permissions buttons are kept at the bottom of People
+- [x] Other panels use the same plain title and close button as People and Chat
+- [ ] Other panels keep BBB's content (Notes, Apps, Profile, Breakout Rooms) and phones keep BBB's headers
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
 - [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls, webcam overflow and raised hands chip) are English only
@@ -54,6 +56,10 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Poll: Publish results ends the poll and posts to chat and the slide, as in BBB (design: show or hide on the stage while live); those published charts keep BBB's look
 - [ ] Poll: keeps the Poll/Quiz switch, Custom Input, Cancel and the list of who answered what
 - [ ] Poll: titles and buttons keep BBB's wording (Polling, Start Poll, Stop poll)
+- [x] Timer: countdown ring and chips in the panel, ring pill in the top bar for everyone
+- [ ] Timer: lives in the side panel and top bar (design: a floating card on the stage that can be dragged and minimized); no confetti or pulse at the end
+- [ ] Timer: the time can't be changed while it runs (design: +1 min); Stop, Reset and Deactivate keep BBB's buttons; stopwatch and music are kept
+- [ ] Timer: opening the panel starts sharing the timer pill with everyone right away, as in BBB
 - [x] Share media menu opens above its button
 - [x] Share media menu shows previews above a row of media types (Slides, Video, Screen, Camera, More)
 - [ ] Share media: no Audio or URL tab, BBB has no such feature (tab audio comes with screen share)

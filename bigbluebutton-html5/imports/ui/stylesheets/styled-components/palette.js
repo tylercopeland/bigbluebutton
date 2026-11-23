@@ -185,6 +185,10 @@ const panelRowActionHoverBg = 'var(--panel-row-action-hover-bg, #D6DCE5)';
 const panelRowActionColor = 'var(--panel-row-action-color, #374151)';
 const panelLive = 'var(--panel-live, #12A150)';
 const panelLiveText = 'var(--panel-live-text, #0F7A3D)';
+const timerDone = 'var(--timer-done, #12A150)';
+const timerEnding = 'var(--timer-ending, #F0A020)';
+const timerLow = 'var(--timer-low, #E5484D)';
+const timerLowText = 'var(--timer-low-text, #B42318)';
 const pollBarColor = 'var(--poll-bar-color, #9DB7E2)';
 const panelStatusColor = 'var(--panel-status-color, #7A8594)';
 const panelStatusFaintColor = 'var(--panel-status-faint-color, #B3BCC8)';
@@ -275,6 +279,10 @@ export {
   panelLive,
   panelLiveText,
   pollBarColor,
+  timerDone,
+  timerEnding,
+  timerLow,
+  timerLowText,
   panelStatusColor,
   panelStatusFaintColor,
   panelCameraColor,

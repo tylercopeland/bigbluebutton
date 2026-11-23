@@ -1,131 +1,68 @@
 import styled from 'styled-components';
-import { phoneLandscape, smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
-import { borderRadius } from '/imports/ui/stylesheets/styled-components/general';
+import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
-  colorSuccess,
-  colorDanger,
+  colorPrimary,
+  colorWhite,
+  panelMutedText,
+  panelText,
+  stageControlBorder,
+  timerLow,
+  timerLowText,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import { fontSizeBase, fontSizeXS } from '/imports/ui/stylesheets/styled-components/typography';
 
 interface TimerButtonProps {
-  running: boolean;
+  $running: boolean;
+  $low: boolean;
   disabled: boolean;
   hide: boolean;
 }
 
-const colorTimerRunning = `${colorSuccess}`;
-const colorTimerStopped = `${colorDanger}`;
-const timerMarginSM = '.5rem';
-const timerPaddingSM = '.25rem';
-const timerPaddingXL = '1.62rem';
-const timerMaxWidth = '10rem';
-const timerFontWeight = '400';
-const timerBorderRadius = '2rem';
-
 const TimerWrapper = styled.div`
-  overflow: hidden;
-  margin-left: auto;
+  flex-shrink: 0;
+  margin-inline-start: auto;
 `;
 
 const Timer = styled.div`
-  margin-top: 0.5rem;
   display: flex;
-  max-height: ${timerPaddingXL});
-`;
-
-const timerRunning = `
-  background-color: ${colorTimerRunning};
-  border: solid 2px ${colorTimerRunning};
-`;
-
-const timerStopped = `
-  background-color: ${colorTimerStopped};
-  border: solid 2px ${colorTimerStopped};
-`;
-
-const disabledStyle = `
-  cursor: default;
-`;
-
-const hiddenStyle = `
-  @media ${smallOnly} {
-    visibility: hidden;
-  }
 `;
 
 const TimerButton = styled.div<TimerButtonProps>`
-  @include highContrastOutline();
-  cursor: pointer;
-  color: white;
-  font-weight: ${timerFontWeight};
-  border-radius: ${timerBorderRadius} ${timerBorderRadius};
-  font-size: ${fontSizeBase};
-  margin-left: ${borderRadius};
-  margin-right: ${borderRadius};
-
-  @media ${phoneLandscape} {
-    height: 1rem;
-  }
-
-  span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    max-width: ${timerMaxWidth};
-
-    @media ${phoneLandscape} {
-      font-size: ${fontSizeXS};
-    }
-  }
-
-  i {
-    font-size: var(--font-size-small);
-    width: 1rem;
-    height: 1rem;
-    border-radius: 50%;
-
-    @media ${phoneLandscape} {
-      height: ${timerMarginSM};
-      width: ${timerMarginSM};
-      font-size: ${fontSizeXS};
-    }
-  }
-
-  ${({ running }) => (running ? timerRunning : timerStopped)};
-  ${({ disabled }) => disabled && disabledStyle};
-  ${({ hide }) => hide && hiddenStyle};
-`;
-
-const time = `
-  box-sizing: border-box;
   display: flex;
-  align-self: center;
-  padding: 0 ${timerPaddingSM} 0 0;
+  align-items: center;
+  height: 32px;
+  margin: 0 4px;
+  padding-inline: 5px 12px;
+  box-sizing: border-box;
+  border: 1.5px solid ${({ $low }) => ($low ? timerLow : stageControlBorder)};
+  border-radius: 16px;
+  background-color: ${colorWhite};
+  color: ${({ $running }) => ($running ? panelText : panelMutedText)};
+  cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
+  ${({ $low }) => $low && `color: ${timerLowText};`}
+
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 2px;
+  }
+
+  ${({ hide }) => hide && `
+    @media ${smallOnly} {
+      visibility: hidden;
+    }
+  `}
 `;
 
 const TimerContent = styled.div`
-  ${time}
   display: flex;
-
-  [dir="ltr"] & {
-    span:first-child {
-      padding: 0 ${timerPaddingSM};
-    }
-  }
-
-  [dir="rtl"] & {
-    span:last-child {
-      padding: 0 ${timerPaddingSM};
-    }
-  }
-`;
-
-const TimerIcon = styled.span`
-  ${time}
+  align-items: center;
+  gap: 7px;
 `;
 
 const TimerTime = styled.span`
-  ${time}
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 `;
 
 export default {
@@ -133,6 +70,5 @@ export default {
   Timer,
   TimerButton,
   TimerContent,
-  TimerIcon,
   TimerTime,
 };

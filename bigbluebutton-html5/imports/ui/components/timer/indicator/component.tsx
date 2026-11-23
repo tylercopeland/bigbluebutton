@@ -2,7 +2,8 @@ import { useMutation } from '@apollo/client';
 import React, { useEffect, useRef, useState } from 'react';
 import cx from 'classnames';
 import Styled from './styles';
-import Icon from '/imports/ui/components/common/icon/icon-ts/component';
+import TimerRing from '../ring/component';
+import { getRingColor, getRingProgress, isTimerLow } from '../ring/service';
 import humanizeSeconds from '/imports/utils/humanizeSeconds';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { layoutSelectInput } from '../../layout/context';
@@ -13,6 +14,8 @@ import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 interface TimerIndicatorProps {
   timePassed: number;
+  time: number;
+  stopwatch: boolean;
   songTrack: string;
   elapsed?: boolean;
   running: boolean;
@@ -23,6 +26,8 @@ interface TimerIndicatorProps {
 
 const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   timePassed,
+  time,
+  stopwatch,
   songTrack,
   elapsed,
   running,
@@ -116,6 +121,9 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     }
   }, [running, songTrackState]);
 
+  const timerState = { timePassed, time, stopwatch };
+  const isLow = isTimerLow(timerState);
+
   const onClick = running ? stopTimer : startTimer;
 
   return (
@@ -124,7 +132,8 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
     >
       <Styled.Timer>
         <Styled.TimerButton
-          running={running}
+          $running={running}
+          $low={isLow}
           disabled={!isModerator}
           hide={sidebarNavigationIsOpen && sidebarContentIsOpen && !running}
           role="button"
@@ -133,10 +142,14 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
           data-test="timeIndicator"
         >
           <Styled.TimerContent>
-            <Styled.TimerIcon>
-              <Icon iconName="time" />
-            </Styled.TimerIcon>
+            <TimerRing
+              size={22}
+              stroke={4}
+              color={getRingColor(timerState)}
+              progress={getRingProgress(timerState)}
+            />
             <Styled.TimerTime
+              dir="ltr"
               aria-hidden
               ref={timeRef}
             >
@@ -167,6 +180,8 @@ const TimerIndicatorContainer: React.FC = () => {
   if (!currentTimer?.active) return null;
   const {
     timePassed = 0,
+    time,
+    stopwatch,
     songTrack,
     elapsed,
     running,
@@ -175,6 +190,8 @@ const TimerIndicatorContainer: React.FC = () => {
   return (
     <TimerIndicator
       timePassed={timePassed}
+      time={time}
+      stopwatch={stopwatch}
       songTrack={songTrack}
       elapsed={elapsed}
       running={running}

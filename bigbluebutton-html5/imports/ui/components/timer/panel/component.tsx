@@ -295,26 +295,32 @@ const TimerPanelComponent: React.FC<TimerPanelProps> = ({
         <Styled.TimerContent>
           <Styled.TimerType>
             <Styled.TimerSwitchButton
-              label={intl.formatMessage(intlMessages.timer)}
+              type="button"
+              aria-pressed={!stopwatch}
+              $selected={!stopwatch}
               onClick={() => {
                 timerStop();
                 switchTimer(false);
               }}
               disabled={!stopwatch || running}
-              color={!stopwatch ? 'primary' : 'secondary'}
               data-test="timerButton"
-            />
+            >
+              {intl.formatMessage(intlMessages.timer)}
+            </Styled.TimerSwitchButton>
             <Styled.TimerSwitchButton
-              label={intl.formatMessage(intlMessages.stopwatch)}
+              type="button"
+              aria-pressed={stopwatch}
+              $selected={stopwatch}
               onClick={() => {
                 timerStop();
                 timerReset();
                 switchTimer(true);
               }}
               disabled={stopwatch || running}
-              color={stopwatch ? 'primary' : 'secondary'}
               data-test="stopwatchButton"
-            />
+            >
+              {intl.formatMessage(intlMessages.stopwatch)}
+            </Styled.TimerSwitchButton>
           </Styled.TimerType>
 
           <TimerTimeSection

@@ -16,6 +16,11 @@ const Navbar = styled.header`
   font-size: 1.5rem;
   background-color: ${colorBackground};
   padding: ${barsPadding} ${({ $isDocked }) => ($isDocked ? '0' : barsPadding)} 0;
+
+  ${({ $isDocked }) => $isDocked && `
+    justify-content: center;
+    padding-top: 0;
+  `}
 `;
 
 const Top = styled.div`
@@ -50,7 +55,11 @@ const Center = styled.div`
   ${ItemsGroup}
   justify-content: center;
 
-  ${({ $isDocked }) => $isDocked && 'flex: 0 1 auto;'}
+  ${({ $isDocked }) => $isDocked && `
+    /* Gives way before the title does */
+    flex: 0 100 auto;
+    min-width: 0;
+  `}
 
   @media ${smallOnly} {
     min-width: 0;
@@ -134,6 +143,7 @@ const PluginSeparatorWrapper = styled.div`
 const Right = styled.div`
   ${ItemsGroup}
   justify-content: flex-end;
+  ${({ $isDocked }) => $isDocked && 'flex: 0 0 auto;'}
 
   @media ${smallOnly} {
     gap: ${mobileNavbarButtonGap};
@@ -161,6 +171,23 @@ const Bottom = styled.div`
   }
 `;
 
+// Who is talking and the timer, in the middle of a docked bar
+const InlineBottom = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  padding: 0 12px;
+  overflow: hidden;
+
+  /* These are spaced for a row of their own */
+  .bbb-talking-indicator,
+  .bbb-talking-indicator > *,
+  .bbb-talking-indicator__item {
+    margin-top: 0;
+  }
+`;
+
 export default {
   Navbar,
   Top,
@@ -171,6 +198,7 @@ export default {
   TitleText,
   Right,
   Bottom,
+  InlineBottom,
   PluginInfoComponent,
   PluginComponentWrapper,
   PluginSeparatorWrapper,

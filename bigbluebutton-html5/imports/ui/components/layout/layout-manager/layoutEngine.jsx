@@ -135,8 +135,12 @@ const LayoutEngine = () => {
     return cameraDockBounds;
   };
 
+  const getNavBarBaseHeight = () => (isNavigationDocked && !navBarOutput.hideTopRow
+    ? DEFAULT_VALUES.navBarDockedHeight
+    : DEFAULT_VALUES.navBarHeight);
+
   const calculatesNavbarHeight = () => {
-    const { navBarHeight } = DEFAULT_VALUES;
+    const navBarHeight = getNavBarBaseHeight();
 
     const finalHeight = navBarOutput.hideTopRow ? navBarHeight / 2 : navBarHeight;
 
@@ -385,6 +389,7 @@ const LayoutEngine = () => {
     isNavigationDocked,
     bannerAreaHeight,
     baseCameraDockBounds,
+    getNavBarBaseHeight,
     calculatesNavbarHeight,
     calculatesNavbarBounds,
     calculatesActionbarHeight,

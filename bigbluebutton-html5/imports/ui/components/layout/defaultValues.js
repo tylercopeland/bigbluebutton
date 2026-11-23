@@ -34,6 +34,8 @@ const DEFAULT_VALUES = {
   bannerHeight: 34,
 
   navBarHeight: 85,
+  // One row: who is talking goes next to the title instead of below it
+  navBarDockedHeight: 54,
   navBarTop: 0,
   navBarTabOrder: 3,
 

@@ -320,6 +320,14 @@ class NavBar extends Component {
       />
     );
 
+    const speakersAndTimer = (
+      <>
+        <h2 className="sr-only">{intl.formatMessage(intlMessages.speakersListLabel)}</h2>
+        {enableTalkingIndicator ? <TalkingIndicator amIModerator={amIModerator} /> : null}
+        <TimerIndicatorContainer />
+      </>
+    );
+
     return (
       <Styled.Navbar
         className="bbb-navbar"
@@ -353,8 +361,11 @@ class NavBar extends Component {
             <Styled.Center className="bbb-navbar__center" $isDocked={isNavigationDocked}>
               {!isNavigationDocked && this.renderTitle()}
               {renderPluginItems(centerPluginItems)}
+              {isNavigationDocked && (
+                <Styled.InlineBottom>{speakersAndTimer}</Styled.InlineBottom>
+              )}
             </Styled.Center>
-            <Styled.Right className="bbb-navbar__right">
+            <Styled.Right className="bbb-navbar__right" $isDocked={isNavigationDocked}>
               <h2 className="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
               {!isNavigationDocked && recordingIndicator}
               <RaisedHandsChip />
@@ -370,11 +381,9 @@ class NavBar extends Component {
             </Styled.Right>
           </Styled.Top>
         )}
-        <Styled.Bottom className="bbb-navbar__bottom">
-          <h2 className="sr-only">{intl.formatMessage(intlMessages.speakersListLabel)}</h2>
-          {enableTalkingIndicator ? <TalkingIndicator amIModerator={amIModerator} /> : null}
-          <TimerIndicatorContainer />
-        </Styled.Bottom>
+        {(!isNavigationDocked || hideTopRow) && (
+          <Styled.Bottom className="bbb-navbar__bottom">{speakersAndTimer}</Styled.Bottom>
+        )}
       </Styled.Navbar>
     );
   }

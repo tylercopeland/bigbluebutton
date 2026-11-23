@@ -21,7 +21,8 @@ pass of the overall architecture. Check an item off when it matches.
 ## Top bar
 - [ ] Extra controls kept: connection status, options (three dots)
 - [ ] Recording uses BBB's start/stop button, not the small REC label
-- [ ] Talking indicator row is kept under the title
+- [ ] Talking indicator is kept, in the top row (the design has none)
+- [ ] Slide keeps its proportions, so wide windows leave space at its sides
 - [x] Raised hands alert chip, which opens People on the Raised hands filter
 - [ ] Question and low engagement chips not built
 - [ ] Raised hands chip: phones show only the number

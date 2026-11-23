@@ -2,9 +2,9 @@ import styled from 'styled-components';
 import {
   Separator as BaseSeparator,
 } from '/imports/ui/components/sidebar-content/styles';
-import { contentSidebarPadding, smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
+import { smPaddingX, smPaddingY } from '/imports/ui/stylesheets/styled-components/general';
 import { CircularProgress } from '@mui/material';
-import { colorWhite, colorPrimary } from '/imports/ui/stylesheets/styled-components/palette';
+import { colorWhite, colorPrimary, panelMutedText } from '/imports/ui/stylesheets/styled-components/palette';
 import { smallOnly } from '/imports/ui/stylesheets/styled-components/breakpoints';
 
 interface ChatProps {
@@ -76,9 +76,16 @@ const ChatMessages = styled.div`
 
 const Separator = styled(BaseSeparator)``;
 
-const ButtonsWrapper = styled.div`
-  display: flex;
-  justifyContent: space-between;
+const PrivacyNote = styled.p`
+  flex-shrink: 0;
+  align-self: center;
+  max-width: 260px;
+  margin: 0;
+  text-align: center;
+  font-size: .8rem;
+  line-height: 1.4;
+  color: ${panelMutedText};
+  overflow-wrap: anywhere;
 `;
 
 const LoadingWrapper = styled.div`
@@ -92,18 +99,18 @@ const CircularProgressContainer = styled(CircularProgress)`
 `;
 
 const ContentWrapper = styled.div`
-  padding: ${contentSidebarPadding} ${contentSidebarPadding} 0;
+  padding: 12px 14px 0;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: ${contentSidebarPadding};
+  gap: 10px;
   overflow: hidden;
 `;
 
 export default {
   ChatMessages,
   Separator,
-  ButtonsWrapper,
+  PrivacyNote,
   LoadingWrapper,
   CircularProgressContainer,
   ContentWrapper,

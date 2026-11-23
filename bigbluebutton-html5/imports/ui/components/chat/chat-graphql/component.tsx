@@ -3,9 +3,10 @@ import React, {
   useMemo, useRef, useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { Button } from '@mui/material';
 import KEYS from '/imports/utils/keys';
 import BackButton from '/imports/ui/components/chat/chat-graphql/private-back-button/component';
+import { useIsPrivateChatEnabled } from '/imports/ui/services/features';
+import ChatScope from './chat-scope/component';
 import ChatHeader from './chat-header/component';
 import { layoutSelect, layoutSelectInput } from '../../layout/context';
 import { Input, Layout } from '../../layout/layoutTypes';
@@ -21,40 +22,22 @@ import { layoutDispatch } from '/imports/ui/components/layout/context';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
-import {
-  colorWhite,
-  colorOffWhite,
-  colorGrayLight,
-  colorDanger,
-  btnPrimaryBg,
-} from '/imports/ui/stylesheets/styled-components/palette';
 
 const intlMessages = defineMessages({
-  messagesTitle: {
-    id: 'app.userList.messagesTitle',
-    description: 'Title for the messages list',
-  },
-  titlePublic: {
-    id: 'app.chat.titlePublic',
-    description: 'title for public chat',
-  },
-  titlePrivate: {
-    id: 'app.chat.titlePrivate',
-    description: 'Private chat title',
-  },
-  titlePrivateToUser: {
-    id: 'app.chat.titlePrivateToUser',
-    description: 'Private chat title displayed when conversation with a specific user is opened',
+  privacyNote: {
+    id: 'app.chat.direct.privacyNote',
+    description: 'Note shown above a private conversation',
+    defaultMessage: 'Only you and {name} can see this conversation.',
   },
 });
 
 interface ChatProps {
-  publicUnreadMessages: boolean;
-  privateUnreadMessages: boolean;
+  publicUnread: number;
+  directUnread: number;
   chatId: string;
-  participantName: string;
+  participant?: ChatType['participant'];
   allPrivateChats: Partial<ChatType>[];
-  shouldShowChatButtons: boolean;
+  shouldShowChatScope: boolean;
 }
 
 interface ChatLoadingProps {
@@ -62,12 +45,12 @@ interface ChatLoadingProps {
 }
 
 const Chat: React.FC<ChatProps> = ({
-  publicUnreadMessages,
-  privateUnreadMessages,
+  publicUnread,
+  directUnread,
   chatId,
-  participantName,
+  participant,
   allPrivateChats,
-  shouldShowChatButtons,
+  shouldShowChatScope,
 }) => {
   const CHAT_CONFIG = window.meetingClientSettings.public.chat;
   const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
@@ -77,38 +60,26 @@ const Chat: React.FC<ChatProps> = ({
   const layoutContextDispatch = layoutDispatch();
   const intl = useIntl();
   const isPrivateChat = chatId !== PUBLIC_GROUP_CHAT_ID;
-  const isPublicChat = chatId === PUBLIC_GROUP_CHAT_ID && !privateList;
+  const isDirect = isPrivateChat || privateList;
 
-  const handleClickSelectChat = (selectPublicChat: boolean) => {
-    if (selectPublicChat) {
-      setPrivateList(false);
-      layoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: PUBLIC_GROUP_CHAT_ID,
-      });
-    } else if (allPrivateChats.length > 0) {
-      // There are private chats (with or without messages), show the private chat list
-      setPrivateList(true);
-    } else {
-      // No private chat exists, stay on public chat
-      layoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: PUBLIC_GROUP_CHAT_ID,
-      });
-    }
+  // A chat opened from elsewhere, like the people list, replaces the list
+  useEffect(() => {
+    setPrivateList(false);
+  }, [chatId]);
+
+  const openPublicChat = () => {
+    setPrivateList(false);
+    layoutContextDispatch({
+      type: ACTIONS.SET_ID_CHAT_OPEN,
+      value: PUBLIC_GROUP_CHAT_ID,
+    });
   };
 
-  const handleClickReturnPrivateList = () => {
-    if (allPrivateChats.length > 0) {
-      // There are private chats, show the list
-      setPrivateList(true);
-    } else {
-      // No private chats, go back to public chat
-      layoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: PUBLIC_GROUP_CHAT_ID,
-      });
-    }
+  const openPeople = () => {
+    layoutContextDispatch({
+      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+      value: PANELS.USERLIST,
+    });
   };
 
   React.useEffect(() => {
@@ -160,23 +131,25 @@ const Chat: React.FC<ChatProps> = ({
         <PrivateChatListContainer
           privateChatSelectedCallback={() => setPrivateList(false)}
           chats={allPrivateChats}
+          onOpenPeople={openPeople}
         />
       );
     }
     return (
       <>
         {isPrivateChat && (
-          <BackButton onClick={handleClickReturnPrivateList} title={participantName} />
+          <BackButton onClick={() => setPrivateList(true)} participant={participant} />
+        )}
+        {isPrivateChat && participant?.name && (
+          <Styled.PrivacyNote>
+            {intl.formatMessage(intlMessages.privacyNote, { name: participant.name })}
+          </Styled.PrivacyNote>
         )}
         <ChatMessageListContainer />
         <ChatMessageFormContainer />
       </>
     );
   };
-
-  const privateChatButtonLabel = isPrivateChat && !privateList
-    ? intl.formatMessage(intlMessages.titlePrivateToUser, { participantName })
-    : intl.formatMessage(intlMessages.titlePrivate);
 
   return (
     <>
@@ -186,87 +159,15 @@ const Chat: React.FC<ChatProps> = ({
         className="bbb-chat"
         id="scroll-box"
       >
-        {shouldShowChatButtons ? (
-          <Styled.ButtonsWrapper>
-            <Button
-              variant={isPublicChat ? 'contained' : 'outlined'}
-              color="primary"
-              size="medium"
-              data-test="publicChatButton"
-              sx={{
-                position: 'relative',
-                borderRadius: '16px',
-                width: '100%',
-                marginRight: '8px',
-                padding: '8px 16px',
-                textTransform: 'none',
-                backgroundColor: isPublicChat ? btnPrimaryBg : colorOffWhite,
-                color: isPublicChat ? colorWhite : colorGrayLight,
-                border: `1px solid ${btnPrimaryBg}`,
-                display: 'block',
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-              onClick={() => handleClickSelectChat(true)}
-            >
-              {intl.formatMessage(intlMessages.titlePublic)}
-              {publicUnreadMessages && (
-                <span
-                  data-test="publicUnreadIndicator"
-                  style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
-                    width: '8px',
-                    height: '8px',
-                    backgroundColor: colorDanger,
-                    borderRadius: '50%',
-                  }}
-                />
-              )}
-            </Button>
-            <Button
-              variant={isPrivateChat || privateList ? 'contained' : 'outlined'}
-              color="primary"
-              size="medium"
-              data-test="privateChatButton"
-              sx={{
-                position: 'relative',
-                borderRadius: '16px',
-                width: '100%',
-                padding: '8px 16px',
-                textTransform: 'none',
-                backgroundColor: isPrivateChat || privateList ? btnPrimaryBg : colorOffWhite,
-                color: isPrivateChat || privateList ? colorWhite : colorGrayLight,
-                border: `1px solid ${btnPrimaryBg}`,
-                display: 'block',
-                textAlign: 'center',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-              onClick={() => handleClickSelectChat(false)}
-            >
-              {privateChatButtonLabel}
-              {privateUnreadMessages && (
-                <span
-                  data-test="privateUnreadIndicator"
-                  style={{
-                    position: 'absolute',
-                    bottom: '8px',
-                    right: '8px',
-                    width: '8px',
-                    height: '8px',
-                    backgroundColor: colorDanger,
-                    borderRadius: '50%',
-                  }}
-                />
-              )}
-            </Button>
-          </Styled.ButtonsWrapper>
-        ) : null}
+        {shouldShowChatScope && (
+          <ChatScope
+            isDirect={isDirect}
+            publicUnread={publicUnread}
+            directUnread={directUnread}
+            onSelectEveryone={openPublicChat}
+            onSelectDirect={() => setPrivateList(true)}
+          />
+        )}
         {renderChatPanelContent()}
       </Styled.ContentWrapper>
     </>
@@ -287,6 +188,7 @@ const ChatContainer: React.FC = () => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const sidebarContentAuxiliary = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
   const layoutContextDispatch = layoutDispatch();
+  const isPrivateChatEnabled = useIsPrivateChatEnabled();
   const { data: chats } = useChat((chat) => {
     return {
       chatId: chat.chatId,
@@ -303,16 +205,12 @@ const ChatContainer: React.FC = () => {
   const [pendingChat, setPendingChat] = usePendingChat();
 
   const PUBLIC_GROUP_CHAT_ID = window.meetingClientSettings.public.chat.public_group_id;
-  const publicUnreadMessages = useMemo(() => (!!chats?.some((chat) => (
-    chat.chatId === PUBLIC_GROUP_CHAT_ID
-    && chat?.totalUnread
-    && chat.totalUnread > 0
-  ))), [chats]);
-  const privateUnreadMessages = useMemo(() => (!!chats?.some((chat) => (
-    chat.chatId !== PUBLIC_GROUP_CHAT_ID
-    && chat?.totalUnread
-    && chat.totalUnread > 0
-  ))), [chats]);
+  const publicUnread = useMemo(() => (
+    chats?.find((chat) => chat.chatId === PUBLIC_GROUP_CHAT_ID)?.totalUnread ?? 0
+  ), [chats]);
+  const directUnread = useMemo(() => (
+    chats?.reduce((total, chat) => total + (chat.public ? 0 : chat.totalUnread ?? 0), 0) ?? 0
+  ), [chats]);
 
   // All private chats (including empty ones) for navigation
   const allPrivateChats = useMemo(() => (chats || [] as ChatType[]).filter(
@@ -338,11 +236,7 @@ const ChatContainer: React.FC = () => {
 
   const resolvedChatId = pendingChatTarget?.chatId ?? idChatOpen;
 
-  let participantName = '';
-  const currentChat = chats?.find((chat) => chat.chatId === resolvedChatId);
-  if (currentChat && currentChat.participant) {
-    participantName = currentChat.participant.name || '';
-  }
+  const participant = chats?.find((chat) => chat.chatId === resolvedChatId)?.participant;
 
   const { data: currentUser } = useCurrentUser((c) => ({
     userLockSettings: c?.userLockSettings,
@@ -364,12 +258,12 @@ const ChatContainer: React.FC = () => {
 
   return (
     <Chat
-      publicUnreadMessages={publicUnreadMessages}
-      privateUnreadMessages={privateUnreadMessages}
-      participantName={participantName}
+      publicUnread={publicUnread}
+      directUnread={directUnread}
+      participant={participant}
       chatId={resolvedChatId}
       allPrivateChats={allPrivateChats}
-      shouldShowChatButtons={hasAnyPrivateChat || Boolean(pendingChat)}
+      shouldShowChatScope={isPrivateChatEnabled || hasAnyPrivateChat || Boolean(pendingChat)}
     />
   );
 };

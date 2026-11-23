@@ -1,15 +1,16 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
-/* eslint-disable jsx-a11y/no-access-key */
 import React, { useEffect } from 'react';
-import { defineMessages, useIntl } from 'react-intl';
+import { defineMessages, FormattedTime, useIntl } from 'react-intl';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import Styled from './styles';
-import PrivateChatListHeader from '../private-chats-header/component';
 import { Input, Layout } from '/imports/ui/components/layout/layoutTypes';
 import { Chat } from '/imports/ui/Types/chat';
 
 const intlMessages = defineMessages({
+  offline: {
+    id: 'app.chat.offline',
+    description: 'Offline',
+  },
   privateChatUnkownUser: {
     id: 'app.userList.chatListItem.unknownParticipant',
   },
@@ -29,7 +30,6 @@ const intlMessages = defineMessages({
 
 interface PrivateChatListItemProps {
   chat: Partial<Chat>;
-  chatNodeRef: React.Ref<HTMLButtonElement>;
   index: number;
   privateChatSelectedCallback: () => void;
 }
@@ -47,7 +47,6 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
 
   const {
     chat,
-    chatNodeRef,
     index,
     privateChatSelectedCallback,
   } = props;
@@ -57,9 +56,6 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
   const isCurrentChat = chat.chatId === idChatOpen && chatPanelOpen;
 
   const ROLE_MODERATOR = window.meetingClientSettings.public.user.role_moderator;
-
-  const CHAT_CONFIG = window.meetingClientSettings.public.chat;
-  const PUBLIC_GROUP_CHAT_ID = CHAT_CONFIG.public_group_id;
 
   useEffect(() => {
     // Clear any previous timeout to prevent multiple executions
@@ -87,15 +83,6 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
       }
     };
   }, [chat.totalUnread, isCurrentChat, unreadMessagesToDisplay]);
-
-  useEffect(() => {
-    if (chat.chatId !== PUBLIC_GROUP_CHAT_ID && chat.chatId === idChatOpen) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: chat.chatId,
-      });
-    }
-  }, [idChatOpen, sidebarContentIsOpen, sidebarContentPanel, chat]);
 
   const handleClickOpenPrivateChat = () => {
     layoutContextDispatch({
@@ -129,54 +116,51 @@ const PrivateChatListItem = (props: PrivateChatListItemProps) => {
     : (chat.lastMessage ?? '');
   const lastMessageTime = chat.lastMessageAt ? new Date(chat.lastMessageAt) : null;
 
+  const isOffline = chat.participant?.currentlyInMeeting === false;
+
   return (
     <Styled.ChatListItem
+      type="button"
       data-test="privateChatItem"
-      role="button"
-      aria-expanded={isCurrentChat}
-      active={isCurrentChat}
+      aria-current={isCurrentChat || undefined}
       tabIndex={-1}
       onClick={handleClickOpenPrivateChat}
       id={`chat-list-${index}`}
-      aria-label={participantName}
-      ref={chatNodeRef}
     >
-      <Styled.ChatListItemLink>
-        <Styled.ChatWrapper>
-          {chat.participant && (
-            <Styled.ChatHeading data-test="private-user-list-header">
-              <Styled.UserAvatar
-                moderator={chat.participant?.role === ROLE_MODERATOR}
-                avatar={chat.participant.avatar}
-                color={chat.participant.color}
-              >
-                {chat.participant?.avatar.length === 0 ? chat.participant?.name.toLowerCase().slice(0, 2) : ''}
-              </Styled.UserAvatar>
-              <PrivateChatListHeader
-                name={chat.participant?.name}
-                currentlyInMeeting={chat.participant?.currentlyInMeeting ?? true}
-                dateTime={lastMessageTime}
-              />
-            </Styled.ChatHeading>
-          )}
-          {(hasLastMessage || unreadMessagesToDisplay > 0) && (
-            <Styled.ChatContent data-test="private-user-list-content">
-              <Styled.MessageItemWrapper>
-                {lastMessage}
-              </Styled.MessageItemWrapper>
-              {(unreadMessagesToDisplay > 0)
-                ? (
-                  <Styled.UnreadMessages data-test="unreadMessages" aria-label={ariaLabel}>
-                    <Styled.UnreadMessagesText aria-hidden="true">
-                      {unreadMessagesToDisplay}
-                    </Styled.UnreadMessagesText>
-                  </Styled.UnreadMessages>
-                )
-                : null}
-            </Styled.ChatContent>
-          )}
-        </Styled.ChatWrapper>
-      </Styled.ChatListItemLink>
+      {chat.participant && (
+        <Styled.Avatar
+          moderator={chat.participant.role === ROLE_MODERATOR}
+          avatar={chat.participant.avatar}
+        >
+          {/* @ts-ignore - UserAvatar is JS, so its inferred children type is null */}
+          <span>{chat.participant.avatar?.length ? '' : participantName.toLowerCase().slice(0, 2)}</span>
+        </Styled.Avatar>
+      )}
+      <Styled.Text>
+        <Styled.Name data-test="private-user-list-header">
+          <bdi>{participantName}</bdi>
+          {isOffline && <Styled.Offline>{` (${intl.formatMessage(intlMessages.offline)})`}</Styled.Offline>}
+        </Styled.Name>
+        {hasLastMessage && (
+          <Styled.Preview
+            dir="auto"
+            data-test="private-user-list-content"
+            $isUnread={unreadMessagesToDisplay > 0}
+          >
+            {lastMessage}
+          </Styled.Preview>
+        )}
+      </Styled.Text>
+      <Styled.Meta>
+        {lastMessageTime && (
+          <Styled.Time><FormattedTime value={lastMessageTime} /></Styled.Time>
+        )}
+        {unreadMessagesToDisplay > 0 && (
+          <Styled.Unread role="img" data-test="unreadMessages" aria-label={ariaLabel}>
+            {unreadMessagesToDisplay}
+          </Styled.Unread>
+        )}
+      </Styled.Meta>
     </Styled.ChatListItem>
   );
 };

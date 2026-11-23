@@ -1,9 +1,10 @@
 import styled from 'styled-components';
 
 import {
-  colorHeading,
   colorGrayLight,
   colorGrayDark,
+  panelMutedText,
+  panelText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { fontSizeSmaller, lineHeightComputed } from '/imports/ui/stylesheets/styled-components/typography';
 
@@ -21,10 +22,11 @@ export const HeaderContent = styled.div`
 export const ChatUserName = styled.div<ChatUserNameProps>`
   display: flex;
   min-width: 0;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: .875rem;
+  line-height: 1.3;
   position: relative;
-
-  margin-right: calc(${lineHeightComputed} / 2);
+  margin-inline-end: 6px;
 
   min-width: 0;
   display: inline-block;
@@ -34,7 +36,7 @@ export const ChatUserName = styled.div<ChatUserNameProps>`
   flex-shrink: 1;
 
   ${({ currentlyInMeeting }) => currentlyInMeeting && `
-    color: ${colorHeading};
+    color: ${panelText};
   `}
 
   ${({ currentlyInMeeting }) => !currentlyInMeeting && `
@@ -61,19 +63,15 @@ export const ChatUserOffline = styled.span`
   font-size: 85%;
   line-height: 1;
   user-select: none;
-  margin-right: calc(${lineHeightComputed} / 2);
+  margin-inline-end: 6px;
 `;
 
 export const ChatTime = styled.time`
   flex-shrink: 0;
   flex-grow: 0;
   flex-basis: max-content;
-  color: ${colorGrayDark};
-  text-transform: uppercase;
-  font-size: 75%;
-  [dir='rtl'] & {
-    margin: 0 calc(${lineHeightComputed} / 2) 0 0;
-  }
+  color: ${panelMutedText};
+  font-size: .75rem;
 
   & > span {
     vertical-align: sub;

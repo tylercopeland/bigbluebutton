@@ -3,7 +3,7 @@ import {
   colorDangerDark,
   colorBorder,
   colorOffWhite,
-  colorText,
+  panelText,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
 interface ChatMessageProps {
@@ -25,7 +25,7 @@ export const ChatMessage = styled.div<ChatMessageProps>`
   display: flex;
   flex-flow: row;
   flex-direction: column;
-  color: ${colorText};
+  color: ${panelText};
   word-break: break-word;
 
   ${({ $jumbomoji }) => $jumbomoji && jumbomojiStyles}

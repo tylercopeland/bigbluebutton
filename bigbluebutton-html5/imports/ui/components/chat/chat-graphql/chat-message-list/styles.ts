@@ -44,7 +44,10 @@ export const UnreadButton = styled(ButtonElipsis)<UnreadButtonProps>`
   `}
 `;
 
-export const PageWrapper = styled.div``;
+// A short conversation sits next to the input
+export const PageWrapper = styled.div`
+  margin-top: auto;
+`;
 
 export const MessageListWrapper = styled.div`
   position: relative;

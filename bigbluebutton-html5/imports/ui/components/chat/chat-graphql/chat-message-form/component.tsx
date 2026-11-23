@@ -22,7 +22,7 @@ import {
 } from '/imports/ui/services/features';
 import { checkText } from 'smile2emoji';
 import AddReactionIcon from '@mui/icons-material/AddReaction';
-import SendIcon from '@mui/icons-material/Send';
+import { LockIcon, SendIcon } from '../icons/component';
 import Tooltip from '@mui/material/Tooltip';
 
 import Styled from './styles';
@@ -71,6 +71,8 @@ interface ChatMessageFormProps {
   disabled: boolean,
   locked: boolean,
   partnerIsLoggedOut: boolean,
+  placeholder: string;
+  isPrivate: boolean;
   title: string,
   getUserLastSentMessage: () => Promise<LastSentMessageData | null>,
 }
@@ -87,10 +89,6 @@ const messages = defineMessages({
   emojiButtonLabel: {
     id: 'app.chat.emojiButtonLabel',
     description: 'Chat message emoji picker button label',
-  },
-  inputPlaceholder: {
-    id: 'app.chat.inputPlaceholder',
-    description: 'Chat message input placeholder',
   },
   errorMaxMessageLength: {
     id: 'app.chat.errorMaxMessageLength',
@@ -116,6 +114,16 @@ const messages = defineMessages({
     id: 'app.chat.severalPeople',
     description: 'displayed when 4 or more users are typing',
   },
+  placeholderEveryone: {
+    id: 'app.chat.placeholderEveryone',
+    description: 'Placeholder of the public chat input',
+    defaultMessage: 'Message everyone',
+  },
+  placeholderPrivate: {
+    id: 'app.chat.placeholderPrivate',
+    description: 'Placeholder of a private chat input',
+    defaultMessage: 'Message {name} privately',
+  },
   titlePublic: {
     id: 'app.chat.titlePublic',
     description: 'Public chat title',
@@ -130,6 +138,8 @@ type EditingMessage = { chatId: string; messageId: string, message: string };
 
 const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   title,
+  placeholder,
+  isPrivate,
   disabled,
   partnerIsLoggedOut,
   minMessageLength,
@@ -689,16 +699,18 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
           <Styled.InputWrapper
             className="bbb-chat-form__input"
             ref={inputWrapperRef}
+            $isPrivate={isPrivate}
             onClick={(e) => {
               if (e.target === e.currentTarget) {
                 textAreaRef.current?.textarea.focus();
               }
             }}
           >
+            {isPrivate && <Styled.PrivateIcon><LockIcon size={14} /></Styled.PrivateIcon>}
             <Styled.Input
               id="message-input"
               ref={textAreaRef}
-              placeholder={intl.formatMessage(messages.inputPlaceholder, { chatName: title })}
+              placeholder={placeholder}
               aria-label={intl.formatMessage(messages.inputLabel, { chatName: title })}
               aria-invalid={hasErrors ? 'true' : 'false'}
               autoCorrect="off"
@@ -758,11 +770,12 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                 <Styled.SendButton
                   sx={{
                     alignSelf: 'center',
-                    fontSize: '0.9rem',
-                    height: '100%',
-                    borderRadius: '0.75rem',
+                    width: '34px',
+                    height: '34px',
+                    borderRadius: '9px',
                     minWidth: 'auto',
-                    padding: '8px',
+                    padding: 0,
+                    boxShadow: 'none',
                     backgroundColor: btnPrimaryBg,
                   }}
                   variant="contained"
@@ -813,6 +826,10 @@ const ChatMessageFormContainer: React.FC = () => {
   const title = chat?.participant?.name
     ? intl.formatMessage(messages.titlePrivateToUser, { participantName: chat.participant.name })
     : intl.formatMessage(messages.titlePublic);
+
+  const placeholder = chat?.participant?.name
+    ? intl.formatMessage(messages.placeholderPrivate, { name: chat.participant.name })
+    : intl.formatMessage(messages.placeholderEveryone);
 
   const { data: meeting } = useMeeting((m) => ({
     lockSettings: m?.lockSettings,
@@ -884,6 +901,8 @@ const ChatMessageFormContainer: React.FC = () => {
         connected: true, // TODO: monitoring network status
         disabled: ((isPublicChat ? locked : disabled) || !isConnected) ?? false,
         title,
+        placeholder,
+        isPrivate: !!chat?.participant,
         isRTL,
         // if participant is not defined, it means that the chat is public
         partnerIsLoggedOut: chat?.participant ? !chat?.participant?.currentlyInMeeting : false,

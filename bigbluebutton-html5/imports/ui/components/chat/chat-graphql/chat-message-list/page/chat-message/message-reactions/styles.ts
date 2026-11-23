@@ -5,6 +5,11 @@ const ReactionsWrapper = styled.div`
   flex-wrap: wrap;
   gap: 0.25rem;
   user-select: none;
+  margin-inline-start: 38px;
+
+  .bbb-chat-message--bubble & {
+    margin-inline-start: 0;
+  }
 `;
 
 export default {

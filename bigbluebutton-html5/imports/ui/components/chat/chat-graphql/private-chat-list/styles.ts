@@ -1,119 +1,69 @@
 import styled from 'styled-components';
+import { ScrollboxVertical } from '/imports/ui/stylesheets/styled-components/scrollable';
 import {
-  colorGray,
-  colorBorder,
   colorPrimary,
+  panelMutedText,
+  roomFocusRing,
 } from '/imports/ui/stylesheets/styled-components/palette';
-import {
-  borderSize, smPaddingX, lgPaddingY,
-} from '/imports/ui/stylesheets/styled-components/general';
-import deviceInfo from '/imports/utils/deviceInfo';
 
-const { isMobile } = deviceInfo;
-
-const Messages = styled.div`
-  flex-grow: 0;
+const ScrollableList = styled(ScrollboxVertical)`
   display: flex;
-  flex-flow: column;
-  flex-shrink: 0;
-
-  ${!isMobile && `
-    max-height: 30vh;
-  `}
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  margin: 0 -6px;
 `;
 
-const Container = styled.div`
+const List = styled.div`
   display: flex;
-  align-items: center;
-  margin-bottom: ${lgPaddingY};
-  margin-top: ${smPaddingX};
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 10px;
+
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: -2px;
+  }
 `;
 
-const Separator = styled.hr`
-  margin: 1rem auto;
-  width: 2.2rem;
+const Empty = styled.div`
+  padding: 24px 8px;
+  text-align: center;
+  font-size: .9rem;
+  color: ${panelMutedText};
+`;
+
+const Hint = styled.div`
+  margin-top: auto;
+  padding: 12px 8px 20px;
+  text-align: center;
+  font-size: .85rem;
+  line-height: 1.4;
+  color: ${panelMutedText};
+`;
+
+const HintButton = styled.button`
+  padding: 0;
   border: 0;
-  border-top: 1px solid ${colorBorder};
-`;
-
-const MessagesTitle = styled.h2`
-  font-size: 0.85rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  padding: 0 ${smPaddingX};
-  color: ${colorGray};
-  flex: 1;
-  margin: 0;
-  flex: 1;
-  margin: 0;
-`;
-
-const ScrollableList = styled.div`
-  overflow-y: auto;
-  height: 100%;
-  background-color: transparent;
+  background: transparent;
+  color: ${colorPrimary};
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 
   &:hover {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
+    text-decoration: underline;
   }
 
-  &:focus,
-  &:active {
-    border-radius: none;
-    box-shadow: inset 0 0 1px ${colorPrimary};
-    outline-style: transparent;
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
   }
-
-  overflow-x: hidden;
-`;
-
-const ListTransition = styled.div`
-  display: flex;
-  flex-flow: column;
-  padding: ${borderSize} 0 0 0;.
-  outline: none;
-  overflow: hidden;
-  flex-shrink: 1;
-
-  &.transition-enter,
-  &.transition-appear {
-    opacity: 0.01;
-  }
-
-  &.transition-enter-active,
-  &.transition-appear-active {
-    opacity: 1;
-    
-    &.animationsEnabled {
-      transition: all 600ms;
-    }
-  }
-
-  &.transition-leave {
-    opacity: 1;
-  }
-
-  &.transition-leave-active {
-    opacity: 0;
-
-    &.animationsEnabled {
-      transition: all 600ms;
-    }
-  }
-`;
-
-const NoChatsMessage = styled.div`
-  height: 100%;
 `;
 
 export default {
-  Messages,
-  Container,
-  Separator,
-  MessagesTitle,
   ScrollableList,
-  ListTransition,
-  NoChatsMessage,
+  List,
+  Empty,
+  Hint,
+  HintButton,
 };

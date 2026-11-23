@@ -27,7 +27,13 @@ pass of the overall architecture. Check an item off when it matches.
 ## Panels
 - [x] People and Chat share one panel with tabs, 360px wide by default
 - [ ] People tab keeps the download button, Chat tab keeps its options menu
-- [ ] Chat uses BBB's public/private buttons, not an Everyone/Direct switch
+- [x] Chat has an Everyone/Direct switch, a direct message list, conversation bubbles and the restyled input
+- [ ] Chat: privacy note leaves out "Moderators can't read it" until we confirm that holds on every setup
+- [ ] Chat: privacy note uses the full name and sits at the top, not above the first message
+- [ ] Chat: unread direct messages show a count, not a dot; Everyone also shows a count while in Direct
+- [ ] Chat: moderator messages keep BBB's blue highlight; system messages keep their style
+- [ ] Chat: the hover toolbar (reply, react, edit, pin, delete) keeps BBB's design
+- [ ] Chat: closing the panel in a direct message hides that conversation until a new message (BBB behavior)
 - [x] People list: raised hands with wait times, status columns, hover actions, All and Raised hands filters
 - [ ] People list: no Low engagement filter
 - [ ] People list: keeps the search box, Lower all hands and role labels (Presenter, Moderator, Guest...)
@@ -39,7 +45,8 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Other panels (Notes, Apps, Profile, Poll, Timer) keep BBB's header
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
-- [ ] New strings (tabs, people count, filters, statuses) are English only
+- [ ] New strings (tabs, people count, filters, statuses, chat switch and placeholders) are English only
+- [ ] Chat input placeholder was translated in BBB and is now English only
 - [x] Share media menu opens above its button
 - [ ] Share media menu keeps BBB's layout (design: previews above a row of media types)
 
@@ -50,5 +57,6 @@ pass of the overall architecture. Check an item off when it matches.
 
 ## Not yet tested
 - [ ] People list: large meetings (over 50 people), guests waiting, locked viewers, listen-only, plugins
-- [ ] BBB's own Playwright tests still expect the old people list (rank badge, duplicate rows, pinned whiteboard button)
+- [ ] BBB's own Playwright tests still expect the old people list and chat buttons
+- [ ] Chat: direct messages on phone, locked chat, offline participants, pinned messages, polls, plugins, chat in the second panel
 - [ ] Active recording, webcam tiles, real screen sharing, breakout rooms, production build

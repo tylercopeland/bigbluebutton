@@ -9,6 +9,7 @@ import {
   colorBorder,
   colorWhite,
   colorPrimary,
+  panelBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
@@ -180,16 +181,22 @@ const EmojiPicker = styled(EmojiPickerComponent)`
   position: relative;
 `;
 
-const InputWrapper = styled.div`
+const PrivateIcon = styled.span`
+  display: flex;
+  flex-shrink: 0;
+  color: ${colorPrimary};
+`;
+
+const InputWrapper = styled.div<{ $isPrivate: boolean }>`
   display: flex;
   flex-direction: row;
   flex-grow: 1;
   min-width: 0;
   z-index: 0;
-  border-radius: 0.75rem;
-  border: 1px solid ${colorBorder};
+  border-radius: 12px;
+  border: 1.5px solid ${({ $isPrivate }) => ($isPrivate ? colorPrimary : panelBorder)};
   background-color: ${colorWhite};
-  gap: 3px;
+  gap: 6px;
   cursor: text;
 
   &:focus-within {
@@ -200,7 +207,8 @@ const InputWrapper = styled.div`
   overflow-y: hidden;
   align-items: center;
   margin: auto;
-  padding: 0.75rem !important;
+  padding: 5px !important;
+  padding-inline-start: 12px !important;
 `;
 
 export default {
@@ -213,5 +221,6 @@ export default {
   EmojiPicker,
   EmojiPickerWrapper,
   ChatMessageError,
+  PrivateIcon,
   InputWrapper,
 };

@@ -1,17 +1,12 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import {
-  smPaddingY,
-  lgPadding,
   $3xlPadding,
   xlPadding,
   mdPadding,
   smPadding,
 } from '/imports/ui/stylesheets/styled-components/general';
-import {
-  fontSizeBase,
-  fontSizeSmaller,
-} from '/imports/ui/stylesheets/styled-components/typography';
+import { fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
 
 import {
   colorBlueLightest,
@@ -23,9 +18,16 @@ import {
   emphasizedMessageBackgroundColor,
   highlightedMessageBorderColor,
   systemMessageBorderColor,
+  chatBubbleBg,
+  chatOwnBubbleBg,
+  panelMutedText,
+  panelRowHoverBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { ChatTime as ChatTimeBase } from './message-header/styles';
-import { IconWrapper as ReadConfirmationIconWrapper } from './message-read-confirmation/styles';
+import { IconWrapper as ReadConfirmationIconWrapper, ReadIcon } from './message-read-confirmation/styles';
+import { Root as ToolbarRoot } from './message-toolbar/styles';
+import { ChatMessage as TextMessage } from './message-content/text-content/styles';
+import RepliedStyled from './message-replied/styles';
 import UserAvatar from '/imports/ui/components/user-avatar/component';
 
 interface ChatWrapperProps {
@@ -33,7 +35,15 @@ interface ChatWrapperProps {
   messageHighlight: boolean;
   isPresentationUpload?: boolean;
   isCustomPluginMessage: boolean;
+  $bubble: Bubble;
 }
+
+// Private conversations show bubbles, aligned by who wrote the message
+export type Bubble = 'own' | 'other' | null;
+
+const { Container: RepliedMessage } = RepliedStyled;
+
+const AVATAR_COLUMN = '32px';
 
 interface ChatMessageContentWrapperProps {
   sameSender: boolean;
@@ -44,22 +54,30 @@ interface ChatMessageContentWrapperProps {
   $reactionPopoverIsOpen: boolean;
   $keyboardFocused: boolean;
   $emphasizedMessage: boolean;
+  $isIndented: boolean;
+  $isDeleted: boolean;
+  $bubble: Bubble;
 }
 
 export const FlexColumn = styled.div`
   display: flex;
   flex-flow: column;
-  gap: ${smPaddingY};
+  gap: 2px;
+  align-items: inherit;
 `;
 
 export const ChatWrapper = styled.div<ChatWrapperProps>`
   pointer-events: auto;
   display: flex;
   flex-flow: column;
-  gap: ${smPaddingY};
+  gap: 2px;
   position: relative;
   font-size: ${fontSizeBase};
-  position: relative;
+
+  ${({ $bubble }) => $bubble && `
+    max-width: 85%;
+    align-items: ${$bubble === 'own' ? 'flex-end' : 'flex-start'};
+  `}
 
   [dir='rtl'] & {
     direction: rtl;
@@ -90,14 +108,17 @@ export const ChatMessageContentWrapper = styled.div<ChatMessageContentWrapperPro
   position: relative;
   border: 1px solid transparent;
 
-  ${({ $isSystemSender, isCustomPluginMessage }) => !$isSystemSender && !isCustomPluginMessage
-  && `
-    background-color: #f4f6fa;
+  /* Lines up with the name, past the avatar */
+  ${({ $isIndented }) => $isIndented && `
+    width: auto;
+    margin-inline-start: ${AVATAR_COLUMN};
   `}
 
-  ${({ $highlight, isCustomPluginMessage }) => ($highlight && !isCustomPluginMessage) && `
+  ${({ $highlight, isCustomPluginMessage, $bubble }) => ($highlight && !isCustomPluginMessage && !$bubble) && `
+    background-color: ${colorWhite};
+
     &:hover {
-      border: 1px solid ${highlightedMessageBorderColor};
+      background-color: ${panelRowHoverBg};
     }
   `}
 
@@ -118,6 +139,54 @@ export const ChatMessageContentWrapper = styled.div<ChatMessageContentWrapperPro
 
     &:hover {
       border: 1px solid ${highlightedMessageBorderColor};
+    }
+  `}
+
+  ${({ $bubble }) => $bubble && css`
+    width: auto;
+    max-width: 100%;
+    border-radius: 14px;
+
+    /* A short bubble is narrower than the toolbar, which must not leave the panel */
+    && > ${ToolbarRoot} {
+      right: auto;
+      left: auto;
+      transform: translateY(20%);
+      ${$bubble === 'own' ? 'inset-inline-end: 0;' : 'inset-inline-start: 0;'}
+    }
+  `}
+
+  ${({ $bubble }) => $bubble && css`
+    > ${RepliedMessage} {
+      margin: 6px 6px 0;
+      border-radius: 9px;
+    }
+  `}
+
+  ${({ $bubble }) => $bubble === 'other' && `
+    background-color: ${chatBubbleBg};
+  `}
+
+  ${({ $bubble, $isDeleted }) => $bubble === 'own' && !$isDeleted && css`
+    &&, .chat-message-container:focus && {
+      background-color: ${chatOwnBubbleBg} !important;
+    }
+
+    ${TextMessage} {
+      color: #FFF;
+    }
+
+    ${TextMessage} a,
+    ${ReadIcon} {
+      color: #FFF;
+    }
+
+    ${TextMessage} a {
+      text-decoration: underline;
+    }
+
+    ${TextMessage} pre {
+      color: ${colorGrayDark};
     }
   `}
 `;
@@ -159,35 +228,46 @@ export const ChatContentFooter = styled.div`
 `;
 
 export const ChatAvatar = styled(UserAvatar)`
-  flex: 0 0 2.25rem;
-  margin: 0px calc(0.5rem) 0px 0px;
-  box-flex: 0;
-  position: relative;
+  && {
+    position: absolute;
+  }
+
+  top: 0;
+  inset-inline-start: 0;
+  width: 28px;
+  height: 28px;
   text-align: center;
-  font-size: .85rem;
-  border: 2px solid transparent;
+  font-size: .68rem;
+  font-weight: 700;
+  border: 0;
   user-select: none;
 `;
 
-export const Container = styled.div<{ $sequence: number }>`
+export const Container = styled.div<{ $sequence: number; $sameSender: boolean; $bubble: Bubble }>`
   display: flex;
   flex-direction: column;
   user-select: text;
   outline: none;
 
   &:not(:first-of-type) {
-    margin-top: calc((${fontSizeSmaller} + ${lgPadding} * 2) / 2);
+    margin-top: ${({ $sameSender }) => ($sameSender ? '2px' : '12px')};
   }
+
+  ${({ $bubble }) => $bubble && `
+    align-items: ${$bubble === 'own' ? 'flex-end' : 'flex-start'};
+  `}
 
   &[data-focusable="false"] {
     pointer-events: none;
   }
 `;
 
-export const MessageItemWrapper = styled.div`
+export const MessageItemWrapper = styled.div<{ $bubble: Bubble }>`
   display: flex;
   flex-direction: row;
-  padding: calc(${lgPadding} + 2px) ${$3xlPadding};
+  padding: ${({ $bubble }) => ($bubble ? '7px 12px' : '2px 5px')};
+  font-size: .9375rem;
+  line-height: 1.4;
 `;
 
 export const PluginInformationMetadata = styled.div`
@@ -205,8 +285,13 @@ export const DeleteMessage = styled.span`
   border-radius: 0.375rem;
 `;
 
-export const ChatHeading = styled.div`
+export const ChatHeading = styled.div<{ $hasAvatar: boolean }>`
   display: flex;
+  min-height: 18px;
+
+  ${({ $hasAvatar }) => $hasAvatar && `
+    padding-inline-start: 38px;
+  `}
 `;
 
 export const EditLabel = styled.span`
@@ -229,4 +314,13 @@ export const ChatTime = styled(ChatTimeBase)`
   .chat-message-content:hover & {
     display: flex;
   }
+`;
+
+// Time and edit state below the bubbles of a private conversation
+export const BubbleMeta = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: .72rem;
+  color: ${panelMutedText};
 `;

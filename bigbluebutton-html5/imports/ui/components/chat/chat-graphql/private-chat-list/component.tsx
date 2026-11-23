@@ -1,82 +1,81 @@
 import React from 'react';
-import { TransitionGroup, CSSTransition } from 'react-transition-group';
+import { defineMessages, useIntl } from 'react-intl';
+import { Chat } from '/imports/ui/Types/chat';
 import Styled from './styles';
 import PrivateChatListItem from './chat-list-item/component';
-import { Chat } from '/imports/ui/Types/chat';
-import Service from '/imports/ui/components/user-list/service';
 
-interface ChatListProps {
-  chats: Partial<Chat>[],
+const intlMessages = defineMessages({
+  label: {
+    id: 'app.chat.direct.listLabel',
+    description: 'Accessible label for the list of private chats',
+    defaultMessage: 'Direct messages',
+  },
+  empty: {
+    id: 'app.chat.direct.empty',
+    description: 'Shown when there are no private chats',
+    defaultMessage: 'No direct messages yet',
+  },
+  hint: {
+    id: 'app.chat.direct.hint',
+    description: 'Explains how to start a private chat',
+    defaultMessage: 'To start a private chat, pick someone in <people>People</people>.',
+  },
+});
+
+interface PrivateChatListProps {
+  chats: Partial<Chat>[];
   privateChatSelectedCallback: () => void;
+  onOpenPeople: () => void;
 }
 
-const getActiveChats = (
-  chats: Partial<Chat>[],
-  chatNodeRef: React.Ref<HTMLButtonElement>,
-  privateChatSelectedCallback: () => void,
-) => chats.map((chat, idx) => (
-  <CSSTransition
-    classNames="transition"
-    appear
-    enter
-    exit={false}
-    timeout={0}
-    key={chat.chatId}
-    nodeRef={chatNodeRef}
-  >
-    <Styled.ListTransition>
-      <PrivateChatListItem
-        chat={chat}
-        chatNodeRef={chatNodeRef}
-        index={idx}
-        privateChatSelectedCallback={privateChatSelectedCallback}
-      />
-    </Styled.ListTransition>
-  </CSSTransition>
-));
+// Arrow keys move between conversations, which are a single tab stop
+const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
+  if (event.key !== 'ArrowDown' && event.key !== 'ArrowUp') return;
+  const items = Array.from(event.currentTarget.querySelectorAll<HTMLElement>('button'));
+  const current = items.indexOf(document.activeElement as HTMLElement);
+  event.preventDefault();
+  event.stopPropagation();
+  items[current + (event.key === 'ArrowDown' ? 1 : -1)]?.focus();
+};
 
-const PrivateChatList: React.FC<ChatListProps> = ({ chats, privateChatSelectedCallback }) => {
-  const messageListRef = React.useRef<HTMLDivElement | null>(null);
-  const messageItemsRef = React.useRef<HTMLDivElement | null>(null);
-  const [selectedChat, setSelectedChat] = React.useState<HTMLElement>();
-  const { roving } = Service;
-  const chatNodeRef = React.useRef<HTMLButtonElement | null>(null);
-
-  React.useEffect(() => {
-    const firstChild = (selectedChat as HTMLElement)?.firstChild;
-    if (firstChild && firstChild instanceof HTMLElement) firstChild.focus();
-  }, [selectedChat]);
-
-  const rove = (event: React.KeyboardEvent) => {
-    const msgItemsRef = messageItemsRef.current;
-    const msgItemsRefChild = msgItemsRef?.firstChild;
-    roving(event, setSelectedChat, msgItemsRefChild, selectedChat);
-    event.stopPropagation();
-  };
+const PrivateChatList: React.FC<PrivateChatListProps> = ({
+  chats, privateChatSelectedCallback, onOpenPeople,
+}) => {
+  const intl = useIntl();
 
   return (
-    <Styled.ScrollableList
-      role="tabpanel"
-      tabIndex={0}
-      ref={messageListRef}
-      onKeyDown={rove}
-    >
-      <TransitionGroup>
-        {getActiveChats(chats, chatNodeRef, privateChatSelectedCallback)}
-      </TransitionGroup>
+    <Styled.ScrollableList>
+      {chats.length === 0 ? (
+        <Styled.Empty data-test="noPrivateChats">{intl.formatMessage(intlMessages.empty)}</Styled.Empty>
+      ) : (
+        <Styled.List
+          role="list"
+          tabIndex={0}
+          aria-label={intl.formatMessage(intlMessages.label)}
+          onKeyDown={handleKeyDown}
+        >
+          {chats.map((chat, index) => (
+            <div role="listitem" key={chat.chatId}>
+              <PrivateChatListItem
+                chat={chat}
+                index={index}
+                privateChatSelectedCallback={privateChatSelectedCallback}
+              />
+            </div>
+          ))}
+        </Styled.List>
+      )}
+      <Styled.Hint>
+        {intl.formatMessage(intlMessages.hint, {
+          people: (text: React.ReactNode) => (
+            <Styled.HintButton key="people" type="button" onClick={onOpenPeople} data-test="openPeopleFromChat">
+              {text}
+            </Styled.HintButton>
+          ),
+        })}
+      </Styled.Hint>
     </Styled.ScrollableList>
   );
 };
 
-interface PrivateChatListContainerProps {
-  privateChatSelectedCallback: () => void;
-  chats: Partial<Chat>[];
-}
-
-const PrivateChatListContainer: React.FC<PrivateChatListContainerProps> = ({ privateChatSelectedCallback, chats }) => {
-  return (
-    <PrivateChatList chats={chats} privateChatSelectedCallback={privateChatSelectedCallback} />
-  );
-};
-
-export default PrivateChatListContainer;
+export default PrivateChatList;

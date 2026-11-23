@@ -1,41 +1,89 @@
 import styled from 'styled-components';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import {
-  colorBorder,
+  panelBorder,
+  panelMutedText,
+  panelRowHoverBg,
+  panelText,
+  roomFocusRing,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const Form = styled.div`
-  width: 100%;
-  margin-top: .2rem;
+const Header = styled.div`
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  margin: 0 -14px;
+  padding: 0 12px 10px;
+  border-bottom: 1px solid ${panelBorder};
 `;
 
-const ArrowWrapper = styled.div`
-  display: flex; 
+const Back = styled.button`
+  display: flex;
+  flex-shrink: 0;
   align-items: center;
-  background-color: #E3F2FD;
-  border-top-left-radius: 0.75rem;
-  border-bottom-left-radius: 0.75rem;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border-left: 1px solid transparent;
-  border-top: 1px solid transparent;
-  border-bottom: 1px solid transparent;
-  border-right: 1px solid ${colorBorder};
-  color: #1976D2;
-  padding: 8px;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: ${panelText};
   cursor: pointer;
+
+  &:hover {
+    background-color: ${panelRowHoverBg};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+  }
+
+  [dir="rtl"] & svg {
+    transform: scaleX(-1);
+  }
 `;
 
-const InputWrapper = styled.div`
-  display: flex; 
+const Avatar = styled(UserAvatar)`
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  font-size: .75rem;
+  font-weight: 700;
+`;
+
+const Text = styled.div`
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-width: 0;
+`;
+
+const Name = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: ${panelText};
+`;
+
+const Sub = styled.span`
+  display: flex;
   align-items: center;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  border: 1px solid ${colorBorder};
-  background-color: #fff;
+  gap: 4px;
+  font-size: .78rem;
+  color: ${panelMutedText};
 `;
 
 export default {
-  Form,
-  ArrowWrapper,
-  InputWrapper,
+  Header,
+  Back,
+  Avatar,
+  Text,
+  Name,
+  Sub,
 };

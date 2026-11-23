@@ -55,6 +55,9 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
             </Styled.ChatUserOffline>
           )
         }
+        <Styled.ChatTime className="bbb-chat-message__time">
+          <FormattedTime value={dateTime} />
+        </Styled.ChatTime>
         {actions && (
           <Styled.HeaderActions>
             {actions}
@@ -74,9 +77,6 @@ const ChatMessageHeader: React.FC<ChatMessageHeaderProps> = ({
             <Icon iconName="delete" />
           </Styled.EditLabel>
         )}
-        <Styled.ChatTime className="bbb-chat-message__time">
-          <FormattedTime value={dateTime} />
-        </Styled.ChatTime>
       </Styled.ChatHeaderText>
     </Styled.HeaderContent>
   );

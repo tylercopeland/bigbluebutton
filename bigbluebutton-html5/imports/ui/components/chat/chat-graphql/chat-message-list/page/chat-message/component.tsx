@@ -17,6 +17,8 @@ import ChatMessageTextContent from './message-content/text-content/component';
 import ChatPollContent, { ChatPollContentHandle } from './message-content/poll-content/component';
 import ChatMessagePresentationContent from './message-content/presentation-content/component';
 import {
+  Bubble,
+  BubbleMeta,
   ChatWrapper,
   ChatMessageContentWrapper,
   ChatAvatar,
@@ -817,11 +819,19 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
     : ((previousMessage?.user?.userId
       || lastSenderPreviousPage) === message?.user?.userId) && pluginMessageNotCustom;
 
+  const isOwn = !!message.user && message.user.userId === currentUserId;
+  let bubble: Bubble = null;
+  if (!isPublicChat && !isSystemSender && !isCustomPluginMessage) {
+    bubble = isOwn ? 'own' : 'other';
+  }
+
   const shouldRenderAvatar = messageContent.showAvatar
+    && !bubble
     && !sameSender
     && !isCustomPluginMessage;
 
   const shouldRenderHeader = messageContent.showHeading
+    && !bubble
     && !sameSender
     && !isCustomPluginMessage;
 
@@ -989,6 +999,9 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
       $keyboardFocused={keyboardFocused}
       $reactionPopoverIsOpen={isToolbarReactionPopoverOpen}
       $emphasizedMessage={message.chatEmphasizedText}
+      $isIndented={messageContent.showAvatar && !bubble && !isCustomPluginMessage}
+      $isDeleted={!!deleteTime}
+      $bubble={bubble}
       role="listitem"
     >
       <ChatMessageToolbar
@@ -1024,6 +1037,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           data-test="chatMessageContent"
           data-chat-message-id={message?.messageId}
           ref={registerMessageContent}
+          $bubble={bubble}
         >
           {messageContent.component}
           {messageReadFeedbackEnabled && (
@@ -1046,7 +1060,7 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
           </PluginInformationMetadata>
         )
       }
-      {((sameSender || (isSystemSender && !messagesWithHeaders)) && !isCustomMessageFromPlugin) && (
+      {((sameSender || (isSystemSender && !messagesWithHeaders)) && !isCustomMessageFromPlugin && !bubble) && (
         <ChatContentFooter>
           {!deleteTime && editTime && (
             <Tooltip title={intl.formatTime(editTime)}>
@@ -1120,9 +1134,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         'chat-message-container-keyboard-focused': keyboardFocused,
         'bbb-chat-message--own': !!message.user && message.user.userId === Auth.userID,
         'bbb-chat-message--system': isSystemSender,
+        'bbb-chat-message--bubble': !!bubble,
       })}
       ref={containerRef}
       $sequence={message.messageSequence}
+      $sameSender={sameSender}
+      $bubble={bubble}
       data-sequence={message.messageSequence}
       data-message-type={message.messageType}
       data-focusable={focusable}
@@ -1139,10 +1156,12 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
         sameSender={sameSender}
         ref={messageRef}
         isPresentationUpload={messageContent.isPresentationUpload}
+        $bubble={bubble}
         isCustomPluginMessage={isCustomPluginMessage}
       >
+        {bubble && <span className="sr-only">{messageContent.name}</span>}
         {(shouldRenderAvatar || shouldRenderHeader) && (
-          <ChatHeading>
+          <ChatHeading $hasAvatar={shouldRenderAvatar}>
             {shouldRenderAvatar && (
               <ChatAvatar
                 avatar={message.user?.avatar || ''}
@@ -1195,6 +1214,17 @@ const ChatMessage = React.forwardRef<ChatMessageRef, ChatMessageProps>(({
             {contentElement}
             {reactionsElement}
           </>
+        )}
+        {bubble && (
+          <BubbleMeta data-test="chatMessageBubbleMeta">
+            {!deleteTime && editTime && (
+              <EditLabel data-test="chatMessageFooterEditedLabel">
+                <Icon iconName="pen_tool" />
+                <span>{intl.formatMessage(intlMessages.edited)}</span>
+              </EditLabel>
+            )}
+            <time className="bbb-chat-message__time"><FormattedTime value={dateTime} /></time>
+          </BubbleMeta>
         )}
       </ChatWrapper>
       {isTryingToPin && (

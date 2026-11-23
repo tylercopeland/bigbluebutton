@@ -1,293 +1,114 @@
 import styled from 'styled-components';
-import { fontSizeSmall, fontSizeBase } from '/imports/ui/stylesheets/styled-components/typography';
+import UserAvatar from '/imports/ui/components/user-avatar/component';
 import {
-  lgPaddingY,
-  lgPadding,
-  smPaddingY,
-  xlPadding,
-  borderSize,
-  userIndicatorsOffset,
-} from '/imports/ui/stylesheets/styled-components/general';
-import {
-  colorGrayDark,
-  colorOffWhite,
-  listItemBgHover,
-  colorGrayLight,
-  colorWhite,
-  userListBg,
-  colorSuccess,
-  itemFocusBorder,
-  unreadMessagesBg,
-  colorGrayLightest,
+  colorDanger,
+  panelMutedText,
+  panelRowHoverBg,
+  panelText,
+  roomFocusRing,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-interface UserAvatarProps {
-  color: string;
-  moderator: boolean;
-  avatar: string;
-  emoji?: string;
-}
-
-interface ChatNameMainProps {
-  active: boolean;
-}
-
-interface ChatListItemProps {
-  active: boolean;
-  ref: React.Ref<HTMLElement | undefined>;
-}
-
-const ChatListItemLink = styled.div`
+const ChatListItem = styled.button`
   display: flex;
-  flex-grow: 1;
   align-items: center;
-  text-decoration: none;
+  gap: 10px;
   width: 100%;
-`;
-
-const ChatIcon = styled.div`
-  flex: 0 0 2.2rem;
-`;
-
-const UserAvatar = styled.div<UserAvatarProps>`
-  flex: 0 0 2.25rem;
-  margin: 0px calc(0.5rem) 0px 0px;
-  box-flex: 0;
-  position: relative;
-  height: 2.25rem;
-  width: 2.25rem;
-  border-radius: 50%;
-  text-align: center;
-  font-size: .85rem;
-  border: 2px solid transparent;
-  user-select: none;
-  ${
-  ({ color }: UserAvatarProps) => `
-    background-color: ${color};
-  `}
-  }
-  &:after,
-  &:before {
-    content: "";
-    position: absolute;
-    width: 0;
-    height: 0;
-    padding-top: .5rem;
-    padding-right: 0;
-    padding-left: 0;
-    padding-bottom: 0;
-    color: inherit;
-    top: auto;
-    left: auto;
-    bottom: ${userIndicatorsOffset};
-    right: ${userIndicatorsOffset};
-    border: 1.5px solid ${userListBg};
-    border-radius: 50%;
-    background-color: ${colorSuccess};
-    color: ${colorWhite};
-    opacity: 0;
-    font-family: 'bbb-icons';
-    font-size: .65rem;
-    line-height: 0;
-    text-align: center;
-    vertical-align: middle;
-    letter-spacing: -.65rem;
-    z-index: 1;
-    [dir="rtl"] & {
-      left: ${userIndicatorsOffset};
-      right: auto;
-      padding-right: .65rem;
-      padding-left: 0;
-    }
-  }
-  ${({ moderator }: UserAvatarProps) => moderator && `
-    border-radius: 5px;
-  `}
-  // ================ image ================
-  ${({ avatar, emoji, color }: UserAvatarProps) => avatar?.length !== 0 && !emoji && `
-    background-image: url(${avatar});
-    background-repeat: no-repeat;
-    background-size: contain;
-    border: 2px solid ${color};
-  `}
-  // ================ image ================
-  // ================ content ================
-  color: ${colorWhite};
-  font-size: 110%;
-  text-transform: capitalize;
-  display: flex;
-  justify-content: center;
-  align-items:center;
-  // ================ content ================
-  & .react-loading-skeleton {
-    height: 2.25rem;
-    width: 2.25rem;
-  }
-`;
-
-const ChatHeading = styled.div`
-  display: flex;
-  align-items: center;
-`;
-
-const ChatName = styled.div`
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-  justify-content: center;
-  width: 50%;
-  padding-right: ${smPaddingY};
-`;
-
-const ChatNameMain = styled.span`
-  margin: 0;
-  min-width: 0;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  font-weight: 400;
-  font-size: ${fontSizeSmall};
-  color: ${colorGrayDark};
-  flex-grow: 1;
-  line-height: 2;
-  text-align: left;
-  padding: 0 0 0 ${lgPaddingY};
-  text-overflow: ellipsis;
-
-  [dir="rtl"] & {
-    text-align: right;
-    padding: 0 ${lgPaddingY} 0 0;
-  }
-
-  ${({ active }: ChatNameMainProps) => active && `
-    background-color: ${listItemBgHover};
-  `}
-`;
-
-const ChatListItem = styled.button<ChatListItemProps>`
-  display: flex;
-  flex-flow: row;
-  border-radius: 5px;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 10px;
+  background-color: transparent;
+  font-family: inherit;
+  text-align: start;
   cursor: pointer;
-  border-color: transparent;
-  border-width: 0;
-
-  &:first-child {
-    margin-top: 0;
-  }
 
   &:hover {
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-    background-color: ${listItemBgHover};
+    background-color: ${panelRowHoverBg};
   }
 
-  &:focus {
-    outline: transparent;
-    outline-width: ${borderSize};
-    outline-style: solid;
-    background-color: ${listItemBgHover};
-    box-shadow: inset 0 0 0 ${borderSize} ${itemFocusBorder}, inset 1px 0 0 1px ${itemFocusBorder};
-  }
-  cursor: pointer;
-  text-decoration: none;
-  flex-grow: 1;
-  line-height: 2;
-  color: ${colorGrayDark};
-  background-color: transparent;
-  padding-top: ${lgPaddingY};
-  padding-bottom: ${lgPaddingY};
-  padding-left: ${lgPaddingY};
-  padding-right: ${lgPaddingY};
-
-  ${({ active }: ChatListItemProps) => active && `
-    outline: transparent;
-    outline-style: dotted;
-    outline-width: ${borderSize};
-    background-color: ${colorGrayLightest};
-  `}
-`;
-
-const ChatThumbnail = styled.div`
-  display: flex;
-  flex-flow: column;
-  color: ${colorGrayLight};
-  justify-content: center;
-  font-size: 175%;
-`;
-
-const UnreadMessages = styled.div`
-  display: flex;
-  flex-flow: column;
-  padding: 10px;
-  justify-content: center;
-  margin-left: auto;
-  [dir="rtl"] & {
-    margin-right: auto;
-    margin-left: 0;
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: -2px;
   }
 `;
-const UnreadMessagesText = styled.div`
-  display: flex;
-  flex-flow: column;
-  margin: 0;
-  justify-content: center;
-  color: ${colorWhite};
-  line-height: calc(1rem + 1px);
-  padding: 0 0.5rem;
-  text-align: center;
-  border-radius: 0.5rem/50%;
-  font-size: 0.8rem;
-  background-color: ${unreadMessagesBg};
+
+const Avatar = styled(UserAvatar)`
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  font-size: .75rem;
+  font-weight: 700;
 `;
 
-const ChatWrapper = styled.div`
-  pointer-events: auto;
+const Text = styled.span`
   display: flex;
-  width: 100%;
-  flex-flow: column;
-  gap: ${smPaddingY};
-  position: relative;
-  font-size: ${fontSizeBase};
-  position: relative;
-
-`;
-
-const ChatContent = styled.div`
-  display: flex;
-  flex-flow: row;
-  width: 100%;
-  border-radius: 0.5rem;
-  background-color: ${colorOffWhite};
-`;
-
-const MessageItemWrapper = styled.div`
-  flex: 1;
+  flex: 1 1 auto;
+  flex-direction: column;
   min-width: 0;
-  padding: ${lgPadding} ${xlPadding};
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-  text-align: left;
+`;
 
-  [dir="rtl"] & {
-    text-align: right;
-  }
+const Name = styled.span`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .9375rem;
+  font-weight: 700;
+  line-height: 1.3;
+  color: ${panelText};
+`;
+
+const Offline = styled.span`
+  font-weight: 400;
+  color: ${panelMutedText};
+`;
+
+const Preview = styled.span<{ $isUnread: boolean }>`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: .85rem;
+  line-height: 1.35;
+  font-weight: ${({ $isUnread }) => ($isUnread ? 600 : 400)};
+  color: ${({ $isUnread }) => ($isUnread ? panelText : panelMutedText)};
+`;
+
+const Meta = styled.span`
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+`;
+
+const Time = styled.span`
+  font-size: .72rem;
+  color: ${panelMutedText};
+`;
+
+const Unread = styled.span`
+  min-width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  padding: 0 5px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  color: #FFF;
+  background-color: ${colorDanger};
 `;
 
 export default {
-  ChatListItemLink,
-  ChatIcon,
-  ChatName,
-  ChatNameMain,
-  ChatHeading,
   ChatListItem,
-  ChatThumbnail,
-  ChatWrapper,
-  ChatContent,
-  MessageItemWrapper,
-  UnreadMessages,
-  UnreadMessagesText,
-  UserAvatar,
+  Avatar,
+  Text,
+  Name,
+  Offline,
+  Preview,
+  Meta,
+  Time,
+  Unread,
 };

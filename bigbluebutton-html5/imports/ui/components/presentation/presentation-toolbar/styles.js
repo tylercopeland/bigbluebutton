@@ -1,4 +1,4 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 import QuickPollDropdownContainer from '/imports/ui/components/actions-bar/quick-poll-dropdown/container';
 import { smallOnly, hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import {
@@ -9,6 +9,12 @@ import {
   colorGrayDark,
   colorBlueLightest,
   toolbarButtonColorDisabled,
+  panelRowHoverBg,
+  panelText,
+  roomFocusRing,
+  stageControlActiveBg,
+  stageControlBorder,
+  stageControlColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   whiteboardToolbarMargin,
@@ -352,6 +358,177 @@ const InfiniteWhiteboardButton = styled(Button)`
   }
 `;
 
+// ===== Controls over the slide =====
+
+const pill = css`
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid ${stageControlBorder};
+  border-radius: 12px;
+  background-color: ${colorWhite};
+  box-shadow: 0 6px 18px rgba(15, 23, 36, .18);
+`;
+
+const StageControls = styled.div`
+  position: relative;
+  width: var(--slide-width, 100%);
+  max-width: 100%;
+  pointer-events: none;
+`;
+
+const StageStack = styled.div`
+  position: absolute;
+  bottom: 12px;
+  inset-inline: 12px;
+
+  [data-stacked="true"] > & {
+    bottom: 66px;
+  }
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  pointer-events: none;
+
+  > * {
+    pointer-events: auto;
+  }
+`;
+
+const StagePill = styled.div`
+  ${pill}
+
+  &:empty {
+    display: none;
+  }
+
+  [data-test="multiUsersCount"] {
+    bottom: .6rem;
+  }
+`;
+
+// Quick poll, media and plugin items, which only some slides have
+const StageExtras = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  > span[aria-hidden] {
+    display: none;
+  }
+`;
+
+const StageMorePanel = styled.div`
+  ${pill}
+
+  i {
+    color: ${toolbarButtonColor};
+  }
+`;
+
+const StageDivider = styled.span`
+  flex-shrink: 0;
+  width: 1px;
+  height: 20px;
+  margin: 0 2px;
+  background-color: ${stageControlBorder};
+`;
+
+const StageButton = styled.button`
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background-color: transparent;
+  color: ${stageControlColor};
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${panelRowHoverBg};
+  }
+
+  &[aria-expanded="true"] {
+    background-color: ${stageControlActiveBg};
+    color: ${colorPrimary};
+  }
+
+  ${({ $isPrimary }) => $isPrimary && css`
+    &,
+    &:hover {
+      background-color: ${colorPrimary};
+      color: #FFF;
+    }
+  `}
+
+  &:disabled {
+    background-color: transparent;
+    color: ${toolbarButtonColorDisabled};
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: 1px;
+  }
+
+  ${({ $isDirectional }) => $isDirectional && `
+    [dir="rtl"] & svg {
+      transform: scaleX(-1);
+    }
+  `}
+`;
+
+const StageDot = styled.span`
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 6px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background-color: ${colorPrimary};
+`;
+
+// The select covers the text, so that clicking the position still jumps to a slide
+const StagePosition = styled.span`
+  position: relative;
+  min-width: 56px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: .84rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: ${panelText};
+
+  &:hover {
+    background-color: ${panelRowHoverBg};
+  }
+
+  &:focus-within:has(:focus-visible) {
+    outline: 2px solid ${roomFocusRing};
+  }
+
+  select {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+  }
+`;
+
 export { COMPACT_ATTRIBUTE, OVERFLOWING_ATTRIBUTE, OUT_OF_ROOM_ATTRIBUTE };
 
 export default {
@@ -369,4 +546,13 @@ export default {
   WBAccessButton,
   MUTPlaceholder,
   InfiniteWhiteboardButton,
+  StageControls,
+  StageStack,
+  StagePill,
+  StageExtras,
+  StageMorePanel,
+  StageDivider,
+  StageButton,
+  StageDot,
+  StagePosition,
 };

@@ -17,6 +17,10 @@ import Styled, {
   OVERFLOWING_ATTRIBUTE,
   OUT_OF_ROOM_ATTRIBUTE,
 } from './styles';
+import SlidesOverview from './slides-overview/component';
+import {
+  GridIcon, MoreIcon, NextIcon, PreviousIcon,
+} from './icons';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
 import TooltipContainer from '/imports/ui/components/common/tooltip/container';
@@ -26,11 +30,34 @@ import Separator from '/imports/ui/components/common/separator/component';
 
 const FIT_TOLERANCE_PX = 1;
 
+// Below this, the slide controls go above the whiteboard tools instead of next to them
+const STACKED_MAX_WIDTH = 920;
+
+const POPOVERS = {
+  OVERVIEW: 'overview',
+  MORE: 'more',
+};
+
 const exceedsAvailableWidth = (element) => (
   element.scrollWidth > element.clientWidth + FIT_TOLERANCE_PX
 );
 
 const intlMessages = defineMessages({
+  allSlidesLabel: {
+    id: 'app.presentation.allSlides.title',
+    description: 'Title of the grid with every slide',
+    defaultMessage: 'All slides',
+  },
+  slidesLabel: {
+    id: 'app.presentation.presentationToolbar.slides',
+    description: 'Accessible label for the slide controls',
+    defaultMessage: 'Slides',
+  },
+  moreLabel: {
+    id: 'app.presentation.presentationToolbar.more',
+    description: 'Label for the button with zoom and whiteboard sharing controls',
+    defaultMessage: 'Zoom and whiteboard controls',
+  },
   previousSlideLabel: {
     id: 'app.presentation.presentationToolbar.prevSlideLabel',
     description: 'Previous slide button label',
@@ -121,6 +148,12 @@ class PresentationToolbar extends PureComponent {
   constructor(props) {
     super(props);
 
+    this.state = { openPopover: null };
+
+    this.selectSlide = this.selectSlide.bind(this);
+    this.closePopover = this.closePopover.bind(this);
+    this.handlePointerDown = this.handlePointerDown.bind(this);
+    this.handlePopoverKeyDown = this.handlePopoverKeyDown.bind(this);
     this.handleSkipToSlideChange = this.handleSkipToSlideChange.bind(this);
     this.change = this.change.bind(this);
     this.renderAriaDescs = this.renderAriaDescs.bind(this);
@@ -135,24 +168,40 @@ class PresentationToolbar extends PureComponent {
 
   componentDidMount() {
     document.addEventListener('keydown', this.switchSlide);
+    document.addEventListener('keydown', this.handlePopoverKeyDown);
+    document.addEventListener('pointerdown', this.handlePointerDown, true);
     this.updateToolbarFit();
-
-    if (this.wrapper && typeof ResizeObserver !== 'undefined') {
-      this.resizeObserver = new ResizeObserver(this.scheduleToolbarFit);
-      this.resizeObserver.observe(this.wrapper);
-    }
+    this.observeWrapper();
   }
 
   componentDidUpdate(prevProps) {
-    const { toolbarWidth } = this.props;
+    const { toolbarWidth, isOverlay, currentSlide } = this.props;
+
+    if (prevProps.isOverlay !== isOverlay) this.observeWrapper();
+    if (prevProps.isOverlay !== isOverlay
+      || prevProps.currentSlide?.presentationId !== currentSlide?.presentationId) {
+      this.closePopover();
+    }
 
     if (prevProps.toolbarWidth !== toolbarWidth) this.updateToolbarFit();
   }
 
   componentWillUnmount() {
     document.removeEventListener('keydown', this.switchSlide);
+    document.removeEventListener('keydown', this.handlePopoverKeyDown);
+    document.removeEventListener('pointerdown', this.handlePointerDown, true);
     this.resizeObserver?.disconnect();
     if (this.toolbarFitFrame) window.cancelAnimationFrame(this.toolbarFitFrame);
+  }
+
+  handlePointerDown(event) {
+    const { openPopover } = this.state;
+    if (openPopover && !this.stageControls?.contains(event.target)) this.closePopover();
+  }
+
+  handlePopoverKeyDown(event) {
+    const { openPopover } = this.state;
+    if (openPopover && event.key === KEYS.ESCAPE) this.closePopover();
   }
 
   handleSkipToSlideChange(event) {
@@ -175,6 +224,32 @@ class PresentationToolbar extends PureComponent {
       return setMultiUserWhiteboardDisabled();
     }
     return setMultiUserWhiteboardEnabled();
+  }
+
+  observeWrapper() {
+    this.resizeObserver?.disconnect();
+    if (this.wrapper && typeof ResizeObserver !== 'undefined') {
+      this.resizeObserver = new ResizeObserver(this.scheduleToolbarFit);
+      this.resizeObserver.observe(this.wrapper);
+    }
+  }
+
+  togglePopover(popover) {
+    this.setState(({ openPopover }) => ({
+      openPopover: openPopover === popover ? null : popover,
+    }));
+  }
+
+  closePopover() {
+    this.setState({ openPopover: null });
+  }
+
+  selectSlide(slideNum) {
+    const { skipToSlide, currentSlide } = this.props;
+
+    if (currentSlide?.infiniteWhiteboard) this.disableInfiniteWhiteboard();
+    skipToSlide(slideNum);
+    this.closePopover();
   }
 
   scheduleToolbarFit() {
@@ -412,7 +487,11 @@ class PresentationToolbar extends PureComponent {
       numberOfJoinedUsers,
       isMobile,
       toolbarWidth,
+      slideHeight,
+      isOverlay,
+      currentPresentationPage,
     } = this.props;
+    const { openPopover } = this.state;
 
     const startOfSlides = !(currentSlideNum > 1);
     const endOfSlides = !(currentSlideNum < numberOfSlides);
@@ -446,6 +525,246 @@ class PresentationToolbar extends PureComponent {
       multiUserLabel = intl.formatMessage(intlMessages.toolbarMultiUserOn);
     }
 
+    const zoomControls = (
+      <Styled.PresentationZoomControls className="bbb-presentation-toolbar__zoom-controls">
+        {(showIWB) && (
+        <Styled.InfiniteWhiteboardButton
+          data-test={isInfiniteWhiteboard ? 'turnInfiniteWhiteboardOff' : 'turnInfiniteWhiteboardOn'}
+          role="button"
+          aria-label={
+            isInfiniteWhiteboard
+              ? intl.formatMessage(intlMessages.infiniteWhiteboardOff)
+              : intl.formatMessage(intlMessages.infiniteWhiteboardOn)
+          }
+          color="light"
+          disabled={!isConnected}
+          customIcon={infiniteWhiteboardIcon(isInfiniteWhiteboard)}
+          size="md"
+          circle
+          onClick={() => {
+            if (isInfiniteWhiteboard) {
+              this.disableInfiniteWhiteboard();
+            } else {
+              setPresentationPageInfiniteWhiteboard(true);
+            }
+          }}
+          label={
+            isInfiniteWhiteboard
+              ? intl.formatMessage(intlMessages.infiniteWhiteboardOff)
+              : intl.formatMessage(intlMessages.infiniteWhiteboardOn)
+          }
+          hideLabel
+        />
+        )}
+
+        <Styled.WBAccessButton
+          data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
+          role="button"
+          aria-label={multiUserLabel}
+          color="light"
+          disabled={disableStartingMultiUser}
+          icon="multi_whiteboard"
+          size="md"
+          circle
+          onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
+          label={multiUserLabel}
+          hideLabel
+          $active={multiUser}
+        />
+        {multiUser ? (
+          <Styled.MultiUserTool
+            onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
+          >
+            {multiUserSize}
+          </Styled.MultiUserTool>
+        ) : (
+          <Styled.MUTPlaceholder />
+        )}
+        {!isMobile ? (
+          <Styled.ZoomToolWrapper
+            ref={(ref) => { this.zoomToolWrapper = ref; }}
+          >
+            <TooltipContainer>
+              <ZoomTool
+                slidePosition={slidePosition}
+                zoomValue={zoom}
+                currentSlideNum={currentSlideNum}
+                change={this.change}
+                minBound={isInfiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT}
+                maxBound={MAX_PERCENT}
+                step={STEP}
+                isInfiniteWhiteboard={isInfiniteWhiteboard}
+                isConnected={isConnected}
+              />
+            </TooltipContainer>
+          </Styled.ZoomToolWrapper>
+        ) : null}
+        <Styled.FitToWidthButton
+          setRef={(ref) => { this.fitToWidthButton = ref; }}
+          role="button"
+          data-test="fitToWidthButton"
+          aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
+          aria-label={
+            fitToWidth
+              ? `${intl.formatMessage(
+                intlMessages.presentationLabel,
+              )} ${intl.formatMessage(intlMessages.fitToPage)}`
+              : `${intl.formatMessage(
+                intlMessages.presentationLabel,
+              )} ${intl.formatMessage(intlMessages.fitToWidth)}`
+          }
+          color="light"
+          disabled={!isConnected}
+          icon="fit_to_width"
+          size="md"
+          circle
+          onClick={fitToWidthHandler}
+          label={fitToWidth
+            ? intl.formatMessage(intlMessages.fitToPage)
+            : intl.formatMessage(intlMessages.fitToWidth)}
+          hideLabel
+          $fitToWidth={fitToWidth}
+        />
+      </Styled.PresentationZoomControls>
+    );
+
+    const quickActions = (
+      <>
+        {this.renderToolbarPluginItems()}
+        {isPollingEnabled ? (
+          <Styled.QuickPollButton
+            {...{
+              intl,
+              amIPresenter,
+              startPoll,
+              currentSlide,
+            }}
+          />
+        ) : null}
+
+        <SmartMediaShareContainer {...{ intl, currentSlide }} />
+      </>
+    );
+
+    const slideSelect = (
+      <Styled.SkipSlideSelect
+        id="skipSlide"
+        aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
+        aria-describedby="skipSlideDesc"
+        aria-live="polite"
+        aria-relevant="all"
+        disabled={!isConnected}
+        value={currentSlideNum}
+        onChange={this.handleSkipToSlideChange}
+        data-test="skipSlide"
+      >
+        {this.renderSkipSlideOpts(numberOfSlides)}
+      </Styled.SkipSlideSelect>
+    );
+
+    if (isOverlay) {
+      return (
+        <Styled.StageControls
+          className="bbb-presentation-toolbar bbb-stage-control"
+          id="presentationToolbarWrapper"
+          data-overlay="true"
+          data-stacked={toolbarWidth < STACKED_MAX_WIDTH}
+          ref={(ref) => { this.stageControls = ref; }}
+          style={{
+            '--slide-width': `${toolbarWidth}px`,
+            '--stage-popover-max-height': `${Math.max(slideHeight - (toolbarWidth < STACKED_MAX_WIDTH ? 142 : 88), 160)}px`,
+          }}
+        >
+          {this.renderAriaDescs()}
+          <Styled.StageStack>
+            {openPopover === POPOVERS.OVERVIEW && (
+              <SlidesOverview
+                presentationId={currentSlide.presentationId}
+                presentationName={currentPresentationPage.presentationName}
+                currentSlideNum={currentSlideNum}
+                numberOfSlides={numberOfSlides}
+                onSelect={this.selectSlide}
+                onClose={this.closePopover}
+              />
+            )}
+            {openPopover === POPOVERS.MORE && (
+              <Styled.StageMorePanel
+                role="group"
+                aria-label={intl.formatMessage(intlMessages.moreLabel)}
+                data-test="presentationMorePanel"
+              >
+                {zoomControls}
+              </Styled.StageMorePanel>
+            )}
+            {openPopover === null && <Styled.StageExtras>{quickActions}</Styled.StageExtras>}
+            <Styled.StagePill
+              role="group"
+              aria-label={intl.formatMessage(intlMessages.slidesLabel)}
+              className="bbb-presentation-toolbar__slide-controls"
+            >
+              <TooltipContainer title={intl.formatMessage(intlMessages.allSlidesLabel)}>
+                <Styled.StageButton
+                  type="button"
+                  aria-label={intl.formatMessage(intlMessages.allSlidesLabel)}
+                  aria-expanded={openPopover === POPOVERS.OVERVIEW}
+                  disabled={!isConnected}
+                  onClick={() => this.togglePopover(POPOVERS.OVERVIEW)}
+                  data-test="allSlides"
+                >
+                  <GridIcon />
+                </Styled.StageButton>
+              </TooltipContainer>
+              <Styled.StageDivider />
+              <TooltipContainer title={intl.formatMessage(intlMessages.previousSlideLabel)}>
+                <Styled.StageButton
+                  type="button"
+                  $isDirectional
+                  aria-label={prevSlideAriaLabel}
+                  aria-describedby={startOfSlides ? 'noPrevSlideDesc' : 'prevSlideDesc'}
+                  disabled={startOfSlides || !isConnected}
+                  onClick={this.previousSlideHandler}
+                  data-test="prevSlide"
+                >
+                  <PreviousIcon />
+                </Styled.StageButton>
+              </TooltipContainer>
+              <Styled.StagePosition>
+                <span aria-hidden="true" dir="ltr">{`${currentSlideNum} / ${numberOfSlides}`}</span>
+                {slideSelect}
+              </Styled.StagePosition>
+              <TooltipContainer title={intl.formatMessage(intlMessages.nextSlideLabel)}>
+                <Styled.StageButton
+                  type="button"
+                  $isPrimary
+                  $isDirectional
+                  aria-label={nextSlideAriaLabel}
+                  aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}
+                  disabled={endOfSlides || !isConnected}
+                  onClick={this.nextSlideHandler}
+                  data-test="nextSlide"
+                >
+                  <NextIcon />
+                </Styled.StageButton>
+              </TooltipContainer>
+              <Styled.StageDivider />
+              <TooltipContainer title={intl.formatMessage(intlMessages.moreLabel)}>
+                <Styled.StageButton
+                  type="button"
+                  aria-label={intl.formatMessage(intlMessages.moreLabel)}
+                  aria-expanded={openPopover === POPOVERS.MORE}
+                  onClick={() => this.togglePopover(POPOVERS.MORE)}
+                  data-test="presentationMoreControls"
+                >
+                  <MoreIcon />
+                  {multiUser && <Styled.StageDot />}
+                </Styled.StageButton>
+              </TooltipContainer>
+            </Styled.StagePill>
+          </Styled.StageStack>
+        </Styled.StageControls>
+      );
+    }
+
     return (
       <Styled.PresentationToolbarWrapper
         className="bbb-presentation-toolbar"
@@ -455,19 +774,7 @@ class PresentationToolbar extends PureComponent {
       >
         {this.renderAriaDescs()}
         <Styled.QuickPollButtonWrapper>
-          {this.renderToolbarPluginItems()}
-          {isPollingEnabled ? (
-            <Styled.QuickPollButton
-              {...{
-                intl,
-                amIPresenter,
-                startPoll,
-                currentSlide,
-              }}
-            />
-          ) : null}
-
-          <SmartMediaShareContainer {...{ intl, currentSlide }} />
+          {quickActions}
         </Styled.QuickPollButtonWrapper>
         <Styled.PresentationSlideControls className="bbb-presentation-toolbar__slide-controls">
           <Styled.PrevSlideButton
@@ -490,19 +797,7 @@ class PresentationToolbar extends PureComponent {
           <TooltipContainer
             title={intl.formatMessage(intlMessages.selectLabel)}
           >
-            <Styled.SkipSlideSelect
-              id="skipSlide"
-              aria-label={intl.formatMessage(intlMessages.skipSlideLabel)}
-              aria-describedby="skipSlideDesc"
-              aria-live="polite"
-              aria-relevant="all"
-              disabled={!isConnected}
-              value={currentSlideNum}
-              onChange={this.handleSkipToSlideChange}
-              data-test="skipSlide"
-            >
-              {this.renderSkipSlideOpts(numberOfSlides)}
-            </Styled.SkipSlideSelect>
+            {slideSelect}
           </TooltipContainer>
           <Styled.NextSlideButton
             role="button"
@@ -521,106 +816,7 @@ class PresentationToolbar extends PureComponent {
             data-test="nextSlide"
           />
         </Styled.PresentationSlideControls>
-        <Styled.PresentationZoomControls className="bbb-presentation-toolbar__zoom-controls">
-          {(showIWB) && (
-          <Styled.InfiniteWhiteboardButton
-            data-test={isInfiniteWhiteboard ? 'turnInfiniteWhiteboardOff' : 'turnInfiniteWhiteboardOn'}
-            role="button"
-            aria-label={
-              isInfiniteWhiteboard
-                ? intl.formatMessage(intlMessages.infiniteWhiteboardOff)
-                : intl.formatMessage(intlMessages.infiniteWhiteboardOn)
-            }
-            color="light"
-            disabled={!isConnected}
-            customIcon={infiniteWhiteboardIcon(isInfiniteWhiteboard)}
-            size="md"
-            circle
-            onClick={() => {
-              if (isInfiniteWhiteboard) {
-                this.disableInfiniteWhiteboard();
-              } else {
-                setPresentationPageInfiniteWhiteboard(true);
-              }
-            }}
-            label={
-              isInfiniteWhiteboard
-                ? intl.formatMessage(intlMessages.infiniteWhiteboardOff)
-                : intl.formatMessage(intlMessages.infiniteWhiteboardOn)
-            }
-            hideLabel
-          />
-          )}
-
-          <Styled.WBAccessButton
-            data-test={multiUser ? 'turnMultiUsersWhiteboardOff' : 'turnMultiUsersWhiteboardOn'}
-            role="button"
-            aria-label={multiUserLabel}
-            color="light"
-            disabled={disableStartingMultiUser}
-            icon="multi_whiteboard"
-            size="md"
-            circle
-            onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
-            label={multiUserLabel}
-            hideLabel
-            $active={multiUser}
-          />
-          {multiUser ? (
-            <Styled.MultiUserTool
-              onClick={() => this.handleSwitchWhiteboardMode(!multiUser)}
-            >
-              {multiUserSize}
-            </Styled.MultiUserTool>
-          ) : (
-            <Styled.MUTPlaceholder />
-          )}
-          {!isMobile ? (
-            <Styled.ZoomToolWrapper
-              ref={(ref) => { this.zoomToolWrapper = ref; }}
-            >
-              <TooltipContainer>
-                <ZoomTool
-                  slidePosition={slidePosition}
-                  zoomValue={zoom}
-                  currentSlideNum={currentSlideNum}
-                  change={this.change}
-                  minBound={isInfiniteWhiteboard ? MIN_PERCENT : HUNDRED_PERCENT}
-                  maxBound={MAX_PERCENT}
-                  step={STEP}
-                  isInfiniteWhiteboard={isInfiniteWhiteboard}
-                  isConnected={isConnected}
-                />
-              </TooltipContainer>
-            </Styled.ZoomToolWrapper>
-          ) : null}
-          <Styled.FitToWidthButton
-            setRef={(ref) => { this.fitToWidthButton = ref; }}
-            role="button"
-            data-test="fitToWidthButton"
-            aria-describedby={fitToWidth ? 'fitPageDesc' : 'fitWidthDesc'}
-            aria-label={
-              fitToWidth
-                ? `${intl.formatMessage(
-                  intlMessages.presentationLabel,
-                )} ${intl.formatMessage(intlMessages.fitToPage)}`
-                : `${intl.formatMessage(
-                  intlMessages.presentationLabel,
-                )} ${intl.formatMessage(intlMessages.fitToWidth)}`
-            }
-            color="light"
-            disabled={!isConnected}
-            icon="fit_to_width"
-            size="md"
-            circle
-            onClick={fitToWidthHandler}
-            label={fitToWidth
-              ? intl.formatMessage(intlMessages.fitToPage)
-              : intl.formatMessage(intlMessages.fitToWidth)}
-            hideLabel
-            $fitToWidth={fitToWidth}
-          />
-        </Styled.PresentationZoomControls>
+        {zoomControls}
       </Styled.PresentationToolbarWrapper>
     );
   }
@@ -662,11 +858,19 @@ PresentationToolbar.propTypes = {
   numberOfJoinedUsers: PropTypes.number.isRequired,
   isMobile: PropTypes.bool.isRequired,
   toolbarWidth: PropTypes.number,
+  slideHeight: PropTypes.number,
+  isOverlay: PropTypes.bool,
+  currentPresentationPage: PropTypes.shape({
+    presentationName: PropTypes.string,
+  }),
 };
 
 PresentationToolbar.defaultProps = {
   fullscreenRef: null,
   toolbarWidth: 0,
+  slideHeight: 0,
+  isOverlay: false,
+  currentPresentationPage: {},
 };
 
 export default injectWbResizeEvent(injectIntl(PresentationToolbar));

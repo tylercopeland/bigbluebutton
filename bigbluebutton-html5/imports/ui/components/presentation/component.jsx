@@ -1,11 +1,13 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
+import cx from 'classnames';
 import WhiteboardContainer from '/imports/ui/components/whiteboard/container';
 import { HUNDRED_PERCENT, MAX_PERCENT, MIN_PERCENT } from '/imports/utils/slideCalcUtils';
 import { SPACE } from '/imports/utils/keys';
 import { defineMessages, injectIntl } from 'react-intl';
 import Session from '/imports/ui/services/storage/in-memory';
 import PresentationToolbarContainer from './presentation-toolbar/container';
+import { MinimizeIcon, RedoIcon, UndoIcon } from './presentation-toolbar/icons';
 import PresentationMenu from './presentation-menu/container';
 import DownloadPresentationButton from './download-presentation-button/component';
 import Styled from './styles';
@@ -28,6 +30,10 @@ const intlMessages = defineMessages({
   downloadLabel: {
     id: 'app.presentation.downloadLabel',
     description: 'label for downloadable presentations',
+  },
+  minimize: {
+    id: 'app.actionsBar.actionsDropdown.minimizePresentationLabel',
+    description: 'Label for the button that minimizes the presentation',
   },
   slideContentStart: {
     id: 'app.presentation.startSlideContent',
@@ -59,12 +65,19 @@ const FULLSCREEN_CHANGE_EVENT = isSafari
 const getToolbarHeight = () => {
   let height = 0;
   const toolbarEl = document.getElementById('presentationToolbarWrapper');
-  if (toolbarEl) {
+  // Controls over the slide take no room from it
+  if (toolbarEl && !toolbarEl.dataset.overlay) {
     const { clientHeight } = toolbarEl;
     height = clientHeight;
   }
   return height;
 };
+
+// Smaller slides do not have room for the controls, so those stay outside the slide
+const OVERLAY_MIN_WIDTH = 660;
+const OVERLAY_MIN_HEIGHT = 420;
+
+const canHover = () => window.matchMedia?.('(hover: hover)').matches ?? true;
 
 const IGNORE_PRESENTATION_RESTORATION_TIMEOUT = 5000;
 
@@ -99,6 +112,7 @@ class Presentation extends PureComponent {
     this.setIsPanning = this.setIsPanning.bind(this);
     this.setIsToolbarVisible = this.setIsToolbarVisible.bind(this);
     this.handlePanShortcut = this.handlePanShortcut.bind(this);
+    this.minimizePresentation = this.minimizePresentation.bind(this);
     this.renderPresentationMenu = this.renderPresentationMenu.bind(this);
 
     this.onResize = () => setTimeout(this.handleResize.bind(this), 0);
@@ -199,6 +213,13 @@ class Presentation extends PureComponent {
   }
 
   componentDidUpdate(prevProps) {
+    // The slide gains or loses the room of the toolbar
+    const isOverlay = !!this.refPresentationContainer?.classList.contains('bbb-presentation--overlay');
+    if (isOverlay !== this.wasOverlay) {
+      this.wasOverlay = isOverlay;
+      this.onResize();
+    }
+
     const {
       slidePosition,
       presentationIsOpen,
@@ -551,12 +572,36 @@ class Presentation extends PureComponent {
     };
   }
 
+  // Measured without the toolbar, whose own height depends on the answer
+  hasOverlayControls(viewBox) {
+    const {
+      presentationBounds, userIsPresenter, fitToWidth, slidePosition,
+    } = this.props;
+    if (!presentationBounds || !slidePosition || !canHover()) return false;
+
+    const { width: maxWidth, height: maxHeight } = presentationBounds;
+    const { width, height } = userIsPresenter ? slidePosition : viewBox;
+    if (!width || !height) return false;
+
+    const ratio = width / height;
+    const fittedWidth = Math.min(maxWidth, maxHeight * ratio);
+    const slideWidth = userIsPresenter && fitToWidth ? maxWidth : fittedWidth;
+    const slideHeight = Math.min(maxHeight, slideWidth / ratio);
+    return slideWidth >= OVERLAY_MIN_WIDTH && slideHeight >= OVERLAY_MIN_HEIGHT;
+  }
+
+  minimizePresentation() {
+    const { setPresentationIsOpen, layoutContextDispatch } = this.props;
+    setPresentationIsOpen(layoutContextDispatch, false);
+    Session.setItem('presentationLastState', false);
+  }
+
   panAndZoomChanger(w, h, x, y) {
     const { zoomSlide } = this.props;
     zoomSlide(w, h, x, y);
   }
 
-  renderPresentationToolbar(toolbarWidth) {
+  renderPresentationToolbar(toolbarWidth, slideHeight, isOverlay) {
     const {
       currentSlide,
       fullscreenElementId,
@@ -586,6 +631,8 @@ class Presentation extends PureComponent {
           currentSlide,
           slidePosition,
           toolbarWidth,
+          slideHeight,
+          isOverlay,
           fullscreenElementId,
           layoutContextDispatch,
           presentationIsOpen,
@@ -712,6 +759,7 @@ class Presentation extends PureComponent {
       };
     }
 
+    const isOverlay = this.hasOverlayControls(viewBoxDimensions);
     const svgDimensions = this.calculateSize(viewBoxDimensions);
     const svgHeight = svgDimensions.height;
     const svgWidth = svgDimensions.width;
@@ -740,7 +788,7 @@ class Presentation extends PureComponent {
     return (
       <>
         <Styled.PresentationContainer
-          className="bbb-presentation"
+          className={cx('bbb-presentation', { 'bbb-presentation--overlay': isOverlay })}
           role="region"
           data-test="presentationContainer"
           ref={(ref) => {
@@ -786,27 +834,46 @@ class Presentation extends PureComponent {
                 <Styled.VisuallyHidden id="currentSlideText">
                   {slideContent}
                 </Styled.VisuallyHidden>
-                {((userIsPresenter || hasWBAccess) && (!tldrawIsMounting && presentationWidth > 0 && currentSlide)) && (
-                <Styled.ExtraTools {...{ isToolbarVisible }}>
-                  <TooltipContainer title={intl?.messages['app.shortcut-help.undo']}>
-                    <Styled.Button
-                      aria-label={intl?.messages['app.shortcut-help.undo']}
-                      onClick={() => tldrawAPI?.undo()}
-                      className="tlui-undo"
+                {(userIsPresenter || hasWBAccess)
+                  && !tldrawIsMounting && presentationWidth > 0 && currentSlide && (
+                  <Styled.ExtraTools className="bbb-stage-control" {...{ isToolbarVisible }}>
+                    <TooltipContainer title={intl?.messages['app.shortcut-help.undo']}>
+                      <Styled.Button
+                        aria-label={intl?.messages['app.shortcut-help.undo']}
+                        onClick={() => tldrawAPI?.undo()}
+                        className="tlui-undo"
+                      >
+                        {isOverlay
+                          ? <UndoIcon />
+                          : <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} />}
+                      </Styled.Button>
+                    </TooltipContainer>
+                    <TooltipContainer title={intl?.messages['app.shortcut-help.redo']}>
+                      <Styled.Button
+                        aria-label={intl?.messages['app.shortcut-help.redo']}
+                        onClick={() => tldrawAPI?.redo()}
+                        className="tlui-redo"
+                      >
+                        {isOverlay
+                          ? <RedoIcon />
+                          : <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} />}
+                      </Styled.Button>
+                    </TooltipContainer>
+                  </Styled.ExtraTools>
+                )}
+                {isOverlay && !isFullscreen && !fullscreenContext
+                  && !tldrawIsMounting && currentSlide && (
+                  <TooltipContainer title={intl.formatMessage(intlMessages.minimize)}>
+                    <Styled.MinimizeButton
+                      type="button"
+                      className="bbb-stage-control"
+                      aria-label={intl.formatMessage(intlMessages.minimize)}
+                      onClick={this.minimizePresentation}
+                      data-test="minimizePresentationOnSlide"
                     >
-                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/undo.svg`} />
-                    </Styled.Button>
+                      <MinimizeIcon />
+                    </Styled.MinimizeButton>
                   </TooltipContainer>
-                  <TooltipContainer title={intl?.messages['app.shortcut-help.redo']}>
-                    <Styled.Button
-                      aria-label={intl?.messages['app.shortcut-help.redo']}
-                      onClick={() => tldrawAPI?.redo()}
-                      className="tlui-redo"
-                    >
-                      <Styled.IconWithMask mask={`${window.meetingClientSettings.public.app.basename}/svgs/tldraw/redo.svg`} />
-                    </Styled.Button>
-                  </TooltipContainer>
-                </Styled.ExtraTools>
                 )}
                 {!tldrawIsMounting
                   && presentationWidth > 0
@@ -851,11 +918,12 @@ class Presentation extends PureComponent {
               </div>
               {!tldrawIsMounting && presentationWidth > 0 && (
                 <Styled.PresentationToolbar
+                  $isOverlay={isOverlay}
                   ref={(ref) => {
                     this.refPresentationToolbar = ref;
                   }}
                 >
-                  {this.renderPresentationToolbar(toolbarWidth)}
+                  {this.renderPresentationToolbar(toolbarWidth, svgHeight, isOverlay)}
                 </Styled.PresentationToolbar>
               )}
             </Styled.SvgContainer>

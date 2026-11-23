@@ -45,18 +45,27 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Other panels (Notes, Apps, Profile, Poll, Timer) keep BBB's header
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
-- [ ] New strings (tabs, people count, filters, statuses, chat switch and placeholders) are English only
+- [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders and slide controls) are English only
 - [ ] Chat input placeholder was translated in BBB and is now English only
 - [x] Share media menu opens above its button
 - [ ] Share media menu keeps BBB's layout (design: previews above a row of media types)
 
 ## Stage and webcams
-- [ ] Whiteboard and slide toolbars are always visible (design: on hover)
+- [x] Slide pager, All slides grid, whiteboard tools and minimize sit on the slide and show on hover
+- [ ] Slide controls: adds a menu for zoom, fit to width and multi-user whiteboard (not in the design)
+- [ ] Slide controls: quick poll, smart media and plugin items show above the pager
+- [ ] Whiteboard tools: keeps BBB's extra tools (hand, arrow, note, ellipse, more), redo and style icon; icons are tldraw's
+- [ ] Whiteboard options menu kept next to minimize
+- [ ] All slides: titles come from the first line of slide text
+- [ ] Phones, touch devices, small and portrait slides keep BBB's toolbars (design: pager under the slide, annotate mode)
+- [ ] Minimized presentation does not become a tile in the webcam grid
+- [ ] Dark mode: white divider lines in the whiteboard tools
 - [ ] Webcams default to the top; design puts them on the right when no panel is open
 - [ ] Webcam tile styling and "+N more" tile not built
 
 ## Not yet tested
 - [ ] People list: large meetings (over 50 people), guests waiting, locked viewers, listen-only, plugins
-- [ ] BBB's own Playwright tests still expect the old people list and chat buttons
+- [ ] BBB's own Playwright tests still expect the old people list, chat buttons and slide toolbar
 - [ ] Chat: direct messages on phone, locked chat, offline participants, pinned messages, polls, plugins, chat in the second panel
+- [ ] Slide controls: infinite whiteboard, long decks in All slides, plugin toolbar items, screen magnifiers
 - [ ] Active recording, webcam tiles, real screen sharing, breakout rooms, production build

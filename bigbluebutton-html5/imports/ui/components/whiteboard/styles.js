@@ -1,5 +1,12 @@
 import styled, { createGlobalStyle } from 'styled-components';
-import { colorOffWhite, colorWhite } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  colorOffWhite,
+  colorPrimary,
+  colorWhite,
+  stageControlActiveBg,
+  stageControlBorder,
+  stageControlColor,
+} from '/imports/ui/stylesheets/styled-components/palette';
 import { lgBorderRadius } from '/imports/ui/stylesheets/styled-components/general';
 
 const TldrawV2GlobalStyle = createGlobalStyle`
@@ -268,6 +275,103 @@ const TldrawV2GlobalStyle = createGlobalStyle`
   ${({ hiddenGeoShapes }) => hiddenGeoShapes?.length > 0 && hiddenGeoShapes.map((shape) => `
     [data-testid="style.geo.${shape}"] { display: none !important; }
   `).join('')}
+
+  /* Tools over the slide, next to the undo and redo buttons */
+  .bbb-presentation--overlay {
+    .tl-container {
+      border-radius: ${lgBorderRadius};
+    }
+
+    .tlui-layout .tlui-layout__bottom {
+      position: absolute !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: 12px !important;
+      inset-inline-end: 97px !important;
+    }
+
+    .tlui-toolbar {
+      padding: 0;
+    }
+
+    .tlui-toolbar .tlui-toolbar__inner {
+      flex-direction: row !important;
+      align-items: center;
+      gap: 0;
+      height: 46px;
+      box-sizing: border-box;
+      padding: 4px;
+      border: 1px solid ${stageControlBorder};
+      border-inline-end: 0;
+      border-start-start-radius: 12px;
+      border-end-start-radius: 12px;
+      background-color: ${colorWhite};
+      box-shadow: -4px 6px 18px rgba(15, 23, 36, .18);
+      pointer-events: all;
+    }
+
+    .tlui-toolbar .tlui-toolbar__tools {
+      flex-direction: row !important;
+      gap: 4px;
+      height: 36px;
+      min-height: 0;
+      background: none;
+      box-shadow: none;
+    }
+
+    /* Color and styles */
+    .tlui-toolbar__inner > .tlui-toolbar__tools {
+      margin-inline-start: 4px;
+      padding-inline: 4px;
+      border-inline: 1px solid ${stageControlBorder};
+      border-radius: 0;
+    }
+
+    .tlui-toolbar .tlui-toolbar__tools .tlui-button__tool {
+      width: 36px !important;
+      min-width: 36px;
+      height: 36px !important;
+      margin: 0;
+      color: ${stageControlColor};
+    }
+
+    .tlui-toolbar .tlui-button__tool::after {
+      inset: 0 !important;
+      border-radius: 8px;
+    }
+
+    .tlui-toolbar .tlui-button__tool[data-state="selected"] {
+      color: ${colorPrimary} !important;
+    }
+
+    .tlui-toolbar .tlui-button__tool[data-state="selected"]:not(:disabled)::after {
+      background: ${stageControlActiveBg};
+    }
+
+    .tlui-toolbar .tlui-button__tool > .tlui-icon {
+      position: relative;
+      z-index: 1;
+      width: 18px !important;
+      height: 18px !important;
+    }
+
+    /* Select, pen, shapes, text, eraser, then the rest */
+    [data-testid="tools.select"] { order: -6; }
+    [data-testid="tools.draw"] { order: -5; }
+    [data-testid="tools.highlight"],
+    [data-testid="tools.rectangle"] { order: -4; }
+    [data-testid="tools.text"] { order: -3; }
+    [data-testid="tools.eraser"] { order: -2; }
+
+    .tlui-popover__content {
+      left: auto !important;
+    }
+
+    .tlui-toolbar .tlui-toolbar__extras {
+      top: 12px !important;
+    }
+  }
 
   [data-darkreader-scheme="dark"] button[data-testid="mobile.styles"] {
     & > div.tlui-icon {

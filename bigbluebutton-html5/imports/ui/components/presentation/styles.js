@@ -4,7 +4,6 @@ import {
   toastIconSide,
   smPaddingX,
   smPaddingY,
-  contentSidebarMarginToMedia,
   lgBorderRadius,
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
@@ -12,6 +11,10 @@ import {
   colorWhite,
   colorGrayLightest,
   colorOffWhite,
+  panelRowHoverBg,
+  roomFocusRing,
+  stageControlBorder,
+  stageControlColor,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeLarger,
@@ -118,7 +121,120 @@ const ToastDownload = styled.span`
   }
 `;
 
+const Button = styled.button`
+  background-color: ${colorOffWhite};
+  border: none;
+  border-radius: 13px;
+  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
+    0px 2px 3px rgba(0, 0, 0, 0.24),
+    0px 2px 6px rgba(0, 0, 0, 0.1);
+  color: #2d2d2d;
+  cursor: pointer;
+  padding: .3rem .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  tab-index: 0;
+
+  &:hover {
+    background-color: ${colorGrayLightest};
+  }
+`;
+
+const ExtraTools = styled.div`
+  position: absolute;
+  top: 2px;
+  right: 43px;
+  z-index: 399;
+  display: flex;
+  gap: 5px;
+  height: 35px;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: 43px;
+  }
+
+  ${({ isToolbarVisible }) => !isToolbarVisible && `
+    display: none;
+  `}
+`;
+
 const PresentationContainer = styled.div`
+  /* Controls over the slide, shown while it is hovered or used with the keyboard */
+  &.bbb-presentation--overlay {
+    .bbb-stage-control,
+    .tlui-layout__bottom,
+    .tlui-toolbar__extras,
+    #WhiteboardOptionButton {
+      opacity: 0;
+      transition: opacity .15s ease;
+    }
+
+    &:hover,
+    &:has(:focus-visible),
+    &:has(.bbb-stage-control [aria-expanded="true"]),
+    &:has(.tlui-layout [data-state="open"]) {
+      .bbb-stage-control,
+      .tlui-layout__bottom,
+      .tlui-toolbar__extras,
+      #WhiteboardOptionButton {
+        opacity: 1;
+      }
+    }
+
+    #WhiteboardOptionButton {
+      top: 12px;
+      right: auto;
+      left: auto;
+      inset-inline-end: 60px;
+
+      > div {
+        width: 40px;
+        height: 40px;
+      }
+
+      button {
+        border: 1px solid ${stageControlBorder};
+        border-radius: 10px;
+        background-color: ${colorWhite};
+        color: ${stageControlColor};
+        box-shadow: 0 6px 18px rgba(15, 23, 36, .18);
+      }
+    }
+
+    ${ExtraTools} {
+      top: auto;
+      right: auto;
+      left: auto;
+      bottom: 12px;
+      inset-inline-end: 12px;
+      gap: 4px;
+      height: auto;
+      padding: 4px;
+      border: 1px solid ${stageControlBorder};
+      border-inline-start: 0;
+      border-start-end-radius: 12px;
+      border-end-end-radius: 12px;
+      background-color: ${colorWhite};
+      box-shadow: 6px 6px 18px rgba(15, 23, 36, .18);
+
+      ${Button} {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 8px;
+        background-color: transparent;
+        box-shadow: none;
+        color: ${stageControlColor};
+
+        &:hover {
+          background-color: ${panelRowHoverBg};
+        }
+      }
+    }
+  }
+
   display: flex;
   flex-direction: column;
   position: absolute;
@@ -166,48 +282,36 @@ const PresentationToolbar = styled.div`
   left: 0;
   width: 100%;
   pointer-events: none;
-  z-index: 0;
+  z-index: ${({ $isOverlay }) => ($isOverlay ? 2 : 0)};
 `;
 
 const ToastSeparator = styled(ToastStyled.Separator)``;
 
-const Button = styled.button`
-  background-color: ${colorOffWhite};
-  border: none;
-  border-radius: 13px;
-  box-shadow: 0px 0px 2px rgba(0, 0, 0, 0.16),
-    0px 2px 3px rgba(0, 0, 0, 0.24),
-    0px 2px 6px rgba(0, 0, 0, 0.1);
-  color: #2d2d2d;
-  cursor: pointer;
-  padding: .3rem .5rem;
+const MinimizeButton = styled.button`
+  position: absolute;
+  top: 12px;
+  inset-inline-end: 12px;
+  z-index: 399;
   display: flex;
   align-items: center;
   justify-content: center;
-  tab-index: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid ${stageControlBorder};
+  border-radius: 10px;
+  background-color: ${colorWhite};
+  color: ${stageControlColor};
+  box-shadow: 0 6px 18px rgba(15, 23, 36, .18);
+  cursor: pointer;
 
   &:hover {
-    background-color: ${colorGrayLightest};
-  }
-`;
-
-const ExtraTools = styled.div`
-  position: absolute;
-  top: 2px;
-  right: 43px;
-  z-index: 399;
-  display: flex;
-  gap: 5px;
-  height: 35px;
-
-  [dir="rtl"] & {
-    right: auto;
-    left: 43px;
+    background-color: ${panelRowHoverBg};
   }
 
-  ${({ isToolbarVisible }) => !isToolbarVisible && `
-    display: none;
-  `}
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+  }
 `;
 
 const IconWithMask = styled.div.attrs({
@@ -234,5 +338,6 @@ export default {
   ToastSeparator,
   Button,
   ExtraTools,
+  MinimizeButton,
   IconWithMask,
 };

@@ -189,6 +189,11 @@ const panelStatusFaintColor = 'var(--panel-status-faint-color, #B3BCC8)';
 const panelCameraColor = 'var(--panel-camera-color, #6B7280)';
 const panelRaisedHandText = 'var(--panel-raised-hand-text, #9A5B00)';
 const panelChipActiveBg = 'var(--panel-chip-active-bg, #1F2933)';
+// Controls over the slide
+const stageControlBorder = 'var(--stage-control-border, #E1E6EC)';
+const stageControlColor = 'var(--stage-control-color, #374151)';
+const stageControlActiveBg = 'var(--stage-control-active-bg, #E8F0FD)';
+
 const chatBubbleBg = 'var(--chat-bubble-bg, #EEF1F5)';
 const chatOwnBubbleBg = `var(--chat-own-bubble-bg, ${colorPrimary})`;
 const panelRaisedHandBadge = 'var(--panel-raised-hand-badge, #A86A0F)';
@@ -239,6 +244,9 @@ export {
   panelTabColor,
   panelTabActiveColor,
   panelRaisedHandBadge,
+  stageControlBorder,
+  stageControlColor,
+  stageControlActiveBg,
   chatBubbleBg,
   chatOwnBubbleBg,
   panelText,

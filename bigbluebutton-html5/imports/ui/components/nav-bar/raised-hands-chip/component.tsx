@@ -1,13 +1,15 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { layoutDispatch } from '/imports/ui/components/layout/context';
+import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
+import { Input } from '/imports/ui/components/layout/layoutTypes';
+import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import useDeduplicatedSubscription from '/imports/ui/core/hooks/useDeduplicatedSubscription';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { RAISED_HAND_USERS, RaisedHandUsersSubscriptionResponse } from '/imports/ui/core/graphql/queries/users';
-import { setUserListFilter } from '/imports/ui/core/local-states/useUserListFilter';
+import useUserListFilter from '/imports/ui/core/local-states/useUserListFilter';
 import { filterByMeetingId } from '/imports/ui/core/utils/subscriptionFilters';
 import { HandIcon } from '/imports/ui/components/user-list/user-list-participants/list-item/icons/component';
 import Styled from './styles';
@@ -28,6 +30,9 @@ const intlMessages = defineMessages({
 const RaisedHandsChip: React.FC = () => {
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
+  const [filter, setUserListFilter] = useUserListFilter();
+  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const { closePanel } = usePanelClose(PANELS.USERLIST);
   const { data: currentUser } = useCurrentUser((user) => ({ locked: user.locked }));
   const { data: meeting } = useMeeting((m) => ({
     meetingId: m.meetingId,
@@ -46,7 +51,15 @@ const RaisedHandsChip: React.FC = () => {
   ).length;
   if (count === 0) return null;
 
-  const showRaisedHands = () => {
+  const isShowingRaisedHands = sidebarContent.isOpen
+    && sidebarContent.sidebarContentPanel === PANELS.USERLIST
+    && filter === 'raisedHands';
+
+  const toggleRaisedHands = () => {
+    if (isShowingRaisedHands) {
+      closePanel();
+      return;
+    }
     setUserListFilter('raisedHands');
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_NAVIGATION_IS_OPEN,
@@ -69,7 +82,8 @@ const RaisedHandsChip: React.FC = () => {
       <Styled.Chip
         type="button"
         aria-label={label}
-        onClick={showRaisedHands}
+        aria-expanded={isShowingRaisedHands}
+        onClick={toggleRaisedHands}
         data-test="raisedHandsChip"
       >
         <Styled.Badge>

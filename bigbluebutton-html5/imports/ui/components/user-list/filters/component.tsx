@@ -1,8 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import { UserListFilter } from '/imports/ui/core/local-states/useUserListFilter';
 import Styled from './styles';
-
-export type UserListFilter = 'all' | 'raisedHands';
 
 const intlMessages = defineMessages({
   label: {

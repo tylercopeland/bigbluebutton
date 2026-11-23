@@ -630,6 +630,8 @@
     "app.sidebarContent.tabs.chat": "Chat",
     "app.sidebarContent.tabs.raisedHands": "{count, plural, one {# raised hand} other {# raised hands}}",
     "app.sidebarContent.tabs.unread": "{count, plural, one {# unread message} other {# unread messages}}",
+    "app.navBar.raisedHands.label": "{count} raised",
+    "app.navBar.raisedHands.show": "{count, plural, one {# raised hand} other {# raised hands}}, show in people",
     "app.navBar.peopleCount": "{count, plural, one {# person} other {# people}}",
     "app.navBar.leaveMeetingBtnLabel": "Leave",
     "app.navBar.leaveMeetingBtnDesc": "Leave the session",

@@ -22,7 +22,9 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Extra controls kept: connection status, options (three dots)
 - [ ] Recording uses BBB's start/stop button, not the small REC label
 - [ ] Talking indicator row is kept under the title
-- [ ] Alert chips (raised hands, questions, low engagement) not built
+- [x] Raised hands alert chip, which opens People on the Raised hands filter
+- [ ] Question and low engagement chips not built
+- [ ] Raised hands chip: phones show only the number
 
 ## Panels
 - [x] People and Chat share one panel with tabs, 360px wide by default
@@ -45,7 +47,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Other panels (Notes, Apps, Profile, Poll, Timer) keep BBB's header
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
-- [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls and webcam overflow) are English only
+- [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls, webcam overflow and raised hands chip) are English only
 - [ ] Chat input placeholder was translated in BBB and is now English only
 - [x] Share media menu opens above its button
 - [ ] Share media menu keeps BBB's layout (design: previews above a row of media types)

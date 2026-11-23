@@ -14,6 +14,7 @@ import TimerIndicatorContainer from '/imports/ui/components/timer/indicator/comp
 import Button from '/imports/ui/components/common/button/component';
 import LeaveMeetingButtonContainer from './leave-meeting-button/container';
 import CustomLogo from '/imports/ui/components/sidebar-navigation/custom-logo/component';
+import RaisedHandsChip from './raised-hands-chip/component';
 import SessionInfo from './session-info/component';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
 import SessionDetailsModal from '/imports/ui/components/session-details/component';
@@ -356,6 +357,7 @@ class NavBar extends Component {
             <Styled.Right className="bbb-navbar__right">
               <h2 className="sr-only">{intl.formatMessage(intlMessages.sessionControlLabel)}</h2>
               {!isNavigationDocked && recordingIndicator}
+              <RaisedHandsChip />
               {renderPluginItems(rightPluginItems)}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatusButton /> : null}
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}

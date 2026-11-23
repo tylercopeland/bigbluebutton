@@ -8,7 +8,8 @@ import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import UserListParticipants from './user-list-participants/component';
 import GuestManagement from './guest-management/component';
 import RaisedHandsContainer from './raised-hands/component';
-import UserListFilters, { UserListFilter } from './filters/component';
+import useUserListFilter, { setUserListFilter } from '/imports/ui/core/local-states/useUserListFilter';
+import UserListFilters from './filters/component';
 import UserSearchContainer from './user-search/container';
 import isUserListSearchEnabled from './user-search/service';
 import { makeUserSearchWhere, onSaveUserNames } from './service';
@@ -81,7 +82,11 @@ const intlMessages = defineMessages({
 const UserList: React.FC<UserListComponentProps> = () => {
   const intl = useIntl();
   const parentRef = React.useRef<HTMLDivElement | null>(null);
-  const [filter, setFilter] = useState<UserListFilter>('all');
+  const [filter, setFilter] = useUserListFilter();
+
+  // Every time the panel opens on its own it shows everyone
+  useEffect(() => () => setUserListFilter('all'), []);
+
   const [searchQuery, setSearchQuery] = useState('');
   const searchWhere = useMemo(() => makeUserSearchWhere(searchQuery), [searchQuery]);
   const { data: currentUserData } = useCurrentUser((user) => ({

@@ -31,8 +31,11 @@ import {
   colorWhite,
   colorPrimary,
   colorBlueDark,
-  colorGray,
-  colorGrayUserListToolbar,
+  panelBorder,
+  panelMutedText,
+  panelRowHoverBg,
+  panelText,
+  stageControlBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import { hasPhoneDimentions } from '/imports/ui/stylesheets/styled-components/breakpoints';
 import Button from '/imports/ui/components/common/button/component';
@@ -63,9 +66,9 @@ const pollOptionBox = css`
   font-weight: ${textFontWeight};
   line-height: 1;
 
-  background-color: ${colorGrayUserListToolbar};
-  color: ${colorGray};
-  border: ${borderSizeSmall} solid ${colorGray};
+  background-color: ${panelRowHoverBg};
+  color: ${panelText};
+  border: ${borderSizeSmall} solid ${panelBorder};
 `;
 
 // The brand fill that marks the active option: a ticked checkbox in a multiple-response
@@ -136,6 +139,9 @@ const SubmitVoteButton = styled(Button)`
 `;
 
 const PollingSecret = styled.div`
+  margin-top: 10px;
+  color: ${panelMutedText};
+  font-weight: ${textFontWeight};
   font-size: ${fontSizeSmall};
   max-width: ${pollWidth};
 `;
@@ -248,9 +254,9 @@ const Overlay = styled.div`
 `;
 
 const QHeader = styled.span`
-  text-align: left;
-  position: relative;
-  left: ${smPaddingY};
+  display: block;
+  margin-bottom: 10px;
+  text-align: start;
 `;
 
 const QTitle = styled.h1`
@@ -275,12 +281,13 @@ const PollingContainer = styled.aside<{ autoWidth: boolean }>`
   position: absolute;
 
   z-index: ${pollIndex};
-  border: 1px solid ${colorBorder};
-  border-radius: ${borderRadiusRounded};
+  border: 1px solid ${stageControlBorder};
+  border-radius: 16px;
+  box-shadow: 0 18px 44px rgba(15, 23, 36, .35);
   align-items: center;
   text-align: center;
   font-weight: 600;
-  padding: ${mdPaddingY};
+  padding: 16px;
   background-color: ${colorWhite};
   bottom: ${pollBottomOffset};
   right: ${jumboPaddingX};

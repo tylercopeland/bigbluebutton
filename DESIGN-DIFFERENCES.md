@@ -45,11 +45,15 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials
 - [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
 - [ ] Mute all and permissions buttons are kept at the bottom of People
-- [ ] Other panels (Notes, Apps, Profile, Poll, Timer) keep BBB's header
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
 - [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls, webcam overflow and raised hands chip) are English only
 - [ ] Chat input placeholder was translated in BBB and is now English only
+- [x] Poll: setup uses answer chips, live results use bars with a progress card; the voting card is restyled
+- [ ] Poll: options stay visible instead of under More options; answers keep BBB's inputs without letter keys
+- [ ] Poll: Publish results ends the poll and posts to chat and the slide, as in BBB (design: show or hide on the stage while live); those published charts keep BBB's look
+- [ ] Poll: keeps the Poll/Quiz switch, Custom Input, Cancel and the list of who answered what
+- [ ] Poll: titles and buttons keep BBB's wording (Polling, Start Poll, Stop poll)
 - [x] Share media menu opens above its button
 - [x] Share media menu shows previews above a row of media types (Slides, Video, Screen, Camera, More)
 - [ ] Share media: no Audio or URL tab, BBB has no such feature (tab audio comes with screen share)

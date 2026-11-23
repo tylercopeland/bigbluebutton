@@ -67,31 +67,6 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
   if (defaultPoll || type === pollTypes.Response) {
     return (
       <Styled.ResponseArea>
-        {!isQuiz && (
-          <Styled.PollCheckbox data-test="allowMultiple">
-            <BBBToggle
-              onChange={toggleMultipleResponse}
-              checked={multipleResponse}
-              // Typed responses cannot be multiple choice, but the design keeps
-              // the toggle visible and disabled rather than removing it.
-              disabled={!defaultPoll}
-              label={intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
-            />
-          </Styled.PollCheckbox>
-        )}
-        {
-          !isQuiz && (
-            <Styled.AnonymousRow>
-              <BBBToggle
-                checked={secretPoll}
-                onChange={() => handleToggle()}
-                label={intl.formatMessage(intlMessages.secretPollLabel)}
-                helperText={secretPoll ? intl.formatMessage(intlMessages.isSecretPollLabel) : undefined}
-                slotProps={{ input: { 'data-test': 'anonymousPollBtn' } as React.InputHTMLAttributes<HTMLInputElement> }}
-              />
-            </Styled.AnonymousRow>
-          )
-        }
         {defaultPoll && (
           <PollInputs
             error={error}
@@ -118,6 +93,31 @@ const ResponseArea: React.FC<ResponseAreaProps> = ({
             />
           </Styled.AddItemButton>
         )}
+        {!isQuiz && (
+          <Styled.PollCheckbox data-test="allowMultiple">
+            <BBBToggle
+              onChange={toggleMultipleResponse}
+              checked={multipleResponse}
+              // Typed responses cannot be multiple choice, but the design keeps
+              // the toggle visible and disabled rather than removing it.
+              disabled={!defaultPoll}
+              label={intl.formatMessage(intlMessages.enableMultipleResponseLabel)}
+            />
+          </Styled.PollCheckbox>
+        )}
+        {
+          !isQuiz && (
+            <Styled.AnonymousRow>
+              <BBBToggle
+                checked={secretPoll}
+                onChange={() => handleToggle()}
+                label={intl.formatMessage(intlMessages.secretPollLabel)}
+                helperText={secretPoll ? intl.formatMessage(intlMessages.isSecretPollLabel) : undefined}
+                slotProps={{ input: { 'data-test': 'anonymousPollBtn' } as React.InputHTMLAttributes<HTMLInputElement> }}
+              />
+            </Styled.AnonymousRow>
+          )
+        }
       </Styled.ResponseArea>
     );
   }

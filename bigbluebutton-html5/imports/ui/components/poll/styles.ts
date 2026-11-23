@@ -1,4 +1,4 @@
-import styled, { css, keyframes } from 'styled-components';
+import styled, { css } from 'styled-components';
 import ButtonWrappers from '/imports/ui/components/common/button-wrapper/styles';
 import { BBBHint } from '@bigbluebutton/bbb-ui-components-react/Hint';
 import { BBBTextInput } from '@bigbluebutton/bbb-ui-components-react/TextInput';
@@ -9,21 +9,13 @@ import {
 } from '/imports/ui/components/sidebar-content/styles';
 import {
   jumboPaddingY,
-  smPaddingX,
-  smPaddingY,
   lgPaddingX,
   borderSize,
   pollInputHeight,
-  pollSmMargin,
   mdPaddingX,
-  pollStatsElementWidth,
-  pollResultWidth,
-  borderSizeLarge,
   smPadding,
   contentSidebarPadding,
   contentSidebarBottomScrollPadding,
-  borderRadiusRounded,
-  mdPaddingY,
   lgBorderRadius,
   borderSizeSmall,
   lgPadding,
@@ -31,24 +23,15 @@ import {
 } from '/imports/ui/stylesheets/styled-components/general';
 import {
   colorText,
-  colorBlueLight,
   colorBorder,
-  colorGrayIcons,
-  colorGrayUserListToolbar,
   colorGrayLighter,
-  colorGrayLight,
   colorDanger,
   colorWarning,
-  colorHeading,
   colorPrimary,
   colorGrayDark,
   colorWhite,
-  pollStatsBorderColor,
-  colorOffWhite,
-  colorGray,
   darkCyanLime,
   colorInfoBoxQuizBg,
-  colorInfoBoxQuizBorder,
   colorInfoBoxQuizText,
   colorSelectedCorrectAnswerText,
   colorSelectedCorrectAnswerBg,
@@ -56,8 +39,18 @@ import {
   colorSelectedCorrectAnswerBgActive,
   colorGreen600,
   colorGreen100,
-  colorBlueLightest,
-  colorBlueDark,
+  panelBorder,
+  panelLive,
+  panelLiveText,
+  panelMutedText,
+  panelRowActionColor,
+  panelRowHoverBg,
+  panelTabActiveColor,
+  panelTabColor,
+  panelTabsBg,
+  panelText,
+  stageControlActiveBg,
+  stageControlBorder,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   fontSizeBase,
@@ -78,18 +71,6 @@ const pollButtonText = css`
   font-weight: ${textFontWeight};
   line-height: 1;
   letter-spacing: 0;
-`;
-
-// The metrics every full-width poll button shares. BBButton drops `className`, so each
-// call site wraps it in a styled element and reaches the button through `& > button`;
-// this keeps the box itself defined once.
-const pollButtonBox = css`
-  justify-content: center;
-  min-height: ${pollInputHeight};
-  padding: ${lgPadding} ${$2xlPadding};
-  border-radius: ${lgBorderRadius};
-  white-space: pre-wrap;
-  ${pollButtonText}
 `;
 
 const Separator = styled(BaseSeparator)``;
@@ -159,11 +140,6 @@ const InputError = styled(ErrorSpacer)`
   font-size: ${fontSizeSmall};
 `;
 
-const Instructions = styled.div`
-  margin-bottom: ${lgPaddingX};
-  color: ${colorText};
-`;
-
 type PollQuestionAreaProps = {
   $hasError?: boolean;
 };
@@ -206,64 +182,47 @@ const PollQuestionAreaWrapper = styled.div`
 
 const SectionHeading = styled.h4`
   margin-top: 0;
-  font-weight: 600;
-  color: ${colorHeading};
   margin-bottom: ${lgPadding};
+  font-size: .75rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: ${panelMutedText};
 `;
 
 const ResponseType = styled.div`
   display: flex;
-  flex-direction: column;
-  gap: ${lgPadding};
-  overflow-wrap: break-word;
-  position: relative;
+  flex-wrap: wrap;
+  gap: 6px;
   width: 100%;
   margin-bottom: ${$2xlPadding};
 `;
 
-// One wrapper per response type, because the selected/unselected split cannot be
-// expressed through the library's variants alone: its `tertiary` is a blue, borderless
-// button and its `primary` fills with the client's lighter #0F70D7, while the spec asks
-// for a grey box at rest and the darker brand blue once picked. Both states are painted
-// here, so the variant underneath only decides the focus outline.
+// One wrapper per response type. The library states its colours with &&:hover:not(...)
+// and paints the label span directly, which outranks any selector reachable from here, so
+// the chip's own colours need !important.
 const ResponseTypeButton = styled.div<{ $selected: boolean }>`
   display: flex;
-  width: 100%;
+  max-width: 100%;
 
   & > button {
-    position: relative;
-    width: 100%;
-    ${pollButtonBox}
+    min-height: 30px;
+    padding: 0 11px;
+    border-radius: 15px;
+    border: 1px solid ${({ $selected }) => ($selected ? colorPrimary : panelBorder)} !important;
+    background-color: ${({ $selected }) => ($selected ? stageControlActiveBg : colorWhite)} !important;
+    font-size: .85rem;
   }
 
-  /* !important is load-bearing in both states: the library states its hover as
-     \`&&:hover:not(...)\`, which outranks any selector reachable from this wrapper.
-     Without it the box would flip to the library's own colours on the way to being
-     clicked; a toggle is meant to hold one fill through every interaction state.
-     The library also paints the label span directly (\`& span { color: ... }\`), and a
-     colour set on the span beats one inherited from the button, so the text needs its
-     own rule or it keeps the variant's. */
-  ${({ $selected }) => ($selected ? css`
-    & > button {
-      background-color: ${colorBlueDark} !important;
-      border: ${borderSizeSmall} solid ${colorBlueDark} !important;
-    }
+  & > button,
+  & > button span {
+    font-weight: 600;
+    color: ${({ $selected }) => ($selected ? colorPrimary : panelRowActionColor)} !important;
+  }
 
-    & > button,
-    & > button span {
-      color: ${colorWhite} !important;
-    }
-  ` : css`
-    & > button {
-      background-color: ${colorGrayUserListToolbar} !important;
-      border: ${borderSizeSmall} solid ${colorGrayIcons} !important;
-    }
-
-    & > button,
-    & > button span {
-      color: ${colorGrayIcons} !important;
-    }
-  `)}
+  & > button:hover {
+    background-color: ${({ $selected }) => ($selected ? stageControlActiveBg : panelRowHoverBg)} !important;
+  }
 `;
 
 const PollParagraph = styled.div`
@@ -308,6 +267,7 @@ const CustomInputRow = styled.div`
   flex-flow: nowrap;
   flex-grow: 1;
   justify-content: space-between;
+  margin-bottom: ${$2xlPadding};
 `;
 
 const PollFooter = styled.div`
@@ -332,6 +292,12 @@ const PollFooter = styled.div`
 // the plain (not underlined) label come from the `secondary` variant at the call site.
 const PollActionsRow = styled.div`
   display: flex;
+
+  button {
+    min-height: 44px;
+    border-radius: 12px;
+  }
+
   width: 100%;
   gap: ${$2xlPadding};
 
@@ -396,139 +362,96 @@ const ResultRight = styled.td`
   word-break: break-all;
 `;
 
-const Main = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const Left = styled.div`
-  font-weight: bold;
-  max-width: ${pollResultWidth};
-  min-width: ${pollStatsElementWidth};
-  word-wrap: break-word;
-  flex: 6;
-
-  padding: ${smPaddingY};
-  margin-top: ${pollSmMargin};
-  margin-bottom: ${pollSmMargin};
-  color: ${colorText};
-
-  position: relative;
-`;
-
-const Center = styled.div`
-  position: relative;
-  flex: 3;
-  border-left: 1px solid ${colorBorder};
-  border-right : none;
-  width: 100%;
-  height: 100%;
-
-  [dir="rtl"] & {
-    border-left: none;
-    border-right: 1px solid ${colorBorder};
-  }
-
-  padding: ${smPaddingY};
-  margin-top: ${pollSmMargin};
-  margin-bottom: ${pollSmMargin};
-  color: ${colorText};
-`;
-
-const Right = styled.div`
-  text-align: right;
-  max-width: ${pollStatsElementWidth};
-  min-width: ${pollStatsElementWidth};
-  flex: 1;
-
-  [dir="rtl"] & {
-    text-align: left;
-  }
-
-  padding: ${smPaddingY};
-  margin-top: ${pollSmMargin};
-  margin-bottom: ${pollSmMargin};
-  color: ${colorText};
-
-  position: relative;
-`;
-
-const BarShade = styled.div`
-  background-color: ${colorGrayLighter};
-  height: 100%;
-  min-height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  right: 0;
-`;
-
-const BarVal = styled.div`
-  position: inherit;
-`;
-
-const Stats = styled.div`
-  margin-bottom: ${smPaddingX};
+const LiveStatus = styled.div`
   display: flex;
   flex-direction: column;
-  border: 1px solid ${pollStatsBorderColor};
-  border-radius: ${borderSizeLarge};
-  padding: ${mdPaddingX};
+  gap: 6px;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background-color: ${panelRowHoverBg};
+`;
 
-  & > div {
-    display: flex;
-    flex-direction: row;
+const LiveStatusText = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: ${panelLiveText};
+  font-size: .8rem;
+  font-weight: 700;
 
-    & > div:nth-child(even) {
-      position: relative;
-      height: 75%;
-      width: 50%;
-      text-align: center;
-    }
+  &::before {
+    content: '';
+    flex-shrink: 0;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background-color: ${panelLive};
   }
 `;
 
-const Title = styled.span`
-  font-weight: bold;
-  word-break: break-all;
+const Track = styled.div<{ $height: number }>`
+  height: ${({ $height }) => $height}px;
+  overflow: hidden;
+  border-radius: ${({ $height }) => $height / 2}px;
+  background-color: ${stageControlBorder};
+`;
+
+const Fill = styled.div<{ $color: string; $animations: boolean }>`
+  height: 100%;
+  border-radius: inherit;
+  background-color: ${({ $color }) => $color};
+  ${({ $animations }) => $animations && 'transition: width .6s cubic-bezier(.2, .8, .2, 1);'}
+`;
+
+const Title = styled.div`
+  margin-bottom: 14px;
+  color: ${panelText};
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1.3;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
 `;
 
-const Status = styled.div`
-  margin-bottom: .5rem;
+const Results = styled.ul`
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
 `;
 
-const ellipsis = keyframes`
-  to {
-    width: 1.25em;
-    margin-right: 0;
-    margin-left: 0;
+const ResultHeader = styled.div<{ $leading: boolean }>`
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+  color: ${panelText};
+  font-size: .95rem;
+  font-weight: ${({ $leading }) => ($leading ? 700 : 400)};
+`;
+
+const ResultLabel = styled.bdi`
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+`;
+
+const ResultCount = styled.span<{ $leading: boolean }>`
+  flex-shrink: 0;
+  color: ${panelMutedText};
+  font-weight: 400;
+
+  b {
+    color: ${({ $leading }) => ($leading ? colorPrimary : panelRowActionColor)};
   }
 `;
 
-interface ConnectingAnimationProps {
-  animations: boolean;
-}
-
-const ConnectingAnimation = styled.span<ConnectingAnimationProps>`
-  &:after {
-    overflow: hidden;
-    display: inline-block;
-    vertical-align: bottom;
-    content: "\\2026"; /* ascii code for the ellipsis character */
-    width: 0;
-    margin: 0 1.25em 0 0;
-
-    [dir="rtl"] & {
-      margin: 0 0 0 1.25em;
-    }
-
-    ${({ animations }) => animations && css`
-      animation: ${ellipsis} steps(4, end) 900ms infinite;
-    `}
-  }
+const Note = styled.p`
+  margin: 0 0 14px;
+  color: ${panelMutedText};
+  font-size: .8rem;
 `;
 
 const LiveResultActionsRow = styled.div`
@@ -537,9 +460,14 @@ const LiveResultActionsRow = styled.div`
   width: 100%;
 
   & > button {
+    min-height: 44px;
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+
+  & > button:first-child {
     flex: 1 1 0;
-    overflow-wrap: break-word;
-    ${pollButtonBox}
   }
 `;
 
@@ -582,19 +510,16 @@ const CorrectAnswerCheckbox = styled.input`
 
 const SegmentedButtonWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   width: 100%;
-  justify-content: center;
-  align-items: center;
   margin-bottom: ${mdPaddingX};
 `;
 
 const SegmentedButtonContainer = styled.div`
   display: flex;
-  padding: 0.15rem;
-  background-color: ${colorOffWhite};
-  border: ${borderSizeSmall} solid ${colorGrayLight};
-  border-radius: ${borderRadiusRounded};
+  flex: 1;
+  padding: 3px;
+  border-radius: 10px;
+  background-color: ${panelTabsBg};
 `;
 
 interface TabSelectorButtonProps {
@@ -602,32 +527,26 @@ interface TabSelectorButtonProps {
 }
 
 const SegmentedButton = styled.button<TabSelectorButtonProps>`
+  flex: 1;
+  height: 32px;
   border: 0;
-  background-color: transparent;
-  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  color: ${colorGray};
-  font-weight: 500;
-  font-size: ${fontSizeBase};
-  line-height: ${lineHeightComputed};
-  padding: ${mdPaddingY} ${mdPaddingX};
-  min-height: 2.5rem;
-  border-radius: .5rem;
+  border-radius: 7px;
+  background-color: ${({ active }) => (active ? colorWhite : 'transparent')};
+  color: ${({ active }) => (active ? panelTabActiveColor : panelTabColor)};
+  ${({ active }) => active && 'box-shadow: 0 1px 3px rgba(15, 23, 36, .14);'}
+  font-family: inherit;
+  font-size: .85rem;
+  font-weight: 700;
   cursor: pointer;
 
-  ${({ active }) => (active ? `
-    color: ${colorWhite};
-    background-color: ${colorPrimary};
+  &:hover {
+    color: ${panelTabActiveColor};
+  }
 
-    &:hover {
-      background-color: ${colorBlueDark};
-    }
-  ` : `
-    &:hover {
-      color: ${colorGrayDark};
-    }
-  `)}
-
-
+  &:focus-visible {
+    outline: 2px solid ${colorPrimary};
+    outline-offset: 1px;
+  }
 `;
 
 const ShowCorrectAnswerLabel = styled.label`
@@ -649,6 +568,14 @@ const ShowCorrectAnswerLabel = styled.label`
 
 const LiveResultTable = styled.table`
   width: 100%;
+  color: ${panelText};
+  font-size: .85rem;
+
+  th,
+  td {
+    padding: 6px 0;
+    border-bottom: 1px solid ${stageControlBorder};
+  }
 `;
 
 const QuizCorrectAnswerCheckbox = styled.input`  
@@ -697,17 +624,19 @@ type InfoBoxContainerProps = {
 };
 
 const InfoBoxContainer = styled.div<InfoBoxContainerProps>`
-  padding: .5rem ${mdPaddingX};
-  border-radius: .5rem;
+  padding: 10px 12px;
+  border-radius: 10px;
   margin-bottom: 1rem;
+  font-size: .8rem;
+  color: ${panelMutedText};
+  background-color: ${panelRowHoverBg};
 
-  color: ${colorBlueLight};
-  background-color: ${colorBlueLightest};
-  border: 1px solid ${colorPrimary};
+  p {
+    margin: 0;
+  }
 
   ${({ isQuiz }) => isQuiz && `
     background-color: ${colorInfoBoxQuizBg};
-    border: 1px solid ${colorInfoBoxQuizBorder};
     color: ${colorInfoBoxQuizText};
   `}
 `;
@@ -765,7 +694,6 @@ export default {
   DeletePollOptionButton,
   ErrorSpacer,
   InputError,
-  Instructions,
   PollQuestionArea,
   SectionHeading,
   ResponseType,
@@ -789,16 +717,16 @@ export default {
   AnonymousRow,
   ResultLeft,
   ResultRight,
-  Main,
-  Left,
-  Center,
-  Right,
-  BarShade,
-  BarVal,
-  Stats,
   Title,
-  Status,
-  ConnectingAnimation,
+  LiveStatus,
+  LiveStatusText,
+  Track,
+  Fill,
+  Results,
+  ResultHeader,
+  ResultLabel,
+  ResultCount,
+  Note,
   THeading,
   DndTextArea,
   ContentWrapper,

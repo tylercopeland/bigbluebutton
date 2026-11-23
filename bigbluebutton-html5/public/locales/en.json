@@ -578,6 +578,7 @@
     "app.poll.liveResult.usersTitle": "Users",
     "app.poll.liveResult.responsesTitle": "Response",
     "app.poll.liveResult.secretLabel": "This is an anonymous poll. Individual responses are not shown.",
+    "app.poll.liveResult.resultsPrivate": "Results are not shown to everyone until you publish them.",
     "app.poll.removePollOpt": "Removed Poll option {option}",
     "app.poll.emptyPollOpt": "Blank",
     "app.poll.info": "Poll mode: Collect opinions and see response distribution. No correct answers needed.",

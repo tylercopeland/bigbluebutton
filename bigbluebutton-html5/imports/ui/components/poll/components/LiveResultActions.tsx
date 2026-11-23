@@ -101,7 +101,7 @@ const LiveResultActions: React.FC = () => {
         <BBButton
           dataTest="cancelPollLabel"
           label={intl.formatMessage(intlMessages.cancelPollLabel)}
-          variant="tertiary"
+          variant="secondary"
           color="default"
           onClick={() => {
             Session.setItem('pollInitiated', false);

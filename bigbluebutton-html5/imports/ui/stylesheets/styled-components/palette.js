@@ -184,6 +184,8 @@ const panelRowActionBg = 'var(--panel-row-action-bg, #E6EAF0)';
 const panelRowActionHoverBg = 'var(--panel-row-action-hover-bg, #D6DCE5)';
 const panelRowActionColor = 'var(--panel-row-action-color, #374151)';
 const panelLive = 'var(--panel-live, #12A150)';
+const panelLiveText = 'var(--panel-live-text, #0F7A3D)';
+const pollBarColor = 'var(--poll-bar-color, #9DB7E2)';
 const panelStatusColor = 'var(--panel-status-color, #7A8594)';
 const panelStatusFaintColor = 'var(--panel-status-faint-color, #B3BCC8)';
 const panelCameraColor = 'var(--panel-camera-color, #6B7280)';
@@ -271,6 +273,8 @@ export {
   panelRowActionHoverBg,
   panelRowActionColor,
   panelLive,
+  panelLiveText,
+  pollBarColor,
   panelStatusColor,
   panelStatusFaintColor,
   panelCameraColor,

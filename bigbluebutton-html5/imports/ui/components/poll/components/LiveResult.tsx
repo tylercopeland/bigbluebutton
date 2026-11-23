@@ -1,18 +1,13 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import {
-  Bar, BarChart, ResponsiveContainer, XAxis, YAxis,
-} from 'recharts';
+import { colorPrimary, panelLive, pollBarColor } from '/imports/ui/stylesheets/styled-components/palette';
 import Styled from '../styles';
 import { ResponseInfo, UserInfo } from '../queries';
 import logger from '/imports/startup/client/logger';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
-import { layoutSelect, layoutSelectOutput } from '../../layout/context';
 import useCurrentPoll from '../useCurrentPoll';
-import CustomizedAxisTick from './CustomizedAxisTick';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
 import Tooltip from '../../common/tooltip/component';
-import { Layout, Output } from '../../layout/layoutTypes';
 
 const intlMessages = defineMessages({
   usersTitle: {
@@ -35,9 +30,10 @@ const intlMessages = defineMessages({
     id: 'app.poll.liveResult.secretLabel',
     description: 'label shown instead of users in poll responses if poll is secret',
   },
-  activePollInstruction: {
-    id: 'app.poll.activePollInstruction',
-    description: 'instructions displayed when a poll is active',
+  resultsPrivate: {
+    id: 'app.poll.liveResult.resultsPrivate',
+    description: 'tells the presenter when live poll results are shown to everyone',
+    defaultMessage: 'Results are not shown to everyone until you publish them.',
   },
   true: {
     id: 'app.poll.t',
@@ -73,6 +69,10 @@ const intlMessages = defineMessages({
   },
 });
 
+const getPercentage = (count: number, total: number) => (
+  `${total > 0 ? Math.round((count / total) * 100) : 0}%`
+);
+
 interface LiveResultProps {
   questionText: string;
   responses: Array<ResponseInfo>;
@@ -82,7 +82,6 @@ interface LiveResultProps {
   users: Array<UserInfo>;
   isSecret: boolean;
   isQuiz: boolean;
-  type: string;
 }
 
 const LiveResult: React.FC<LiveResultProps> = ({
@@ -94,11 +93,8 @@ const LiveResult: React.FC<LiveResultProps> = ({
   users,
   isSecret,
   isQuiz,
-  type,
 }) => {
   const intl = useIntl();
-  const sidebarContent: Output['sidebarContent'] = layoutSelectOutput((i: Output) => i.sidebarContent);
-  const fontSize: Layout['fontSize'] = layoutSelect((i: Layout) => i.fontSize);
 
   const translatedResponses = responses.map((response) => {
     const translationKey = intlMessages[response.optionDesc.toLowerCase() as keyof typeof intlMessages];
@@ -109,39 +105,58 @@ const LiveResult: React.FC<LiveResultProps> = ({
     };
   });
 
+  const highestCount = Math.max(0, ...responses.map((r) => r.optionResponsesCount));
+
   return (
     <div>
-      <Styled.Instructions>
-        {intl.formatMessage(intlMessages.activePollInstruction)}
-      </Styled.Instructions>
-      <Styled.Stats>
-        {questionText ? <Styled.Title data-test="currentPollQuestion">{questionText}</Styled.Title> : null}
-        <Styled.Status data-test="pollStatus">
+      <Styled.LiveStatus>
+        <Styled.LiveStatusText data-test="pollStatus">
           {usersCount !== respondedUsersCount
-            ? (
-              <span>
-                {`${intl.formatMessage(intlMessages.waitingLabel, {
-                  current: respondedUsersCount,
-                  total: usersCount,
-                })} `}
-              </span>
-            )
-            : <span>{intl.formatMessage(intlMessages.doneLabel)}</span>}
-          {usersCount !== respondedUsersCount
-            ? <Styled.ConnectingAnimation animations={animations} /> : null}
-        </Styled.Status>
-        <ResponsiveContainer width="90%" height={translatedResponses.length * 50}>
-          <BarChart
-            data={translatedResponses}
-            layout="vertical"
-          >
-            <XAxis type="number" allowDecimals={false} />
-            <YAxis width={type === 'R-' ? (sidebarContent.width / 3) : 70} fontSize={fontSize} type="category" dataKey="optionDesc" tick={<CustomizedAxisTick />} />
-            <Bar dataKey="optionResponsesCount" fill="#0C57A7" />
-          </BarChart>
-        </ResponsiveContainer>
-      </Styled.Stats>
-      <Styled.Separator />
+            ? intl.formatMessage(intlMessages.waitingLabel, {
+              current: respondedUsersCount,
+              total: usersCount,
+            })
+            : intl.formatMessage(intlMessages.doneLabel)}
+        </Styled.LiveStatusText>
+        <Styled.Track $height={6} aria-hidden>
+          <Styled.Fill
+            $color={panelLive}
+            $animations={animations}
+            style={{ width: getPercentage(respondedUsersCount, usersCount) }}
+          />
+        </Styled.Track>
+      </Styled.LiveStatus>
+      {questionText
+        ? <Styled.Title data-test="currentPollQuestion" dir="auto">{questionText}</Styled.Title>
+        : null}
+      <Styled.Results data-test="pollLiveResults">
+        {translatedResponses.map((response) => {
+          const count = response.optionResponsesCount;
+          const isLeading = count > 0 && count === highestCount;
+          const percentage = getPercentage(count, respondedUsersCount);
+          return (
+            <li key={response.optionDesc}>
+              <Styled.ResultHeader $leading={isLeading}>
+                <Styled.ResultLabel>{response.optionDesc}</Styled.ResultLabel>
+                <Styled.ResultCount $leading={isLeading}>
+                  <bdi dir="ltr">
+                    {`${count} · `}
+                    <b>{percentage}</b>
+                  </bdi>
+                </Styled.ResultCount>
+              </Styled.ResultHeader>
+              <Styled.Track $height={10} aria-hidden>
+                <Styled.Fill
+                  $color={isLeading ? colorPrimary : pollBarColor}
+                  $animations={animations}
+                  style={{ width: percentage }}
+                />
+              </Styled.Track>
+            </li>
+          );
+        })}
+      </Styled.Results>
+      <Styled.Note>{intl.formatMessage(intlMessages.resultsPrivate)}</Styled.Note>
       {
         !isSecret
           ? (
@@ -195,9 +210,9 @@ const LiveResult: React.FC<LiveResultProps> = ({
             </Styled.LiveResultTable>
           )
           : (
-            <div>
+            <Styled.Note>
               {intl.formatMessage(intlMessages.secretPollLabel)}
-            </div>
+            </Styled.Note>
           )
       }
     </div>
@@ -238,7 +253,6 @@ const LiveResultContainer: React.FC = () => {
     questionText,
     responses,
     users,
-    type,
     secret: isSecret,
     quiz: isQuiz,
   } = currentPoll;
@@ -253,7 +267,6 @@ const LiveResultContainer: React.FC = () => {
       animations={animations}
       users={users}
       isQuiz={isQuiz}
-      type={type}
     />
   );
 };

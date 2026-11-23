@@ -11,6 +11,11 @@ const HideDropdownButton = styled(Button)`
    `}
 `;
 
+const Anchor = styled.span`
+  display: inline-flex;
+`;
+
 export default {
+  Anchor,
   HideDropdownButton,
 };

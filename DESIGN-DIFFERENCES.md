@@ -34,7 +34,8 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
 - [ ] New strings (tabs, people count) are English only
-- [ ] Share media menu opens at the far right, not above its button
+- [x] Share media menu opens above its button
+- [ ] Share media menu keeps BBB's layout (design: previews above a row of media types)
 
 ## Stage and webcams
 - [ ] Whiteboard and slide toolbars are always visible (design: on hover)

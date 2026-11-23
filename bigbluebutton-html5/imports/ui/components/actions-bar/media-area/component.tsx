@@ -44,6 +44,7 @@ const MediaArea = (props: MediaAreaProps) => {
     isLockedUser,
   } = props;
 
+  const anchorRef = useRef<HTMLSpanElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const openMediaArea = useShortcut('openActions');
   const previousRequestedPresenter = useRef<boolean | null>(null);
@@ -73,22 +74,25 @@ const MediaArea = (props: MediaAreaProps) => {
 
   return (
     <>
-      {/* eslint-disable-next-line jsx-a11y/no-access-key */}
-      <Styled.HideDropdownButton
-        hideLabel
-        aria-label={intl.formatMessage(intlMessages.mediaLabel)}
-        data-test="mediaAreaButton"
-        accessKey={openMediaArea}
-        label={intl.formatMessage(intlMessages.mediaLabel)}
-        icon="media-area"
-        color={menuOpen ? 'primary' : 'default'}
-        size={deviceInfo.isMobile ? 'md' : 'lg'}
-        circle
-        onClick={handleToggleMenu}
-      />
+      <Styled.Anchor ref={anchorRef}>
+        {/* eslint-disable-next-line jsx-a11y/no-access-key */}
+        <Styled.HideDropdownButton
+          hideLabel
+          aria-label={intl.formatMessage(intlMessages.mediaLabel)}
+          data-test="mediaAreaButton"
+          accessKey={openMediaArea}
+          label={intl.formatMessage(intlMessages.mediaLabel)}
+          icon="media-area"
+          color={menuOpen ? 'primary' : 'default'}
+          size={deviceInfo.isMobile ? 'md' : 'lg'}
+          circle
+          onClick={handleToggleMenu}
+        />
+      </Styled.Anchor>
       <MediaSharingModal
         isMobile={isMobile}
         isRTL={isRTL}
+        anchorRef={anchorRef}
         open={menuOpen}
         onClose={() => setMenuOpen(false)}
         intl={intl}

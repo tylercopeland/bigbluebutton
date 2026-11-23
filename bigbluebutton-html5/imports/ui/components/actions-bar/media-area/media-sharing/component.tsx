@@ -1,4 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, {
+  RefObject, useEffect, useRef, useState,
+} from 'react';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
@@ -21,9 +23,12 @@ import { MediaButtonPluginItem } from '../types';
 import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
+import useAnchoredLeft from './hooks/useAnchoredLeft';
 import InMemoryStorage from '/imports/ui/services/storage/in-memory';
 
 interface MediaSharingModalProps {
+  anchorRef: RefObject<HTMLElement>;
   open: boolean;
   onClose: () => void;
   intl: IntlShape;
@@ -144,7 +149,7 @@ const intlMessages = defineMessages({
 });
 
 const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
-  open, onClose, intl, amIPresenter = false, isConnected,
+  anchorRef, open, onClose, intl, amIPresenter = false, isConnected,
   mediaAreaItems = [],
   isCameraAsContentEnabled,
   hasCameraAsContent,
@@ -163,6 +168,9 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
   presenterPolicy = 'requireApproval',
   isLockedUser = false,
 }) => {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const isDocked = useIsNavigationDocked();
+  const anchoredLeft = useAnchoredLeft(anchorRef, modalRef, open && isDocked);
   const animations = getSettingsSingletonInstance().application?.animations ?? true;
   const actionsBarStyle = layoutSelectOutput((i: Output) => i.actionBar);
   const { screenIsShared: isScreenGloballyBroadcasting } = useIsScreenGloballyBroadcasting();
@@ -463,6 +471,8 @@ const MediaSharingModal: React.FC<MediaSharingModalProps> = ({
     <Styled.Overlay onClick={handleClose}>
       {/* Stop propagation so that clicking inside the modal doesn't close it */}
       <Styled.ModalContainer
+        ref={modalRef}
+        style={anchoredLeft !== undefined ? { left: anchoredLeft, right: 'auto' } : undefined}
         onClick={(e) => e.stopPropagation()}
         isMobile={isMobile}
         isRTL={isRTL}

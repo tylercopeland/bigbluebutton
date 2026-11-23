@@ -9,6 +9,10 @@ export const SIDEBAR_CONTENT_PANEL_MIN_WIDTH = SIDEBAR_NAVIGATION_PANEL_WIDTH * 
 export const SIDEBAR_CONTENT_PANEL_MAX_WIDTH = 800; // px
 export const SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH = 0.017;
 
+// Default panel width when the navigation is docked
+export const DOCKED_PANEL_WIDTH = 360; // px
+export const DOCKED_PANEL_MAX_PERCENTAGE_WIDTH = 0.34;
+
 const DEFAULT_VALUES = {
   layoutType: LAYOUT_TYPE.UNIFIED_LAYOUT,
   panelType: 'chat',

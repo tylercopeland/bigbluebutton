@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react';
 import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES, {
+  DOCKED_PANEL_MAX_PERCENTAGE_WIDTH,
+  DOCKED_PANEL_WIDTH,
   SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
   SIDEBAR_NAVIGATION_PANEL_WIDTH,
   SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH,
@@ -306,9 +308,13 @@ const LayoutEngine = () => {
       } else {
         const effectiveMinWidth = sidebarContentMinWidth;
         if (sidebarContentWidth === 0) {
-          width = min(
-            max((windowWidth() * 0.2), effectiveMinWidth), sidebarContentMaxWidth,
+          const dockedWidth = min(
+            DOCKED_PANEL_WIDTH
+              + windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+            windowWidth() * DOCKED_PANEL_MAX_PERCENTAGE_WIDTH,
           );
+          const defaultWidth = isNavigationDocked ? dockedWidth : windowWidth() * 0.2;
+          width = min(max(defaultWidth, effectiveMinWidth), sidebarContentMaxWidth);
         } else {
           width = min(max(sidebarContentWidth, effectiveMinWidth),
             sidebarContentMaxWidth);

@@ -172,6 +172,12 @@ const roomLeaveBorder = 'var(--room-leave-border, #6B2F36)';
 const roomLeaveColor = 'var(--room-leave-color, #FF9EA1)';
 const roomFocusRing = 'var(--room-focus-ring, #8AB4FF)';
 
+// Side panel tabs
+const panelTabsBg = 'var(--panel-tabs-bg, #EEF1F5)';
+const panelTabColor = 'var(--panel-tab-color, #4B5563)';
+const panelTabActiveColor = 'var(--panel-tab-active-color, #111827)';
+const panelRaisedHandBadge = 'var(--panel-raised-hand-badge, #A86A0F)';
+
 // DARK THEME COLORS
 const colorBackgroundDarkTheme = 'var(--color-background-dark-theme, #181A23)';
 const colorOverlaysDarkTheme = 'var(--color-overlays-dark-theme, #2D2F38)';
@@ -214,6 +220,10 @@ export {
   roomLeaveBorder,
   roomLeaveColor,
   roomFocusRing,
+  panelTabsBg,
+  panelTabColor,
+  panelTabActiveColor,
+  panelRaisedHandBadge,
   colorWhite,
   colorOffWhite,
   colorTldrawBackground,

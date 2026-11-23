@@ -2,6 +2,8 @@ import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from '/imports/ui/components/sidebar-content/styles';
 import MultifunctionalModeButton from '../multifunctional-mode-button/component';
+import PeopleChatTabs from './people-chat-tabs/component';
+import useShowPeopleChatTabs from './people-chat-tabs/useShowPeopleChatTabs';
 import usePanelClose from './usePanelClose';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -51,6 +53,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
 }) => {
   const intl = useIntl();
   const { closePanel } = usePanelClose(panelId, onBeforeClose);
+  const showTabs = useShowPeopleChatTabs(panelId);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
 
   const resolvedCloseLabel = closeButtonLabel
@@ -70,10 +73,11 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
       isRTL={isRTL}
       data-test={dataTest}
       title={title}
+      customTitle={showTabs ? <PeopleChatTabs panelId={panelId} /> : undefined}
       rightButtonProps={{
         'aria-label': resolvedCloseLabel,
         'data-test': closeButtonDataTest,
-        icon: 'minus',
+        icon: showTabs ? 'close' : 'minus',
         label: resolvedCloseLabel,
         onClick: closePanel,
         ...closeButtonProps,

@@ -12,7 +12,7 @@ pass of the overall architecture. Check an item off when it matches.
 ## Bottom bar
 - [ ] Extra buttons kept: Profile, minimize/restore presentation
 - [ ] Share media icon differs (design: plus in a frame)
-- [ ] People and Chat show a dot, not numbered badges (raised hands, unread)
+- [ ] Bottom-bar People and Chat show a dot, not numbered badges (the tabs do)
 - [ ] Device chevron on the mic button is not in the design
 - [ ] Phones keep the old navigation button and the white media group
 - [ ] Non-default layouts keep the left rail
@@ -25,8 +25,15 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Alert chips (raised hands, questions, low engagement) not built
 
 ## Panels
-- [ ] Panels are not yet one People/Chat panel with tabs
-- [ ] Panel is 259px wide by default at 1400px; design is 360px
+- [x] People and Chat share one panel with tabs, 360px wide by default
+- [ ] People tab keeps the download button, Chat tab keeps its options menu
+- [ ] Chat uses BBB's public/private buttons, not an Everyone/Direct switch
+- [ ] People list: no filters, wait times, calmer status icons or hover actions
+- [ ] Mute all and permissions buttons are kept at the bottom of People
+- [ ] Other panels (Notes, Apps, Profile, Poll, Timer) keep BBB's header
+- [ ] Tabs are hidden while two panels are open side by side
+- [ ] Dark mode: the selected tab is hard to tell apart
+- [ ] New strings (tabs, people count) are English only
 - [ ] Share media menu opens at the far right, not above its button
 
 ## Stage and webcams

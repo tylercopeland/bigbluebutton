@@ -39,7 +39,8 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Chat: closing the panel in a direct message hides that conversation until a new message (BBB behavior)
 - [x] People list: raised hands with wait times, status columns, hover actions, All and Raised hands filters
 - [ ] People list: no Low engagement filter
-- [ ] People list: keeps the search box, Lower all hands and role labels (Presenter, Moderator, Guest...)
+- [ ] People list: search opens from an icon beside the filters (not in the design)
+- [ ] People list: keeps Lower all hands and role labels (Presenter, Moderator, Guest...)
 - [ ] People list: says "Presenter", not "Presenting"; adds a "Can draw" label (whiteboard access moved into the menu)
 - [ ] People list: the mic icon is also the mute button; raised hands add a lower hand button on hover
 - [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials

@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { RefObject } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
+import Icon from '/imports/ui/components/common/icon/component';
 import { UserListFilter } from '/imports/ui/core/local-states/useUserListFilter';
 import Styled from './styles';
 
@@ -19,6 +20,10 @@ const intlMessages = defineMessages({
     description: 'Filter that shows people with a raised hand',
     defaultMessage: 'Raised hands',
   },
+  search: {
+    id: 'app.userList.searchUsers',
+    description: 'Label for the button that shows the search field',
+  },
 });
 
 interface UserListFiltersProps {
@@ -27,10 +32,20 @@ interface UserListFiltersProps {
   // null when the user is not allowed to see how many people are in the meeting
   userCount: number | null;
   raisedHandsCount: number;
+  // Leave out when search is disabled
+  onToggleSearch?: () => void;
+  isSearchOpen: boolean;
+  searchButtonRef: RefObject<HTMLButtonElement>;
 }
 
 const UserListFilters: React.FC<UserListFiltersProps> = ({
-  selected, onSelect, userCount, raisedHandsCount,
+  selected,
+  onSelect,
+  userCount,
+  raisedHandsCount,
+  onToggleSearch = undefined,
+  isSearchOpen,
+  searchButtonRef,
 }) => {
   const intl = useIntl();
 
@@ -54,6 +69,19 @@ const UserListFilters: React.FC<UserListFiltersProps> = ({
         <span>{intl.formatMessage(intlMessages.raisedHands)}</span>
         {raisedHandsCount > 0 && <Styled.Count $isRaisedHands>{raisedHandsCount}</Styled.Count>}
       </Styled.Chip>
+      {onToggleSearch && (
+        <Styled.SearchButton
+          ref={searchButtonRef}
+          type="button"
+          aria-label={intl.formatMessage(intlMessages.search)}
+          title={intl.formatMessage(intlMessages.search)}
+          aria-expanded={isSearchOpen}
+          data-test="toggleUserSearch"
+          onClick={onToggleSearch}
+        >
+          <Icon iconName="search" />
+        </Styled.SearchButton>
+      )}
     </Styled.Filters>
   );
 };

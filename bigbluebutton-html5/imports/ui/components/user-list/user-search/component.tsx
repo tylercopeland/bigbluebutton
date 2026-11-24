@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { CircularProgress } from '@mui/material';
 import { useIntl, defineMessages } from 'react-intl';
+import KEYS from '/imports/utils/keys';
 import Icon from '/imports/ui/components/common/icon/component';
 import { USER_SEARCH_MAX_LENGTH } from './service';
 import Styled from './styles';
@@ -18,12 +19,14 @@ const intlMessages = defineMessages({
 
 interface UserSearchProps {
   onSearchChange: (query: string) => void;
+  onClose: () => void;
   debounceDelayMs?: number;
   isQueryLoading?: boolean;
 }
 
 const UserSearch: React.FC<UserSearchProps> = ({
   onSearchChange,
+  onClose,
   debounceDelayMs = 500,
   isQueryLoading = false,
 }) => {
@@ -68,6 +71,11 @@ const UserSearch: React.FC<UserSearchProps> = ({
         value={internalValue}
         maxLength={USER_SEARCH_MAX_LENGTH}
         onChange={handleChange}
+        onKeyDown={(e) => {
+          if (e.key !== KEYS.ESCAPE) return;
+          e.stopPropagation();
+          onClose();
+        }}
         aria-label={intl.formatMessage(intlMessages.searchUsers)}
         autoFocus
       />

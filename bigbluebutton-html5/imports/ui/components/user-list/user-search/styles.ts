@@ -8,7 +8,6 @@ import {
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
   smPaddingX,
-  lgPadding,
   xsPadding,
   lgBorderRadius,
   smPaddingY,
@@ -19,7 +18,7 @@ const SearchContainer = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  margin: ${lgPadding};
+  margin: 0 14px 8px;
   background: ${colorWhite};
   border-radius: ${lgBorderRadius};
   border: 1px solid ${colorBorder};

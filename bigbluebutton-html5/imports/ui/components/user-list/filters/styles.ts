@@ -15,7 +15,7 @@ const Filters = styled.div`
   flex-shrink: 0;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 0 14px 8px;
+  padding: 12px 14px 8px;
 `;
 
 const Count = styled.span<{ $isRaisedHands?: boolean }>`
@@ -66,8 +66,38 @@ const Chip = styled.button`
   }
 `;
 
+const SearchButton = styled.button`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background-color: transparent;
+  color: ${panelText};
+  cursor: pointer;
+
+  &:hover {
+    background-color: ${panelRowHoverBg};
+  }
+
+  &[aria-expanded='true'] {
+    background-color: ${panelRowActionBg};
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: 1px;
+  }
+`;
+
 export default {
   Filters,
   Chip,
   Count,
+  SearchButton,
 };

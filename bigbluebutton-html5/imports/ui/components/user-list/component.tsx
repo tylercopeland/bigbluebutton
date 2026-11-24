@@ -1,5 +1,5 @@
 import React, {
-  useEffect, useCallback, memo, useState, useMemo,
+  useEffect, useCallback, memo, useRef, useState, useMemo,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { useLazyQuery } from '@apollo/client';
@@ -91,6 +91,13 @@ const UserList: React.FC<UserListComponentProps> = () => {
   useEffect(() => () => setUserListFilter('all'), []);
 
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchButtonRef = useRef<HTMLButtonElement>(null);
+  const closeSearch = useCallback(() => {
+    setIsSearchOpen(false);
+    setSearchQuery('');
+    searchButtonRef.current?.focus();
+  }, []);
   const searchWhere = useMemo(() => makeUserSearchWhere(searchQuery), [searchQuery]);
   const { data: currentUserData } = useCurrentUser((user) => ({
     isModerator: user.isModerator,
@@ -228,16 +235,24 @@ const UserList: React.FC<UserListComponentProps> = () => {
         )}
       />
       <Styled.Separator />
-      <UserSearchContainer
-        onSearchChange={setSearchQuery}
-        isQueryLoading={searchCountLoading}
-      />
       <UserListFilters
         selected={filter}
         onSelect={setFilter}
         userCount={hideUserList ? null : count}
         raisedHandsCount={raisedHandsCount}
+        onToggleSearch={isUserListSearchEnabled()
+          ? () => (isSearchOpen ? closeSearch() : setIsSearchOpen(true))
+          : undefined}
+        isSearchOpen={isSearchOpen}
+        searchButtonRef={searchButtonRef}
       />
+      {isSearchOpen && (
+        <UserSearchContainer
+          onSearchChange={setSearchQuery}
+          isQueryLoading={searchCountLoading}
+          onClose={closeSearch}
+        />
+      )}
       {renderScrollableSection()}
       {renderCrowdActionButtons()}
     </Styled.PanelContent>

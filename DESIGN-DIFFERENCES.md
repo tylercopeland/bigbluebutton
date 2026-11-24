@@ -48,6 +48,8 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Hidden for now on desktop and tablet, to come back to (sidebar-navigation/hidden-controls.ts): mute all and permissions in People, minimize presentation and Profile in the bottom bar
 - [x] The side panel can be dragged by its header to the other side, or moved from the options menu (three dots); remembered per browser (not in the design)
 - [ ] Moving the panel: the bottom bar buttons stay in place; phones and layouts without docked navigation can't move it
+- [x] Side panels share one condensed spacing scale: 52px header, 12px sides, 8px gaps (design: 14px sides)
+- [ ] Spacing: Notes keeps its editor's own indent, and Profile and breakout room lists keep their inner spacing
 - [x] Other panels use the same plain title and close button as People and Chat
 - [ ] Other panels keep BBB's content (Notes, Profile, Breakout Rooms) and phones keep BBB's headers
 - [ ] Tabs are hidden while two panels are open side by side

@@ -95,9 +95,10 @@ const PollOptionInput = styled(BBBTextInput)<PollOptionInputProps>`
   }
 
   .MuiInputBase-root {
-    min-height: ${pollInputHeight};
+    min-height: var(--panel-control-height, ${pollInputHeight});
+    height: var(--panel-control-height, auto);
     color: ${colorText};
-    padding: ${lgPadding} ${$2xlPadding};
+    padding: 0 var(--panel-inset, ${$2xlPadding});
     border-radius: ${lgBorderRadius};
     font-size: ${fontSizeBase};
     border: ${borderSizeSmall} solid ${colorBorder};
@@ -123,8 +124,9 @@ const DeletePollOptionButton = styled.div`
   }
 
   & > button {
-    width: ${pollInputHeight};
-    min-height: ${pollInputHeight};
+    width: var(--panel-control-height, ${pollInputHeight});
+    min-height: var(--panel-control-height, ${pollInputHeight});
+    height: var(--panel-control-height, auto);
     border-radius: ${lgBorderRadius};
     font-size: ${fontSizeBase};
   }
@@ -132,10 +134,11 @@ const DeletePollOptionButton = styled.div`
 
 const ErrorSpacer = styled.div`
   position: relative;
-  height: 1.25rem;
+  height: var(--panel-gap, 1.25rem);
 `;
 
 const InputError = styled(ErrorSpacer)`
+  height: auto;
   color: ${colorDanger};
   font-size: ${fontSizeSmall};
 `;
@@ -154,7 +157,7 @@ const PollQuestionArea = styled(PollTextArea)<PollQuestionAreaProps>`
     margin: 0;
     color: ${colorText};
     -webkit-appearance: none;
-    padding: ${$2xlPadding} ${jumboPaddingY};
+    padding: var(--panel-inset, ${$2xlPadding}) var(--panel-inset, ${jumboPaddingY});
     border-radius: ${lgBorderRadius};
     font-size: ${fontSizeBase};
     line-height: ${lineHeightComputed};
@@ -177,7 +180,7 @@ const PollQuestionArea = styled(PollTextArea)<PollQuestionAreaProps>`
 `;
 
 const PollQuestionAreaWrapper = styled.div`
-  margin-bottom: ${$2xlPadding};
+  margin-bottom: var(--panel-inset, ${$2xlPadding});
 `;
 
 const SectionHeading = styled.h4`
@@ -195,7 +198,7 @@ const ResponseType = styled.div`
   flex-wrap: wrap;
   gap: 6px;
   width: 100%;
-  margin-bottom: ${$2xlPadding};
+  margin-bottom: var(--panel-inset, ${$2xlPadding});
 `;
 
 // One wrapper per response type. The library states its colours with &&:hover:not(...)
@@ -232,7 +235,7 @@ const PollParagraph = styled.div`
 
 const PollCheckbox = styled.div`
   display: block;
-  margin-bottom: ${$2xlPadding};
+  margin-bottom: var(--panel-inset, ${$2xlPadding});
 `;
 
 const AddItemButton = styled.div`
@@ -253,8 +256,8 @@ const Row = styled.div`
   flex-flow: wrap;
   flex-grow: 1;
   justify-content: space-between;
-  margin-top: 0.7rem;
-  margin-bottom: 0.7rem;
+  margin-top: var(--panel-row-margin, 0.7rem);
+  margin-bottom: var(--panel-row-margin, 0.7rem);
 `;
 
 const Warning = styled.div`
@@ -267,7 +270,7 @@ const CustomInputRow = styled.div`
   flex-flow: nowrap;
   flex-grow: 1;
   justify-content: space-between;
-  margin-bottom: ${$2xlPadding};
+  margin-bottom: var(--panel-inset, ${$2xlPadding});
 `;
 
 const PollFooter = styled.div`
@@ -276,7 +279,7 @@ const PollFooter = styled.div`
   align-items: center;
   flex-shrink: 0;
   width: 100%;
-  padding: ${$2xlPadding} ${jumboPaddingY};
+  padding: var(--panel-gap, ${$2xlPadding}) var(--panel-inset, ${jumboPaddingY});
   border-top: ${borderSizeSmall} solid ${colorBorder};
   background-color: ${colorWhite};
 
@@ -294,12 +297,13 @@ const PollActionsRow = styled.div`
   display: flex;
 
   button {
-    min-height: 44px;
+    min-height: var(--panel-control-height, 44px);
+    height: var(--panel-control-height, auto);
     border-radius: 12px;
   }
 
   width: 100%;
-  gap: ${$2xlPadding};
+  gap: var(--panel-gap, ${$2xlPadding});
 
   & > * {
     flex: 1;
@@ -342,7 +346,7 @@ const ResponseArea = styled.div`
 const AnonymousRow = styled(Row)`
   flex-flow: nowrap;
   width: 100%;
-  margin-bottom: ${$2xlPadding};
+  margin-bottom: var(--panel-inset, ${$2xlPadding});
 `;
 
 const ResultLeft = styled.td`
@@ -460,7 +464,8 @@ const LiveResultActionsRow = styled.div`
   width: 100%;
 
   & > button {
-    min-height: 44px;
+    min-height: var(--panel-control-height, 44px);
+    height: var(--panel-control-height, auto);
     border-radius: 12px;
     overflow-wrap: anywhere;
     white-space: normal;
@@ -496,8 +501,8 @@ const ContentWrapper = styled(ScrollboxVertical)`
   // panel is meant to read flat, so they are dropped here rather than in the shared
   // component, which every other panel still relies on.
   background: none;
-  margin: 0 ${smPadding} 0;
-  padding: ${contentSidebarPadding} ${jumboPaddingY} ${contentSidebarBottomScrollPadding};
+  margin: 0 var(--panel-scroll-margin, ${smPadding});
+  padding: ${contentSidebarPadding} var(--panel-inset, ${jumboPaddingY}) ${contentSidebarBottomScrollPadding};
   flex: 1 1 auto;
   // Lets the box shrink below its content height so the footer stays pinned
   min-height: 0;
@@ -511,7 +516,7 @@ const CorrectAnswerCheckbox = styled.input`
 const SegmentedButtonWrapper = styled.div`
   display: flex;
   width: 100%;
-  margin-bottom: ${mdPaddingX};
+  margin-bottom: var(--panel-inset, ${mdPaddingX});
 `;
 
 const SegmentedButtonContainer = styled.div`
@@ -642,7 +647,7 @@ const InfoBoxContainer = styled.div<InfoBoxContainerProps>`
 `;
 
 const TypedResponseHint = styled(BBBHint)`
-  margin-bottom: ${$2xlPadding};
+  margin-bottom: var(--panel-inset, ${$2xlPadding});
 `;
 
 const ResponseHeader = styled.div`

@@ -18,13 +18,14 @@ const SearchContainer = styled.div`
   display: flex;
   align-items: center;
   position: relative;
-  margin: 0 14px 8px;
+  margin: 0 var(--panel-inset, 14px) 8px;
   background: ${colorWhite};
   border-radius: ${lgBorderRadius};
   border: 1px solid ${colorBorder};
   padding: ${smPaddingY} ${smPaddingX};
   width: auto;
-  height: 40px;
+  height: var(--panel-control-height, 40px);
+  box-sizing: border-box;
   flex-shrink: 0;
   overflow: hidden;
   box-shadow: none;

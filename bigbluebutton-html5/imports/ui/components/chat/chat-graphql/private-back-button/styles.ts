@@ -13,8 +13,8 @@ const Header = styled.div`
   flex-shrink: 0;
   align-items: center;
   gap: 10px;
-  margin: 0 -14px;
-  padding: 0 12px 10px;
+  margin: 0 calc(-1 * var(--panel-inset, 14px));
+  padding: 0 var(--panel-inset, 12px) var(--panel-gap, 10px);
   border-bottom: 1px solid ${panelBorder};
 `;
 

@@ -31,10 +31,10 @@ const UserItemContents = styled.div<UserItemContentsProps>`
   align-items: center;
   gap: 10px;
   width: 100%;
-  min-height: 46px;
+  min-height: var(--panel-row-height, 46px);
   box-sizing: border-box;
-  padding: 2px 8px;
-  border-radius: 10px;
+  padding: 2px var(--panel-inset, 8px);
+  border-radius: var(--panel-scroll-margin, 10px);
 
   ${({ $isActionsOpen }) => $isActionsOpen && css`
     background-color: ${panelRowHoverBg};
@@ -66,7 +66,7 @@ const UserItemContents = styled.div<UserItemContentsProps>`
 const Avatar = styled(UserAvatar)<AvatarProps>`
   position: relative;
   flex-shrink: 0;
-  margin: 0 4px;
+  margin: 0 var(--panel-scroll-margin, 4px);
   border: 0;
   text-align: center;
   font-size: .75rem;

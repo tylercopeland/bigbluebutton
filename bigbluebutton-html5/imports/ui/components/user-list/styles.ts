@@ -32,8 +32,7 @@ const Separator = styled(BaseSeparator)``;
 const ScrollableSection = styled(ScrollboxVertical)`
   flex-grow: 1;
   padding-bottom: ${contentSidebarBottomScrollPadding};
-  margin: ${mdPadding};
-  margin-top: 0;
+  margin: 0 var(--panel-scroll-margin, ${mdPadding}) var(--panel-scroll-margin, ${mdPadding});
 `;
 
 const SectionHeader = styled.div`
@@ -41,7 +40,7 @@ const SectionHeader = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 8px 8px 4px;
+  padding: 8px var(--panel-inset, 8px) 4px;
 `;
 
 const SectionTitle = styled.h2<{ $isRaisedHands?: boolean }>`

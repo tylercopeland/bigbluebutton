@@ -492,7 +492,7 @@ const Content = styled(ScrollboxVertical)`
   overflow: hidden auto;
   flex-grow: 1;
   padding: 0px ${contentSidebarPadding} ${contentSidebarBottomScrollPadding};
-  margin-right: 0.25rem;
+  margin-right: var(--panel-scroll-margin, 0.25rem);
 `;
 
 const BreakoutSlideLabel = styled.label`

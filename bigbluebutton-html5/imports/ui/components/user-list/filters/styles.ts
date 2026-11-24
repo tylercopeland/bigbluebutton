@@ -15,7 +15,7 @@ const Filters = styled.div`
   flex-shrink: 0;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 12px 14px 8px;
+  padding: var(--panel-gap, 12px) var(--panel-inset, 14px) 8px;
 `;
 
 const Count = styled.span<{ $isRaisedHands?: boolean }>`

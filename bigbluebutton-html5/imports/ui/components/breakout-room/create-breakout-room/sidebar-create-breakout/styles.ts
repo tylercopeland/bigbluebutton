@@ -37,14 +37,14 @@ export const ScrollContent = styled(ScrollboxVertical)`
   overflow: hidden auto;
   flex-grow: 1;
   min-height: 0;
-  padding: 0 1rem 1rem;
+  padding: 0 var(--panel-inset, 1rem) var(--panel-inset, 1rem);
 `;
 
 export const TimerSection = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0.75rem 1rem;
+  padding: var(--panel-gap, 0.75rem) var(--panel-inset, 1rem);
   gap: 0.25rem;
   flex-shrink: 0;
 `;
@@ -201,8 +201,8 @@ export const ControlsRow = styled.div`
   display: flex;
   align-items: stretch;
   justify-content: space-between;
-  padding: 0.75rem 1rem;
-  gap: 0.75rem;
+  padding: var(--panel-gap, 0.75rem) var(--panel-inset, 1rem);
+  gap: var(--panel-gap, 0.75rem);
   flex-shrink: 0;
 `;
 
@@ -282,7 +282,7 @@ export const MoreOptionsToggle = styled.button`
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0.5rem 1rem;
+  padding: 0.5rem var(--panel-inset, 1rem);
   color: ${colorText};
   font-size: ${fontSizeBase};
   font-weight: 600;
@@ -315,7 +315,7 @@ export const MoreOptionsContent = styled.div<{ $expanded: boolean }>`
   overflow: hidden;
   max-height: ${({ $expanded }) => ($expanded ? '300px' : '0')};
   transition: max-height 0.3s ease;
-  padding: ${({ $expanded }) => ($expanded ? '0.25rem 1rem 0.5rem' : '0 1rem')};
+  padding: ${({ $expanded }) => ($expanded ? '0.25rem var(--panel-inset, 1rem) 0.5rem' : '0 var(--panel-inset, 1rem)')};
   flex-shrink: 0;
 `;
 
@@ -580,8 +580,14 @@ export const PresentationSelect = styled(Select)`
 `;
 
 export const StartButtonWrapper = styled(ButtonWrappers.FullWidthButtonWrapper)`
-  padding: 0.75rem 1rem;
+  padding: var(--panel-gap, 0.75rem) var(--panel-inset, 1rem);
   margin-top: auto;
+
+  && button {
+    height: var(--panel-control-height, 50px);
+    min-height: 0;
+    border-radius: 12px;
+  }
 `;
 
 export const MaterialSwitch = materialStyled(Switch)(({ theme }) => ({

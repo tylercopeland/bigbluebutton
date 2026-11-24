@@ -35,9 +35,10 @@ const whiteboardToolbarPadding = '.5rem';
 const whiteboardToolbarMargin = '.5rem';
 const whiteboardToolbarPaddingSm = '.3rem';
 const contentSidebarGap = '0.5rem';
-const contentSidebarPadding = '1rem';
+// The docked side panel sets these variables to one condensed spacing scale
+const contentSidebarPadding = 'var(--panel-inset, 1rem)';
 const contentSidebarUserListPadding = '0.5rem';
-const contentSidebarBottomScrollPadding = '2rem';
+const contentSidebarBottomScrollPadding = 'var(--panel-inset, 2rem)';
 const contentSidebarHeight = '92%';
 const contentSidebarBorderRadius = '1rem';
 const contentSidebarVerticalMargin = `${SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT * 100}vh`;

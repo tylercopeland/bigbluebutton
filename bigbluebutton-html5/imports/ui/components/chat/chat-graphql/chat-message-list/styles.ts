@@ -22,7 +22,7 @@ export const MessageList = styled(ScrollboxVertical)<MessageListProps>`
   overflow-y: auto;
   position: absolute;
   display: flex;
-  padding: 0 ${mdPadding} ${smPaddingX};
+  padding: 0 var(--panel-scroll-margin, ${mdPadding}) ${smPaddingX};
 `;
 
 export const UnreadButton = styled(ButtonElipsis)<UnreadButtonProps>`

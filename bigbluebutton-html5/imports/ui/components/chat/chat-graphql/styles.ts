@@ -99,11 +99,11 @@ const CircularProgressContainer = styled(CircularProgress)`
 `;
 
 const ContentWrapper = styled.div`
-  padding: 12px 14px 0;
+  padding: var(--panel-gap, 12px) var(--panel-inset, 14px) 0;
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--panel-gap, 10px);
   overflow: hidden;
 `;
 

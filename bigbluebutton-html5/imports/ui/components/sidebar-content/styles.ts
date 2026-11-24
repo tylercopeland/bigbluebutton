@@ -82,6 +82,16 @@ export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
   justify-content: space-around;
   overflow: hidden;
   border-radius: ${({ $isDocked }) => ($isDocked ? '0' : contentSidebarBorderRadius)};
+
+  ${({ $isDocked }) => $isDocked && `
+    --panel-inset: 12px;
+    --panel-gap: 8px;
+    --panel-row-margin: 0;
+    --panel-row-height: 42px;
+    --panel-separator-margin: 0;
+    --panel-scroll-margin: 0;
+    --panel-control-height: 38px;
+  `}
   user-select: none;
 
   a {
@@ -123,6 +133,10 @@ export const HeaderContainer = styled(Header)<{ $isDraggable?: boolean }>`
   padding-bottom: 0;
 
   ${({ $isDraggable }) => $isDraggable && `
+    flex-shrink: 0;
+    box-sizing: border-box;
+    height: 52px;
+    padding-top: 0;
     cursor: grab;
     touch-action: none;
   `}
@@ -132,6 +146,7 @@ export const Separator = styled.hr`
   width: 100%;
   border: 0;
   border-bottom: 1px solid ${colorBorder};
+  margin-block: var(--panel-separator-margin, .5em);
 `;
 
 export const PanelContent = styled.div`

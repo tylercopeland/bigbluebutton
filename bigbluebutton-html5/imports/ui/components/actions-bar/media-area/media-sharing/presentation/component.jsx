@@ -12,6 +12,7 @@ import PresentationDownloadDropdown from './presentation-download-dropdown/compo
 import { getSettingsSingletonInstance } from '/imports/ui/services/settings';
 import Session from '/imports/ui/services/storage/in-memory';
 import Auth from '/imports/ui/services/auth';
+import TrayButton from '../tray-button/styles';
 import { AddIcon, CheckIcon } from '../media-tabs/icons';
 import ModalStyled from '../styles';
 
@@ -138,10 +139,20 @@ const intlMessages = defineMessages({
     description: 'Kinds of files that can be uploaded as a presentation',
     defaultMessage: 'PDF, Office files or images',
   },
-  present: {
-    id: 'app.mediaSharing.tray.present',
-    description: 'Label of the tile that starts presenting a file',
-    defaultMessage: 'Present {name}',
+  select: {
+    id: 'app.mediaSharing.tray.select',
+    description: 'Label of the tile that selects a presentation, before it is shared',
+    defaultMessage: 'Select {name}',
+  },
+  onScreen: {
+    id: 'app.mediaSharing.tray.onScreen',
+    description: 'Marks the presentation that everyone sees now',
+    defaultMessage: 'On screen',
+  },
+  shareNote: {
+    id: 'app.mediaSharing.tray.shareNote',
+    description: 'Says what happens when the selected presentation is shared',
+    defaultMessage: 'Everyone will see {name}',
   },
   shareLabel: {
     id: 'app.mediaSharing.modal.share',
@@ -479,6 +490,13 @@ class PresentationUploader extends Component {
     exportPresentation(item.presentationId, fileStateType);
   }
 
+  // The presentation picked in the tray, while it isn't the one everyone sees
+  getPendingPresentation() {
+    const { activeThumbnailId, presentations } = this.state;
+
+    return presentations.find((p) => p.presentationId === activeThumbnailId && !p.current);
+  }
+
   deepMergeUpdateFileKey(id, key, value) {
     const applyValue = (toUpdate) => update(toUpdate, { $merge: value });
     this.updateFileKey(id, key, applyValue, '$apply');
@@ -567,11 +585,14 @@ class PresentationUploader extends Component {
       allowDownloadWithAnnotations,
       onActionCompleted,
       isTray,
-      setPresentation,
     } = this.props;
 
     const isVisuallySelected = activeThumbnailId
       ? activeThumbnailId === item.presentationId
+      : item.current;
+    const pendingInTray = isTray && this.getPendingPresentation();
+    const isTraySelected = pendingInTray
+      ? pendingInTray.presentationId === item.presentationId
       : item.current;
     const isUploading = !item.uploadCompleted;
     const { uploadInProgress } = item;
@@ -643,16 +664,14 @@ class PresentationUploader extends Component {
         <Styled.TrayItem
           data-test="presentationItem"
           key={item.presentationId}
-          $selected={item.current}
+          $selected={isTraySelected}
         >
           <Styled.TrayThumbnail
             type="button"
             data-test="presentationThumbnail"
-            aria-pressed={!!item.current}
-            aria-label={intl.formatMessage(intlMessages.present, { name: item.name })}
-            onClick={() => {
-              if (!item.current) setPresentation(item.presentationId);
-            }}
+            aria-pressed={!!isTraySelected}
+            aria-label={intl.formatMessage(intlMessages.select, { name: item.name })}
+            onClick={() => this.setState({ activeThumbnailId: item.presentationId })}
           >
             <img src={Auth.authenticateURL(firstPageThumbnailUrl)} alt="" />
           </Styled.TrayThumbnail>
@@ -662,7 +681,10 @@ class PresentationUploader extends Component {
             </Styled.TrayItemName>
             {options}
           </Styled.TrayItemFooter>
-          {item.current && <Styled.TrayCheck aria-hidden><CheckIcon /></Styled.TrayCheck>}
+          {isTraySelected && <Styled.TrayCheck aria-hidden><CheckIcon /></Styled.TrayCheck>}
+          {item.current && !isTraySelected && (
+            <Styled.TrayOnScreen>{intl.formatMessage(intlMessages.onScreen)}</Styled.TrayOnScreen>
+          )}
         </Styled.TrayItem>
       );
     }
@@ -726,6 +748,7 @@ class PresentationUploader extends Component {
       handleFiledrop,
       fileUploadConstraintsHint,
     } = this.props;
+    const pending = this.getPendingPresentation();
 
     return (
       <div id="upload-modal">
@@ -749,6 +772,22 @@ class PresentationUploader extends Component {
           </Styled.TrayDropzone>
           {this.renderPresentationList()}
         </Styled.TrayGrid>
+        <Styled.TrayShare $visible={!!pending}>
+          <Styled.TrayShareNote role="status">
+            {pending && intl.formatMessage(intlMessages.shareNote, {
+              name: <bdi key="name">{pending.name}</bdi>,
+            })}
+          </Styled.TrayShareNote>
+          {pending && (
+            <TrayButton
+              type="button"
+              data-test="sharePresentationButton"
+              onClick={this.handleConfirm}
+            >
+              {intl.formatMessage(intlMessages.shareLabel)}
+            </TrayButton>
+          )}
+        </Styled.TrayShare>
         {fileUploadConstraintsHint ? this.renderExtraHint() : null}
         {this.renderExternalUpload()}
       </div>

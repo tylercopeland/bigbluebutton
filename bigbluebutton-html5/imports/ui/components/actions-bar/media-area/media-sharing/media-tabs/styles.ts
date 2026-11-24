@@ -13,13 +13,14 @@ import {
 const Body = styled.div`
   max-height: min(60vh, 26rem);
   overflow-y: auto;
-  padding: 12px 12px 10px;
+  padding: 10px 10px 8px;
 `;
 
 const Tabs = styled.div`
   display: flex;
+  justify-content: center;
   gap: 4px;
-  margin: 0 12px;
+  margin: 0 10px;
   padding: 10px 0 12px;
   border-top: 1px solid ${stageControlBorder};
 `;
@@ -38,7 +39,7 @@ const TabTile = styled.span`
 
 const Tab = styled.button<{ $selected: boolean }>`
   display: flex;
-  flex: 1 1 0;
+  flex: 0 1 68px;
   min-width: 0;
   flex-direction: column;
   align-items: center;

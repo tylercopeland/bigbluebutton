@@ -22,6 +22,7 @@ import {
   appsPanelTextColor,
   colorWhite,
   panelBorder,
+  panelLiveText,
   panelMutedText,
   panelRowActionColor,
   panelRowHoverBg,
@@ -224,7 +225,7 @@ const TrayDropzone = styled(Dropzone)`
   align-items: center;
   justify-content: center;
   gap: 4px;
-  min-height: 136px;
+  min-height: 104px;
   padding: 6px;
   box-sizing: border-box;
   border: 1.5px dashed ${panelBorder};
@@ -276,7 +277,7 @@ const TrayItem = styled.div`
 const TrayThumbnail = styled.button`
   display: block;
   width: 100%;
-  height: 98px;
+  height: 66px;
   padding: 0;
   box-sizing: border-box;
   overflow: hidden;
@@ -366,6 +367,36 @@ const TrayCheck = styled.span`
   }
 `;
 
+const TrayOnScreen = styled.span`
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-end: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background-color: ${panelLiveText};
+  color: ${colorWhite};
+  font-size: .7rem;
+  font-weight: 700;
+  pointer-events: none;
+`;
+
+const TrayShare = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: ${({ $visible }) => ($visible ? '10px' : '0')};
+`;
+
+const TrayShareNote = styled.span`
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  color: ${panelMutedText};
+  font-size: .8rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
 export default {
   TrayGrid,
   TrayDropzone,
@@ -376,6 +407,9 @@ export default {
   TrayItemFooter,
   TrayItemName,
   TrayCheck,
+  TrayOnScreen,
+  TrayShare,
+  TrayShareNote,
   PresentationsContainer,
   PresentationItemContainer,
   PresentationThumbnail,

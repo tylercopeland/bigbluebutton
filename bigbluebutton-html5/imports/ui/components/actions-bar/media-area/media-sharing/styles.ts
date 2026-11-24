@@ -57,7 +57,7 @@ const ModalContainer = styled.div<{
   `)}
 
   ${({ $isDocked }) => $isDocked && `
-    width: 452px;
+    width: 360px;
     max-width: calc(100vw - 16px);
     border-radius: 16px;
     box-shadow: 0 20px 50px rgba(0, 0, 0, .5);

@@ -71,14 +71,15 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Apps: pin buttons show on hover, search shows with more than 8 apps (neither is in the design); the grid or list choice is gone
 - [ ] Apps: called Apps, not Plugins; the list has no descriptions, plugins don't provide one
 - [ ] Apps: polls and breakouts still open in the side panel; phones and layouts without docked navigation keep the gallery panel
-- [x] Share media menu opens above its button
+- [x] Share media menu opens above its button, 360px wide like Apps (design: wider)
 - [x] Share media menu shows previews above a row of media types (Slides, Video, Screen, Camera, More)
 - [ ] Share media: no Audio or URL tab, BBB has no such feature (tab audio comes with screen share)
 - [ ] Share media: Camera tab kept (BBB feature, not in the design); More only shows with plugins and has no whiteboard or poll shortcut
 - [ ] Share media: one Start sharing button, since the browser asks for screen, window or tab (design: three buttons)
 - [ ] Share media: no video file upload
 - [ ] Share media: a Stop sharing button shows above the tabs while sharing; presentation cards keep download and delete
-- [ ] Share media: picking a presentation shows it to everyone right away (BBB asked for Share); phones and viewers keep BBB's menu
+- [x] Share media: picking a presentation only selects it, a share button then shows it to everyone (design: no button)
+- [ ] Share media: phones and viewers keep BBB's menu
 - [ ] Share media: while the screen is shared, the camera can only be shared after Stop sharing (BBB stopped the screen share for you)
 
 ## Stage and webcams

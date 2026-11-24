@@ -46,7 +46,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
 - [ ] Mute all and permissions buttons are kept at the bottom of People
 - [x] Other panels use the same plain title and close button as People and Chat
-- [ ] Other panels keep BBB's content (Notes, Apps, Profile, Breakout Rooms) and phones keep BBB's headers
+- [ ] Other panels keep BBB's content (Notes, Profile, Breakout Rooms) and phones keep BBB's headers
 - [ ] Tabs are hidden while two panels are open side by side
 - [ ] Dark mode: the selected tab is hard to tell apart
 - [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls, webcam overflow and raised hands chip) are English only
@@ -67,6 +67,10 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Timer: after time runs out, Reset clears "Time is up" only for the person who pressed it
 - [ ] Timer: new card strings are English only
 - [ ] Timer: opening the timer starts sharing it with everyone right away, as in BBB
+- [x] Apps opens as a popover above its button, with tiles for breakouts, polls and timer and a list for other apps
+- [ ] Apps: pin buttons show on hover, search shows with more than 8 apps (neither is in the design); the grid or list choice is gone
+- [ ] Apps: called Apps, not Plugins; the list has no descriptions, plugins don't provide one
+- [ ] Apps: polls and breakouts still open in the side panel; phones and layouts without docked navigation keep the gallery panel
 - [x] Share media menu opens above its button
 - [x] Share media menu shows previews above a row of media types (Slides, Video, Screen, Camera, More)
 - [ ] Share media: no Audio or URL tab, BBB has no such feature (tab audio comes with screen share)

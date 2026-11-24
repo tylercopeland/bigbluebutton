@@ -15,7 +15,6 @@ import Styled from './styles';
 import { layoutDispatch } from '../../layout/context';
 import { ACTIONS, PANELS } from '../../layout/enums';
 import {
-  TIMER_ACTIVATE,
   TIMER_DEACTIVATE,
   TIMER_RESET,
   TIMER_SET_SONG_TRACK,
@@ -25,16 +24,13 @@ import {
 } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTimer';
 import { TimerData } from '/imports/ui/core/graphql/queries/timer';
-import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
-import Auth from '/imports/ui/services/auth';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
 import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import { setTimerCard } from '/imports/ui/core/local-states/useTimerCard';
+import useActivateTimer from '../hooks/useActivateTimer';
 import TimerTimeSection from './timer-time-section/component';
-
-const MILLI_IN_MINUTE = 60000;
 
 const TRACKS = [
   'noTrack',
@@ -356,39 +352,12 @@ const TimerPanel = React.memo(TimerPanelComponent);
 TimerPanel.displayName = 'TimerPanel';
 
 const TimerPanelContaier: React.FC = () => {
-  const [timerActivate] = useMutation(TIMER_ACTIVATE);
   const { data: timerData } = useTimer();
   const { data: currentUser } = useCurrentUser();
 
   const amIModerator = !!currentUser?.isModerator;
 
-  const activateTimer = useCallback(() => {
-    if ((timerData?.active) || !amIModerator) return;
-
-    const TIMER_CONFIG = window.meetingClientSettings.public.timer;
-    const meetingId = Auth.meetingID;
-    if (!meetingId) {
-      logger.warn({ logCode: 'timer_activate_no_meetingid' }, 'Timer activation skipped: no meetingId');
-      return;
-    }
-
-    timerActivate({
-      variables: {
-        stopwatch: false,
-        running: false,
-        time: TIMER_CONFIG.time * MILLI_IN_MINUTE,
-        meetingId,
-      },
-    }).catch((error) => {
-      if (!error.message?.includes('already active')) {
-        logger.error(
-          { logCode: 'timer_activate_failed', extraInfo: { errorMessage: error?.message } },
-          `Timer activation failed: ${error?.message}`,
-        );
-      }
-    });
-  }, [timerActivate, timerData, amIModerator]);
-
+  const activateTimer = useActivateTimer();
   const { closePanel } = usePanelClose(PANELS.TIMER);
   const wasActive = useRef(false);
   const isDocked = useIsNavigationDocked();

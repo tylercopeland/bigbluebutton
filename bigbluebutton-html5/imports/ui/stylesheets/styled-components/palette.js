@@ -189,6 +189,11 @@ const timerDone = 'var(--timer-done, #12A150)';
 const timerEnding = 'var(--timer-ending, #F0A020)';
 const timerLow = 'var(--timer-low, #E5484D)';
 const timerLowText = 'var(--timer-low-text, #B42318)';
+const appTintBreakoutBg = 'var(--app-tint-breakout-bg, #FFF3DC)';
+const appTintBreakoutColor = 'var(--app-tint-breakout-color, #8A5A00)';
+const appTintPollBg = 'var(--app-tint-poll-bg, #E8F0FD)';
+const appTintTimerBg = 'var(--app-tint-timer-bg, #E6F6EF)';
+const appTintTimerColor = 'var(--app-tint-timer-color, #12805C)';
 const pollBarColor = 'var(--poll-bar-color, #9DB7E2)';
 const panelStatusColor = 'var(--panel-status-color, #7A8594)';
 const panelStatusFaintColor = 'var(--panel-status-faint-color, #B3BCC8)';
@@ -279,6 +284,11 @@ export {
   panelLive,
   panelLiveText,
   pollBarColor,
+  appTintBreakoutBg,
+  appTintBreakoutColor,
+  appTintPollBg,
+  appTintTimerBg,
+  appTintTimerColor,
   timerDone,
   timerEnding,
   timerLow,

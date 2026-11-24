@@ -1,10 +1,19 @@
-import React, { memo } from 'react';
+import React, {
+  memo,
+  useCallback,
+  useContext,
+  useRef,
+  useState,
+} from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import { layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 import SidebarNavigationButton from '/imports/ui/components/sidebar-navigation/sidebar-navigation-button/component';
 import { useGenericContentBadgeIds } from '/imports/ui/core/local-states/useGenericContentBadges';
+import AppsPopover from '/imports/ui/components/apps-gallery/popover/component';
+import PopoverStyled from '/imports/ui/components/apps-gallery/popover/styles';
+import NavigationDockContext from '../dock/context';
 import useIsSpecificPanelOpened from '../hooks/useIsSpecificPanelOpened';
 
 const intlMessages = defineMessages({
@@ -16,7 +25,12 @@ const intlMessages = defineMessages({
 
 const AppsListItem: React.FC = () => {
   const intl = useIntl();
-  const isOpened = useIsSpecificPanelOpened(PANELS.APPS_GALLERY);
+  const isDocked = useContext(NavigationDockContext);
+  const anchorRef = useRef<HTMLSpanElement>(null);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const closePopover = useCallback(() => setIsPopoverOpen(false), []);
+  const isPanelOpened = useIsSpecificPanelOpened(PANELS.APPS_GALLERY);
+  const isOpened = isDocked ? isPopoverOpen : isPanelOpened;
   const label = intl.formatMessage(intlMessages.wigetsLabel);
   const badgedAppIds = useGenericContentBadgeIds();
 
@@ -46,6 +60,26 @@ const AppsListItem: React.FC = () => {
     ));
   });
 
+  const hasNotification = hasHiddenAppBadge || hasHiddenAppNotification;
+
+  if (isDocked) {
+    return (
+      <PopoverStyled.Anchor ref={anchorRef}>
+        <SidebarNavigationButton
+          isOpened={isOpened}
+          iconName="widgets"
+          label={label}
+          id="apps-gallery-toggle-button"
+          ariaDescribedBy="appsGallery"
+          dataTest="appsGallerySidebarButton"
+          hasNotification={hasNotification}
+          onClick={() => setIsPopoverOpen((open) => !open)}
+        />
+        {isPopoverOpen && <AppsPopover anchorRef={anchorRef} onClose={closePopover} />}
+      </PopoverStyled.Anchor>
+    );
+  }
+
   return (
     <SidebarNavigationButton
       panel={PANELS.APPS_GALLERY}
@@ -55,7 +89,7 @@ const AppsListItem: React.FC = () => {
       id="apps-gallery-toggle-button"
       ariaDescribedBy="appsGallery"
       dataTest="appsGallerySidebarButton"
-      hasNotification={hasHiddenAppBadge || hasHiddenAppNotification}
+      hasNotification={hasNotification}
     />
   );
 };

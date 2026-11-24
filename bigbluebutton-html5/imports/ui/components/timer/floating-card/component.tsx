@@ -450,7 +450,7 @@ const FloatingTimer: React.FC<FloatingTimerProps> = ({
               data-test="addMinuteFloatingTimer"
               onClick={addMinute}
             >
-              {intl.formatMessage(intlMessages.addMinute)}
+              <bdi>{intl.formatMessage(intlMessages.addMinute)}</bdi>
             </Styled.AddButton>
           )}
         </Styled.Controls>

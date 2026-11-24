@@ -18,6 +18,7 @@ import Selector from '/imports/ui/components/common/selector/component';
 import ToggleGroup from '/imports/ui/components/common/toggle-group/component';
 import Separator from '/imports/ui/components/common/separator/component';
 import NavigationDock from '/imports/ui/components/sidebar-navigation/dock/component';
+import HIDDEN_CONTROLS from '/imports/ui/components/sidebar-navigation/hidden-controls';
 import LeaveMeetingButtonContainer from '/imports/ui/components/nav-bar/leave-meeting-button/container';
 import deviceInfo from '/imports/utils/deviceInfo';
 
@@ -273,6 +274,8 @@ class ActionsBar extends PureComponent {
               $isDocked={isNavigationDocked}
             >
               {shouldShowPresentationButton && shouldShowOptionsButton
+                && !(isNavigationDocked && presentationIsOpen
+                  && HIDDEN_CONTROLS.minimizePresentation)
                 && (
                   <PresentationOptionsContainer
                     presentationIsOpen={presentationIsOpen}

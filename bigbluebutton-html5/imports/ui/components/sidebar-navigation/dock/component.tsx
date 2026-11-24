@@ -4,6 +4,7 @@ import { Input } from '/imports/ui/components/layout/layoutTypes';
 import PinnedApps from '../pinned-apps/component';
 import SIDEBAR_BUTTONS_REGISTRY, { PINNED_APPS_BUTTON_ID } from '../buttons-registry';
 import useIsNavigationDocked from '../hooks/useIsNavigationDocked';
+import HIDDEN_CONTROLS from '../hidden-controls';
 import NavigationDockContext from './context';
 import Styled from './styles';
 
@@ -27,7 +28,8 @@ const NavigationDock: React.FC<NavigationDockProps> = ({ section }) => {
   const all: string[] = [...top, ...center, ...bottom];
   // Room panels go on the left; personal and session tools go on the right.
   const isEnd = (id: string) => id === PROFILE_BUTTON_ID || bottom.includes(id);
-  const buttonIds = all.filter((id) => isEnd(id) === (section === 'end'));
+  const isHidden = (id: string) => id === PROFILE_BUTTON_ID && HIDDEN_CONTROLS.profile;
+  const buttonIds = all.filter((id) => isEnd(id) === (section === 'end') && !isHidden(id));
 
   return (
     <NavigationDockContext.Provider value>

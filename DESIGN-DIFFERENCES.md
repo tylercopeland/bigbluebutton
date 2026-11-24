@@ -10,8 +10,8 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Icons are BBB's filled set; the design uses thin outline icons
 
 ## Bottom bar
-- [ ] Extra buttons kept: Profile, minimize/restore presentation
-- [ ] Share media icon differs (design: plus in a frame)
+- [ ] Extra button kept: restore presentation, while it is minimized
+- [x] Share media is a plus button (design: plus in a frame); phones keep BBB's icon
 - [ ] Bottom-bar People and Chat show a dot, not numbered badges (the tabs do)
 - [ ] Device chevron on the mic button is not in the design
 - [ ] Phones keep the old navigation button and the white media group
@@ -44,7 +44,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] People list: the mic icon is also the mute button; raised hands add a lower hand button on hover
 - [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials
 - [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
-- [ ] Mute all and permissions buttons are kept at the bottom of People
+- [ ] Hidden for now on desktop and tablet, to come back to (sidebar-navigation/hidden-controls.ts): mute all and permissions in People, minimize presentation and Profile in the bottom bar
 - [x] Other panels use the same plain title and close button as People and Chat
 - [ ] Other panels keep BBB's content (Notes, Profile, Breakout Rooms) and phones keep BBB's headers
 - [ ] Tabs are hidden while two panels are open side by side

@@ -15,6 +15,8 @@ import isUserListSearchEnabled from './user-search/service';
 import { makeUserSearchWhere, onSaveUserNames } from './service';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import CrowActionsButtons from '/imports/ui/components/user-list/crowd-action-buttons/component';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
+import HIDDEN_CONTROLS from '/imports/ui/components/sidebar-navigation/hidden-controls';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import {
   USER_AGGREGATE_COUNT_SUBSCRIPTION,
@@ -82,6 +84,7 @@ const intlMessages = defineMessages({
 const UserList: React.FC<UserListComponentProps> = () => {
   const intl = useIntl();
   const parentRef = React.useRef<HTMLDivElement | null>(null);
+  const isDocked = useIsNavigationDocked();
   const [filter, setFilter] = useUserListFilter();
 
   // Every time the panel opens on its own it shows everyone
@@ -190,14 +193,14 @@ const UserList: React.FC<UserListComponentProps> = () => {
   );
 
   const renderCrowdActionButtons = useCallback(() => {
-    if (!currentUserData?.isModerator) return null;
+    if (!currentUserData?.isModerator || (isDocked && HIDDEN_CONTROLS.crowdActions)) return null;
     return (
       <>
         <Styled.Separator />
         <CrowActionsButtons />
       </>
     );
-  }, [currentUserData]);
+  }, [currentUserData, isDocked]);
 
   const title = hideUserList
     ? intl.formatMessage(intlMessages.hideUserListTitle, { userCount: count })

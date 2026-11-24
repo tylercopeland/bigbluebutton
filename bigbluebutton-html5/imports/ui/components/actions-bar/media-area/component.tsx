@@ -7,6 +7,7 @@ import Styled from './styles';
 import MediaSharingModal from '/imports/ui/components/actions-bar/media-area/media-sharing/component';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { notify } from '/imports/ui/services/notification';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import deviceInfo from '/imports/utils/deviceInfo';
 
 const intlMessages = defineMessages({
@@ -44,6 +45,7 @@ const MediaArea = (props: MediaAreaProps) => {
     isLockedUser,
   } = props;
 
+  const isNavigationDocked = useIsNavigationDocked();
   const anchorRef = useRef<HTMLSpanElement>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const openMediaArea = useShortcut('openActions');
@@ -82,7 +84,7 @@ const MediaArea = (props: MediaAreaProps) => {
           data-test="mediaAreaButton"
           accessKey={openMediaArea}
           label={intl.formatMessage(intlMessages.mediaLabel)}
-          icon="media-area"
+          icon={isNavigationDocked ? 'plus' : 'media-area'}
           color={menuOpen ? 'primary' : 'default'}
           size={deviceInfo.isMobile ? 'md' : 'lg'}
           circle

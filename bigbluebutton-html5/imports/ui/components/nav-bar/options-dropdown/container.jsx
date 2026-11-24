@@ -1,12 +1,12 @@
 import React, { useContext } from 'react';
 import deviceInfo from '/imports/utils/deviceInfo';
 import browserInfo from '/imports/utils/browserInfo';
+import { useMutation, useReactiveVar } from '@apollo/client';
 import OptionsDropdown from './component';
 import FullscreenService from '/imports/ui/components/common/fullscreen-button/service';
 import { layoutSelect } from '../../layout/context';
 import { PluginsContext } from '/imports/ui/components/components-data/plugin-context/context';
 import { USER_LEAVE_MEETING } from '/imports/ui/core/graphql/mutations/userMutations';
-import { useMutation } from '@apollo/client';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { useShortcut } from '/imports/ui/core/hooks/useShortcut';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
@@ -20,7 +20,7 @@ import {
   muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import { useReactiveVar } from '@apollo/client';
+import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 
 const { isIphone } = deviceInfo;
 const { isSafari, isValidSafariVersion } = browserInfo;
@@ -31,6 +31,7 @@ const setAudioCaptions = (value) => Session.setItem('audioCaptions', value);
 
 const OptionsDropdownContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
+  const { canMove: canMovePanel, isPanelOnRight, togglePanelSide } = usePanelSide();
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let optionsDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.optionsDropdownItems) {
@@ -92,6 +93,9 @@ const OptionsDropdownContainer = (props) => {
       isConnected: connected,
       away,
       handleToggleAFK,
+      canMovePanel,
+      isPanelOnRight,
+      togglePanelSide,
       ...props,
     }}
     />

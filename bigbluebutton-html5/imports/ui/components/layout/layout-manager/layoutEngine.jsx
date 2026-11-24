@@ -17,6 +17,7 @@ import PluginsOnlyLayout from '/imports/ui/components/layout/layout-manager/plug
 import { useIsPresentationEnabled } from '/imports/ui/services/features';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import Session from '/imports/ui/services/storage/in-memory';
+import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 import MediaOnlyLayout from './mediaOnlyLayout';
 import { usePrevious } from '../../whiteboard/utils';
 import { getWaitLayout } from '../utils';
@@ -42,7 +43,8 @@ const LayoutEngine = () => {
   const skipLayoutEngineRender = shouldWaitForLayout && layoutLoading;
 
   const fullscreen = layoutSelect((i) => i.fullscreen);
-  const isRTL = layoutSelect((i) => i.isRTL);
+  // For the layout, right-to-left only means that the side panel is on the right
+  const { isPanelOnRight: isRTL, isMoved: isPanelMoved } = usePanelSide();
   const fontSize = layoutSelect((i) => i.fontSize);
   const deviceType = layoutSelect((i) => i.deviceType);
   const selectedLayout = layoutSelect((i) => i.layoutType);
@@ -66,6 +68,11 @@ const LayoutEngine = () => {
       Session.setItem('hasLayoutEngineLoadedOnce', true);
     }
   }, []);
+
+  // Toasts show on the other side of the panel
+  useEffect(() => {
+    document.documentElement.toggleAttribute('data-panel-moved', isPanelMoved);
+  }, [isPanelMoved]);
 
   const bannerAreaHeight = () => {
     const { hasNotification } = notificationsBarInput;
@@ -147,6 +154,11 @@ const LayoutEngine = () => {
     return navBarInput.hasNavBar ? finalHeight : 0;
   };
 
+  // Space between the stage and the window edge when the panel is on the right
+  const getOuterGutter = () => (isNavigationDocked
+    ? windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH
+    : 0);
+
   const calculatesNavbarBounds = (mediaAreaBounds) => {
     const { navBarTop } = DEFAULT_VALUES;
 
@@ -166,7 +178,7 @@ const LayoutEngine = () => {
       width: mediaAreaBounds.width,
       height: navBarHeight,
       top: navBarTop + bannerAreaHeight(),
-      left: !isRTL ? mediaAreaBounds.left : 0,
+      left: !isRTL ? mediaAreaBounds.left : getOuterGutter(),
       zIndex: 1,
     };
   };
@@ -202,7 +214,7 @@ const LayoutEngine = () => {
       innerHeight: actionBarHeight.innerHeight,
       padding: actionBarHeight.padding,
       top: windowHeight() - actionBarHeight.height,
-      left: !isRTL ? mediaAreaBounds.left : 0,
+      left: !isRTL ? mediaAreaBounds.left : getOuterGutter(),
       zIndex: 1,
     };
   };

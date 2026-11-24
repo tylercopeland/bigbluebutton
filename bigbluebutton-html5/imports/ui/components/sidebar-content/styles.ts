@@ -118,9 +118,14 @@ export const SidebarContentPanel = styled.div<SidebarContentPanelProps>`
   }
 `;
 
-export const HeaderContainer = styled(Header)`
+export const HeaderContainer = styled(Header)<{ $isDraggable?: boolean }>`
   padding: ${contentSidebarPadding};
   padding-bottom: 0;
+
+  ${({ $isDraggable }) => $isDraggable && `
+    cursor: grab;
+    touch-action: none;
+  `}
 `;
 
 export const Separator = styled.hr`

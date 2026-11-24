@@ -15,6 +15,7 @@ import FallbackView from '/imports/ui/components/common/fallback-errors/fallback
 import AppsGallery from '../apps-gallery/container';
 import GenericContentSidekickContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
 import browserInfo from '/imports/utils/browserInfo';
+import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentProps } from './types';
@@ -50,7 +51,7 @@ const SidebarContent = (props: SidebarContentProps) => {
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
   const [resizeStartHeight, setResizeStartHeight] = useState(0);
   const isDocked = useIsNavigationDocked();
-  const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const { isPanelOnRight: isRTL } = usePanelSide();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
 

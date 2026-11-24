@@ -5,6 +5,8 @@ import MultifunctionalModeButton from '../multifunctional-mode-button/component'
 import PeopleChatTabs from './people-chat-tabs/component';
 import useShowPeopleChatTabs from './people-chat-tabs/useShowPeopleChatTabs';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
+import usePanelDrag from './usePanelDrag';
+import DropSide from './drop-side/component';
 import usePanelClose from './usePanelClose';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -53,6 +55,9 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   customRightButton,
 }) => {
   const intl = useIntl();
+  const {
+    onPointerDown, canMove, target, isNewSide,
+  } = usePanelDrag();
   const { closePanel } = usePanelClose(panelId, onBeforeClose);
   const showTabs = useShowPeopleChatTabs(panelId);
   const isDocked = useIsNavigationDocked();
@@ -71,22 +76,27 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
     ) : multifunctionalModeButton;
 
   return (
-    <Styled.HeaderContainer
-      isRTL={isRTL}
-      data-test={dataTest}
-      title={title}
-      isPlain={isDocked}
-      customTitle={showTabs ? <PeopleChatTabs panelId={panelId} /> : undefined}
-      rightButtonProps={{
-        'aria-label': resolvedCloseLabel,
-        'data-test': closeButtonDataTest,
-        icon: showTabs || isDocked ? 'close' : 'minus',
-        label: resolvedCloseLabel,
-        onClick: closePanel,
-        ...closeButtonProps,
-      }}
-      customRightButton={rightButton}
-    />
+    <>
+      <Styled.HeaderContainer
+        onPointerDown={onPointerDown}
+        $isDraggable={canMove}
+        isRTL={isRTL}
+        data-test={dataTest}
+        title={title}
+        isPlain={isDocked}
+        customTitle={showTabs ? <PeopleChatTabs panelId={panelId} /> : undefined}
+        rightButtonProps={{
+          'aria-label': resolvedCloseLabel,
+          'data-test': closeButtonDataTest,
+          icon: showTabs || isDocked ? 'close' : 'minus',
+          label: resolvedCloseLabel,
+          onClick: closePanel,
+          ...closeButtonProps,
+        }}
+        customRightButton={rightButton}
+      />
+      {target && <DropSide side={target} isNewSide={isNewSide} />}
+    </>
   );
 };
 

@@ -1,5 +1,6 @@
 {
     "app.home.greeting": "Your presentation will begin shortly ...",
+    "app.sidebarContent.dropHere": "Move panel here",
     "app.sidebarContent.minimizePanelLabel": "Minimize {panelName}",
     "app.chat.submitLabel": "Send message",
     "app.chat.errorMaxMessageLength": "The message is too long, exceeded the maximum of {maxMessageLength} characters",
@@ -658,6 +659,8 @@
     "app.navBar.leaveMeetingBtnLabel": "Leave",
     "app.navBar.leaveMeetingBtnDesc": "Leave the session",
     "app.navBar.optionsDropdown.optionsLabel": "Options",
+    "app.navBar.optionsDropdown.movePanelLeft": "Move panel to the left",
+    "app.navBar.optionsDropdown.movePanelRight": "Move panel to the right",
     "app.navBar.optionsDropdown.fullscreenLabel": "Fullscreen Application",
     "app.navBar.optionsDropdown.settingsLabel": "Settings",
     "app.navBar.optionsDropdown.aboutLabel": "About",

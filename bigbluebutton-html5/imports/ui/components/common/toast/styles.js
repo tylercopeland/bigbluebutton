@@ -217,6 +217,17 @@ const ToastifyGlobalStyle = createGlobalStyle`
     right: auto !important;
     left: ${jumboPaddingY} !important;
   }
+
+  /* The side panel is on the other side */
+  [data-panel-moved]:not([dir="rtl"]) .Toastify__toast-container {
+    right: auto !important;
+    left: ${jumboPaddingY} !important;
+  }
+
+  [data-panel-moved][dir="rtl"] .Toastify__toast-container {
+    right: ${jumboPaddingY} !important;
+    left: auto !important;
+  }
 `;
 
 export default {

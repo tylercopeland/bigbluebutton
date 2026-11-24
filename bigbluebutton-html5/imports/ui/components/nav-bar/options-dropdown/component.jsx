@@ -14,6 +14,16 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
+  movePanelLeft: {
+    id: 'app.navBar.optionsDropdown.movePanelLeft',
+    description: 'Option that moves the side panel to the left',
+    defaultMessage: 'Move panel to the left',
+  },
+  movePanelRight: {
+    id: 'app.navBar.optionsDropdown.movePanelRight',
+    description: 'Option that moves the side panel to the right',
+    defaultMessage: 'Move panel to the right',
+  },
   optionsLabel: {
     id: 'app.navBar.optionsDropdown.optionsLabel',
     description: 'Options button label',
@@ -197,7 +207,7 @@ class OptionsDropdown extends PureComponent {
     const {
       intl, amIModerator, isBreakoutRoom, isConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
-      isDirectLeaveButtonEnabled,
+      isDirectLeaveButtonEnabled, canMovePanel, isPanelOnRight, togglePanelSide,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -211,6 +221,18 @@ class OptionsDropdown extends PureComponent {
     this.menuItems = [];
 
     this.getFullscreenItem(this.menuItems);
+
+    if (canMovePanel) {
+      this.menuItems.push({
+        key: 'list-item-move-panel',
+        dataTest: 'movePanel',
+        icon: isPanelOnRight ? 'left_arrow' : 'right_arrow',
+        label: intl.formatMessage(isPanelOnRight
+          ? intlMessages.movePanelLeft
+          : intlMessages.movePanelRight),
+        onClick: () => togglePanelSide(),
+      });
+    }
 
     const BBB_TABLET_APP_CONFIG = window.meetingClientSettings.public.app.bbbTabletApp;
 

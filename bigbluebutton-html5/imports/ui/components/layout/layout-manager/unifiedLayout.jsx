@@ -14,6 +14,7 @@ import { defaultsDeep } from '/imports/utils/array-utils';
 import { isPhoneLandscape } from '../utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
 const windowHeight = () => window.document.documentElement.clientHeight;
@@ -37,7 +38,8 @@ const UnifiedLayout = (props) => {
 
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
-  const isRTL = layoutSelect((i) => i.isRTL);
+  // For the layout, right-to-left only means that the side panel is on the right
+  const { isPanelOnRight: isRTL, isMoved: isPanelMoved } = usePanelSide();
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
   const currentPanelType = layoutSelect((i) => i.currentPanelType);
@@ -91,7 +93,10 @@ const UnifiedLayout = (props) => {
       throttledCalculatesLayout();
     }
     return () => null;
-  }, [input, deviceType, isRTL, fontSize, fullscreen, isPresentationEnabled, isNavigationDocked]);
+  }, [
+    input, deviceType, isRTL, isPanelMoved, fontSize, fullscreen,
+    isPresentationEnabled, isNavigationDocked,
+  ]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
     const { sidebarContentAuxiliary } = input;
@@ -724,6 +729,29 @@ const UnifiedLayout = (props) => {
       horizontalCameraDiff = camerasMargin * 2;
     }
 
+    // The page positions things from the side its language starts at. When the panel
+    // is on the opposite side, that has to be spelled out.
+    const mediaRight = isRTL ? mediaBounds.right + horizontalCameraDiff : null;
+    let mediaHorizontal = { left: mediaBounds.left, right: mediaRight };
+    const cameraHorizontal = { left: cameraDockBounds.left, right: cameraDockBounds.right };
+
+    if (isPanelMoved) {
+      const isMediaFullscreen = mediaBounds.width === windowWidth();
+      let mediaLeft = mediaBounds.left;
+      if (isRTL) mediaLeft = windowWidth() - mediaRight - mediaBounds.width;
+      if (isMediaFullscreen) mediaLeft = 0;
+      mediaHorizontal = {
+        left: mediaLeft,
+        right: windowWidth() - mediaLeft - mediaBounds.width,
+      };
+
+      // The webcams move by left - right, from the side the language starts at
+      const cameraOffset = (cameraDockBounds.left || 0) - (cameraDockBounds.right || 0);
+      const cameraSpace = windowWidth() - cameraDockBounds.width;
+      cameraHorizontal.left = isRTL ? cameraOffset + cameraSpace : cameraOffset - cameraSpace;
+      cameraHorizontal.right = 0;
+    }
+
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
       value: {
@@ -866,8 +894,8 @@ const UnifiedLayout = (props) => {
         height: cameraDockBounds.height,
         maxHeight: cameraDockBounds.maxHeight,
         top: cameraDockBounds.top,
-        left: cameraDockBounds.left,
-        right: cameraDockBounds.right,
+        left: cameraHorizontal.left,
+        right: cameraHorizontal.right,
         tabOrder: 4,
         isDraggable: !isMobile && !isTablet && !isCameraDockLocked && isMediaOpen,
         resizableEdge: {
@@ -905,8 +933,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaBounds.left,
-        right: isRTL ? mediaBounds.right + horizontalCameraDiff : null,
+        left: mediaHorizontal.left,
+        right: mediaHorizontal.right,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: false,
         zIndex: mediaBounds.zIndex,
@@ -919,8 +947,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaBounds.left,
-        right: isRTL ? mediaBounds.right + horizontalCameraDiff : null,
+        left: mediaHorizontal.left,
+        right: mediaHorizontal.right,
         zIndex: mediaBounds.zIndex,
       },
     });
@@ -932,8 +960,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaBounds.left,
-        right: isRTL ? mediaBounds.right + horizontalCameraDiff : null,
+        left: mediaHorizontal.left,
+        right: mediaHorizontal.right,
       },
     });
 
@@ -943,8 +971,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaBounds.left,
-        right: isRTL ? mediaBounds.right + horizontalCameraDiff : null,
+        left: mediaHorizontal.left,
+        right: mediaHorizontal.right,
       },
     });
 
@@ -954,8 +982,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaBounds.left,
-        right: isRTL ? mediaBounds.right + horizontalCameraDiff : null,
+        left: mediaHorizontal.left,
+        right: mediaHorizontal.right,
       },
     });
   };

@@ -22,6 +22,7 @@ import VideoProviderContainer from '/imports/ui/components/video-provider/contai
 import VideoService from '/imports/ui/components/video-provider/service';
 import Session from '/imports/ui/services/storage/in-memory';
 import Storage from '/imports/ui/services/storage/session';
+import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 import Styled from './styles';
 import { Input, Layout, Output } from '/imports/ui/components/layout/layoutTypes';
 import { VideoItem } from '/imports/ui/components/video-provider/types';
@@ -67,6 +68,7 @@ interface WebcamComponentProps {
   cameraOptimalGridSize: Input['cameraDock']['cameraOptimalGridSize'];
   snapToCameraGrid: boolean;
   isRTL: boolean;
+  isPanelOnRight: boolean;
 }
 
 const WebcamComponent: React.FC<WebcamComponentProps> = ({
@@ -80,6 +82,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   cameraOptimalGridSize: cameraSize,
   snapToCameraGrid,
   isRTL,
+  isPanelOnRight,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
@@ -272,8 +275,8 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   const isDesktopHeight = isDragging ? cameraSize?.height : cameraDock.height;
   const camOpacity = isDragging ? 0.5 : undefined;
   let padding = '';
-  if (isCameraSidebar && isRTL) padding = `0px 0px 0px ${contentSidebarMarginToMedia}`;
-  if (isCameraSidebar && !isRTL) padding = `0px ${contentSidebarMarginToMedia} 0px 0px`;
+  if (isCameraSidebar && isPanelOnRight) padding = `0px 0px 0px ${contentSidebarMarginToMedia}`;
+  if (isCameraSidebar && !isPanelOnRight) padding = `0px ${contentSidebarMarginToMedia} 0px 0px`;
 
   return (
     <>
@@ -407,6 +410,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
 const WebcamContainer: React.FC = () => {
   const fullscreen = layoutSelect((i: Layout) => i.fullscreen);
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const { isPanelOnRight } = usePanelSide();
   const cameraDockInput = layoutSelectInput((i: Input) => i.cameraDock);
   const presentationInput = layoutSelectInput((i: Input) => i.presentation);
   const presentation = layoutSelectOutput((i: Output) => i.presentation);
@@ -484,6 +488,7 @@ const WebcamContainer: React.FC = () => {
           isPresenter: currentUserData?.presenter ?? false,
           displayPresentation,
           isRTL,
+          isPanelOnRight,
           floatingOverlay,
           hideOverlay,
         }}

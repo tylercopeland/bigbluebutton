@@ -10,6 +10,7 @@ import { layoutSelectInput } from '../../layout/context';
 import { Input } from '../../layout/layoutTypes';
 import { TIMER_START, TIMER_STOP } from '../mutations';
 import useTimer from '/imports/ui/core/hooks/useTimer';
+import useIsNavigationDocked from '../../sidebar-navigation/hooks/useIsNavigationDocked';
 import usePreviousValue from '/imports/ui/hooks/usePreviousValue';
 
 interface TimerIndicatorProps {
@@ -22,6 +23,7 @@ interface TimerIndicatorProps {
   isModerator: boolean;
   sidebarNavigationIsOpen: boolean;
   sidebarContentIsOpen: boolean;
+  hasFloatingCard: boolean;
 }
 
 const TimerIndicator: React.FC<TimerIndicatorProps> = ({
@@ -34,6 +36,7 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   isModerator,
   sidebarNavigationIsOpen,
   sidebarContentIsOpen,
+  hasFloatingCard,
 }) => {
   const timeRef = useRef<HTMLSpanElement>(null);
   const alarm = useRef<HTMLAudioElement>();
@@ -127,7 +130,9 @@ const TimerIndicator: React.FC<TimerIndicatorProps> = ({
   const onClick = running ? stopTimer : startTimer;
 
   return (
+    // Stays mounted without showing, it plays the music and the alarm
     <Styled.TimerWrapper
+      $hidden={hasFloatingCard}
       className={cx('bbb-timer-indicator', { 'bbb-timer-indicator--running': running })}
     >
       <Styled.Timer>
@@ -172,6 +177,7 @@ const TimerIndicatorContainer: React.FC = () => {
   } = useTimer(true);
 
   const sidebarNavigation = layoutSelectInput((i: Input) => i.sidebarNavigation);
+  const hasFloatingCard = useIsNavigationDocked();
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const sidebarNavigationIsOpen = sidebarNavigation.isOpen;
   const sidebarContentIsOpen = sidebarContent.isOpen;
@@ -198,6 +204,7 @@ const TimerIndicatorContainer: React.FC = () => {
       isModerator={currentUser?.isModerator ?? false}
       sidebarNavigationIsOpen={sidebarNavigationIsOpen}
       sidebarContentIsOpen={sidebarContentIsOpen}
+      hasFloatingCard={hasFloatingCard}
     />
   );
 };

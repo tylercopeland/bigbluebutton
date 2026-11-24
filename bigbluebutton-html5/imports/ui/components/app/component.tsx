@@ -18,6 +18,7 @@ import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
 import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
+import FloatingTimerContainer from '../timer/floating-card/component';
 import EmojiRainContainer from '../emoji-rain/container';
 import Styled from './styles';
 import LayoutEngine from '../layout/layout-manager/layoutEngine';
@@ -195,6 +196,7 @@ const App: React.FC<AppProps> = ({
           <PollingContainer />
           <WakeLockContainer />
           {renderActionsBar()}
+          <FloatingTimerContainer />
           <EmojiRainContainer />
           <VoiceActivityAdapter />
           <LiveKitVoiceActivityAdapter />

@@ -1,7 +1,9 @@
 import React, {
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
@@ -27,6 +29,9 @@ import logger from '/imports/startup/client/logger';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import Auth from '/imports/ui/services/auth';
 import PanelHeader from '/imports/ui/components/common/panel-header/component';
+import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
+import { setTimerCard } from '/imports/ui/core/local-states/useTimerCard';
 import TimerTimeSection from './timer-time-section/component';
 
 const MILLI_IN_MINUTE = 60000;
@@ -384,13 +389,37 @@ const TimerPanelContaier: React.FC = () => {
     });
   }, [timerActivate, timerData, amIModerator]);
 
+  const { closePanel } = usePanelClose(PANELS.TIMER);
+  const wasActive = useRef(false);
+  const isDocked = useIsNavigationDocked();
+  const isLoaded = !!timerData;
+
+  // The floating card takes the place of the panel. Before paint, so that the
+  // empty panel never shows.
+  useLayoutEffect(() => {
+    if (!isDocked || !isLoaded) return;
+    activateTimer();
+    setTimerCard({ minimized: false, shouldFocus: amIModerator });
+    closePanel();
+  }, [isDocked, isLoaded]);
+
   useEffect(() => {
-    if (timerData?.active === false && amIModerator) {
+    if (isDocked) return;
+    if (timerData?.active) {
+      wasActive.current = true;
+    } else if (timerData?.active === false && wasActive.current) {
+      // Removed while the panel is open, possibly by someone else or from the
+      // floating card: close the panel instead of sharing a new timer
+      wasActive.current = false;
+      closePanel();
+    } else if (timerData?.active === false && amIModerator) {
       activateTimer();
     }
-  }, [timerData?.active, amIModerator, activateTimer]);
+  }, [timerData?.active, amIModerator, activateTimer, isDocked]);
 
   const currentTimer = timerData;
+
+  if (isDocked) return null;
 
   if (currentTimer?.active) {
     const {

@@ -17,7 +17,8 @@ interface TimerButtonProps {
   hide: boolean;
 }
 
-const TimerWrapper = styled.div`
+const TimerWrapper = styled.div<{ $hidden: boolean }>`
+  ${({ $hidden }) => $hidden && 'display: none;'}
   flex-shrink: 0;
   margin-inline-start: auto;
 `;

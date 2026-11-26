@@ -461,14 +461,6 @@ const StageButton = styled.button`
     color: ${colorPrimary};
   }
 
-  ${({ $isPrimary }) => $isPrimary && css`
-    &,
-    &:hover {
-      background-color: ${colorPrimary};
-      color: #FFF;
-    }
-  `}
-
   &:disabled {
     background-color: transparent;
     color: ${toolbarButtonColorDisabled};
@@ -498,34 +490,41 @@ const StageDot = styled.span`
 `;
 
 // The select covers the text, so that clicking the position still jumps to a slide
-const StagePosition = styled.span`
-  position: relative;
+// The slide number, which opens All slides
+const StagePosition = styled.button`
   min-width: 56px;
   height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 8px;
+  border: 0;
   border-radius: 8px;
+  background-color: transparent;
+  font-family: inherit;
   font-size: .84rem;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
   color: ${panelText};
+  cursor: pointer;
 
   &:hover {
     background-color: ${panelRowHoverBg};
   }
 
-  &:focus-within:has(:focus-visible) {
-    outline: 2px solid ${roomFocusRing};
+  &[aria-expanded="true"] {
+    background-color: ${stageControlActiveBg};
+    color: ${colorPrimary};
   }
 
-  select {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
+  &:disabled {
+    color: ${toolbarButtonColorDisabled};
+    cursor: not-allowed;
+  }
+
+  &:focus-visible {
+    outline: 2px solid ${roomFocusRing};
+    outline-offset: 1px;
   }
 `;
 

@@ -110,6 +110,7 @@ pass of the overall architecture. Check an item off when it matches.
 
 ## Stage and webcams
 - [x] Slide pager, All slides grid, whiteboard tools and minimize sit on the slide and show on hover
+- [ ] Slide pager: the slide number ("1 / 15") opens All slides, so there is no grid button and no slide number dropdown
 - [ ] Slide controls: adds a menu for zoom, fit to width and multi-user whiteboard (not in the design)
 - [ ] Slide controls: quick poll, smart media and plugin items show above the pager
 - [ ] Whiteboard tools: keeps BBB's extra tools (hand, arrow, note, ellipse, more), redo and style icon; icons are tldraw's

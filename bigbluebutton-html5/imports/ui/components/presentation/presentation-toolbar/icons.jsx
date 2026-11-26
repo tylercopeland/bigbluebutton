@@ -25,7 +25,6 @@ OutlineIcon.propTypes = {
   size: PropTypes.number,
 };
 
-export const GridIcon = () => <OutlineIcon d="M3 4h8v6H3z M13 4h8v6h-8z M3 14h8v6H3z M13 14h8v6h-8z" />;
 export const PreviousIcon = () => <OutlineIcon d="M15 6l-6 6 6 6" />;
 export const NextIcon = () => <OutlineIcon d="M9 6l6 6-6 6" />;
 export const CloseIcon = () => <OutlineIcon d="M6 6l12 12 M18 6L6 18" size={16} />;

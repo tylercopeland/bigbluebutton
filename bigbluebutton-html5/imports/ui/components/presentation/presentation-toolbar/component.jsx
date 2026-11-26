@@ -19,7 +19,7 @@ import Styled, {
 } from './styles';
 import SlidesOverview from './slides-overview/component';
 import {
-  GridIcon, MoreIcon, NextIcon, PreviousIcon,
+  MoreIcon, NextIcon, PreviousIcon,
 } from './icons';
 import ZoomTool from './zoom-tool/component';
 import SmartMediaShareContainer from './smart-video-share/container';
@@ -43,6 +43,11 @@ const exceedsAvailableWidth = (element) => (
 );
 
 const intlMessages = defineMessages({
+  slidePositionLabel: {
+    id: 'app.presentation.allSlides.positionLabel',
+    description: 'Label of the slide number button, which opens all slides',
+    defaultMessage: 'Slide {current} of {total}, show all slides',
+  },
   allSlidesLabel: {
     id: 'app.presentation.allSlides.title',
     description: 'Title of the grid with every slide',
@@ -702,19 +707,6 @@ class PresentationToolbar extends PureComponent {
               aria-label={intl.formatMessage(intlMessages.slidesLabel)}
               className="bbb-presentation-toolbar__slide-controls"
             >
-              <TooltipContainer title={intl.formatMessage(intlMessages.allSlidesLabel)}>
-                <Styled.StageButton
-                  type="button"
-                  aria-label={intl.formatMessage(intlMessages.allSlidesLabel)}
-                  aria-expanded={openPopover === POPOVERS.OVERVIEW}
-                  disabled={!isConnected}
-                  onClick={() => this.togglePopover(POPOVERS.OVERVIEW)}
-                  data-test="allSlides"
-                >
-                  <GridIcon />
-                </Styled.StageButton>
-              </TooltipContainer>
-              <Styled.StageDivider />
               <TooltipContainer title={intl.formatMessage(intlMessages.previousSlideLabel)}>
                 <Styled.StageButton
                   type="button"
@@ -728,14 +720,26 @@ class PresentationToolbar extends PureComponent {
                   <PreviousIcon />
                 </Styled.StageButton>
               </TooltipContainer>
-              <Styled.StagePosition>
-                <span aria-hidden="true" dir="ltr">{`${currentSlideNum} / ${numberOfSlides}`}</span>
-                {slideSelect}
-              </Styled.StagePosition>
+              {/* The slide number opens All slides, which also picks a slide */}
+              <TooltipContainer title={intl.formatMessage(intlMessages.allSlidesLabel)}>
+                <Styled.StagePosition
+                  type="button"
+                  aria-label={intl.formatMessage(intlMessages.slidePositionLabel, {
+                    current: currentSlideNum,
+                    total: numberOfSlides,
+                  })}
+                  aria-expanded={openPopover === POPOVERS.OVERVIEW}
+                  aria-haspopup="dialog"
+                  disabled={!isConnected}
+                  onClick={() => this.togglePopover(POPOVERS.OVERVIEW)}
+                  data-test="allSlides"
+                >
+                  <span aria-hidden="true" dir="ltr">{`${currentSlideNum} / ${numberOfSlides}`}</span>
+                </Styled.StagePosition>
+              </TooltipContainer>
               <TooltipContainer title={intl.formatMessage(intlMessages.nextSlideLabel)}>
                 <Styled.StageButton
                   type="button"
-                  $isPrimary
                   $isDirectional
                   aria-label={nextSlideAriaLabel}
                   aria-describedby={endOfSlides ? 'noNextSlideDesc' : 'nextSlideDesc'}

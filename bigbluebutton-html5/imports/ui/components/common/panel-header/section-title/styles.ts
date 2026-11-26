@@ -7,14 +7,19 @@ import {
   panelTabsBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
+// The Arrange menu's button, for keyboard and screen reader users. It stays
+// invisible until it has keyboard focus or its menu is open, and then sits in
+// the header's side padding so the title and tabs don't move. Mouse users drag
+// the header or tabs, or right-click a title or tab for the same menu.
 const Grip = styled.button`
+  position: absolute;
+  inset-block-start: 10px;
+  inset-inline-start: 0;
   display: flex;
-  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  width: 22px;
+  width: 12px;
   height: 32px;
-  margin-inline: -8px 0;
   padding: 0;
   border: 0;
   border-radius: 6px;
@@ -22,6 +27,20 @@ const Grip = styled.button`
   color: ${panelMutedText};
   cursor: grab;
   touch-action: none;
+  opacity: 0;
+
+  @media (prefers-reduced-motion: no-preference) {
+    transition: opacity .15s ease;
+  }
+
+  /* While invisible, a press lands on the header and starts a drag */
+  pointer-events: none;
+
+  &:focus-visible,
+  &[aria-expanded="true"] {
+    opacity: 1;
+    pointer-events: auto;
+  }
 
   &:hover {
     background-color: ${panelTabsBg};
@@ -33,7 +52,7 @@ const Grip = styled.button`
   }
 `;
 
-// "PEOPLE 14"
+// "People 14"
 const Title = styled.h2`
   display: flex;
   flex: 1;
@@ -46,9 +65,7 @@ const Title = styled.h2`
   color: ${panelSectionTitle};
   font-size: 14px;
   font-weight: 700;
-  letter-spacing: .6px;
   line-height: normal;
-  text-transform: uppercase;
   white-space: nowrap;
 `;
 

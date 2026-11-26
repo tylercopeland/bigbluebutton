@@ -54,8 +54,8 @@ export class Panels extends MultiUsers {
       .toBe(expected);
   }
 
-  private minimizeButton(index: number): Locator {
-    return this.section(index).locator('button[aria-label^="Minimize"]').first();
+  private closeButton(index: number): Locator {
+    return this.section(index).locator('button[aria-label^="Close"]').first();
   }
 
   private async expectPressed(selector: string, pressed: boolean, message: string) {
@@ -145,12 +145,12 @@ export class Panels extends MultiUsers {
     await this.expectPressed(panel.notesButton, false, 'should close Notes, which Poll replaced');
   }
 
-  async minimizeClosesSection() {
+  async closeButtonClosesSection() {
     await this.openThirdTool();
-    await this.minimizeButton(1).click();
+    await this.closeButton(1).click();
     await this.expectSections([['userlist', 'chat']], 'should close the lower section');
     await this.expectPressed(panel.notesButton, false, 'should unpress Notes');
-    await this.minimizeButton(0).click();
+    await this.closeButton(0).click();
     await this.expectSections([], 'should close both tabs of the top section');
     await this.modPage.wasRemoved(panel.sidebar, 'should close the side panel');
     await this.expectPressed(e.usersListSidebarButton, false, 'should unpress People');

@@ -32,10 +32,10 @@ test.describe.parallel('Side panel sections', { tag: '@ci' }, () => {
     await panels.fourthToolTakesLowerSection();
   });
 
-  test('Minimizing a section closes it', async ({ browser, context, page }, testInfo) => {
+  test('Closing a section closes every tool in it', async ({ browser, context, page }, testInfo) => {
     const panels = new Panels(browser, context);
     await panels.initModPage(page, { testInfo });
-    await panels.minimizeClosesSection();
+    await panels.closeButtonClosesSection();
   });
 
   test('Dragging a tab to the right edge docks it in a right panel', async ({ browser, context, page }, testInfo) => {

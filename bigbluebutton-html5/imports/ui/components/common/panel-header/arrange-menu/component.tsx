@@ -5,6 +5,7 @@ import usePanelSections from '/imports/ui/components/sidebar-content/sections/us
 import useToolName from '/imports/ui/components/sidebar-content/sections/useToolName';
 import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 import useMovePanelSide from '../useMovePanelSide';
+import GripIcon from '../grip-icon';
 import Styled from '../section-title/styles';
 
 const intlMessages = defineMessages({
@@ -44,8 +45,6 @@ const intlMessages = defineMessages({
     defaultMessage: 'Move panel to left',
   },
 });
-
-const GRIP_DOTS = [6, 12, 18].flatMap((y) => [9, 15].map((x) => ({ x, y })));
 
 interface ArrangeMenuProps {
   /** The tool the menu acts on: the section's selected tab, or a tab opened from the keyboard */
@@ -124,9 +123,7 @@ const ArrangeMenu: React.FC<ArrangeMenuProps> = ({ tool, isForcedOpen, onClose }
           aria-label={intl.formatMessage(intlMessages.label, { name })}
           aria-haspopup="menu"
         >
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            {GRIP_DOTS.map(({ x, y }) => <circle key={`${x}-${y}`} cx={x} cy={y} r="1.7" />)}
-          </svg>
+          <GripIcon />
         </Styled.Grip>
       )}
       actions={actions}

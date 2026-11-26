@@ -19,13 +19,13 @@ const intlMessages = defineMessages({
     id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Generic minimize label for panels',
   },
-  minimizeSection: {
-    id: 'app.sidebarContent.minimizeSection',
-    description: 'Label for the button that minimizes a section of the side panel',
-    defaultMessage: 'Minimize {name}',
+  closeSection: {
+    id: 'app.sidebarContent.closeSection',
+    description: 'Label for the button that closes a section of the side panel',
+    defaultMessage: 'Close {name}',
   },
   and: {
-    id: 'app.sidebarContent.minimizeSection.and',
+    id: 'app.sidebarContent.closeSection.and',
     description: 'Joins the names of the tools in a section, as in "People and Chat"',
     defaultMessage: ' and ',
   },
@@ -85,13 +85,13 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   const isInSection = isDocked && (!!section || isAside);
   const tabs = section?.tabs ?? [panelId];
 
-  // Minimizing closes the section, with every tool in it
+  // Closes the section, with every tool in it
   const resolvedCloseLabel = isInSection
-    ? intl.formatMessage(intlMessages.minimizeSection, {
+    ? intl.formatMessage(intlMessages.closeSection, {
       name: tabs.map(toolName).join(intl.formatMessage(intlMessages.and)),
     })
     : closeButtonLabel ?? intl.formatMessage(intlMessages.minimize, { panelName: title });
-  const minimizeSection = () => (isAside ? sections.closeAside() : sections.closeSection(sectionIndex));
+  const closeSection = () => (isAside ? sections.closeAside() : sections.closeSection(sectionIndex));
 
   const multifunctionalModeButton = <MultifunctionalModeButton panelId={panelId} />;
   const rightButton = customRightButton !== undefined
@@ -116,7 +116,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
         )}
         {tabs.length > 1
           ? <SectionTabs panelId={panelId} tabs={tabs} onOpenMenu={setMenuTool} />
-          : <SectionTitle tool={panelId} count={count} />}
+          : <SectionTitle tool={panelId} count={count} onOpenMenu={canMove ? setMenuTool : undefined} />}
       </>
     );
   }
@@ -134,9 +134,9 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
         rightButtonProps={{
           'aria-label': resolvedCloseLabel,
           'data-test': closeButtonDataTest,
-          icon: isInSection || !isDocked ? 'minus' : 'close',
+          icon: isDocked ? 'close' : 'minus',
           label: resolvedCloseLabel,
-          onClick: isInSection ? minimizeSection : closePanel,
+          onClick: isInSection ? closeSection : closePanel,
           ...closeButtonProps,
         }}
         customRightButton={rightButton}

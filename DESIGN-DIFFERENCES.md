@@ -47,13 +47,13 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials
 - [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
 - [ ] Hidden for now on desktop and tablet, to come back to (sidebar-navigation/hidden-controls.ts): mute all and permissions in People, minimize presentation and Profile in the bottom bar, and Options (three dots) in the top bar, which takes fullscreen, keyboard shortcuts, audio captions, move panel and plugin menu items with it
-- [x] Nothing is open on join. The first tool opens alone with a plain title ("PEOPLE 14"), a second turns the header into tabs, a third stacks below as its own section. The top section holds two tabs, the lower section one tool
+- [x] Nothing is open on join. The first tool opens alone with a plain title ("People 14"), a second turns the header into tabs, a third stacks below as its own section. The top section holds two tabs, the lower section one tool
 - [x] Action bar buttons: pressed while the tool is anywhere in the panel; select its tab when it isn't showing; close it when it is
 - [x] Drag a tab down to stack it, a section's title onto the other section to make it a tab, the header or grip to the other side; dashed overlay with a plain-language label, ghost under the pointer, source at 35%, 6px before a drag starts
 - [x] Drag a tab or a section's title to the far edge to open that tool in a panel of its own on the right; the other tools stay in the side panel. Drag its title back onto the side panel to dock it again
-- [x] Minimize (–) closes the section and every tool in it; the lower section moves up
+- [x] Close (X) closes the section and every tool in it; the lower section moves up
 - [x] 50/50 split with a draggable divider; neither section can be made shorter than 120px
-- [x] Every drag has a keyboard way: the grip in each section header opens an Arrange menu (Move below, Combine with, Open on the right, Move back to the side panel, Move panel to left/right); Shift+F10 or right-click on a tab opens it for that tab. Changes are announced to screen readers
+- [x] Every drag has a keyboard way: each section header has an Arrange menu button that only shows with keyboard focus (Move below, Combine with, Open on the right, Move back to the side panel, Move panel to left/right); Shift+F10 on a tab, or right-click on a tab or title, opens it too. Changes are announced to screen readers
 - [x] Losing the presenter role with Polling open closes only Polling; the rest of the panel stays
 - [ ] A fourth tool takes the lower section's place (the design doesn't say); without room to stack, it takes the unselected tab's place
 - [ ] Right panel: 360px like the side panel (design: 340px); one tool, so docking another sends the first back to the side panel; it follows the side panel when that moves, so it can be on the left
@@ -64,12 +64,13 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] BBB's own second column (multi-functional mode) stays hidden while docked (sidebar-navigation/hidden-controls.ts); the right panel takes its room in the layout
 - [x] The side panel can be dragged by its header or grip to the other side, or moved from the options menu (three dots, hidden for now); remembered per browser (not in the design)
 - [ ] Moving the panel: the bottom bar buttons stay in place; phones and layouts without docked navigation can't move it
+- [x] Section headers have no line under them and no visible drag dots; the header and tabs show a grab cursor instead
 - [x] Side panels share one condensed spacing scale: 52px header, 12px sides, 8px gaps (design: 14px sides)
 - [x] The stage keeps 12px from the side panel, the right panel and the window edges, the same as the panel's own padding (was 1.7% of the window width)
 - [ ] Spacing: Notes keeps its editor's own indent, and Profile and breakout room lists keep their inner spacing
 - [x] Other panels use the same plain title and close button as People and Chat
 - [ ] Other panels keep BBB's content (Notes, Profile, Breakout Rooms) and phones keep BBB's headers
-- [ ] Pressing a stacked tab's or title's grip without moving opens the Arrange menu, and the options menu (three dots) no longer stacks panels (move panel stays there)
+- [ ] Arrange menu: no visible button for mouse users (right-click instead), and the options menu (three dots) no longer stacks panels
 - [ ] Dark mode: the selected tab is hard to tell apart
 - [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls, webcam overflow and raised hands chip) are English only
 - [ ] Chat input placeholder was translated in BBB and is now English only

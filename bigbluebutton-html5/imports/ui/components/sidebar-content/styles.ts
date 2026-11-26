@@ -135,12 +135,18 @@ export const HeaderContainer = styled(Header)<{ $isDraggable?: boolean }>`
   padding-bottom: 0;
 
   ${({ $isDraggable }) => $isDraggable && `
+    position: relative;
     flex-shrink: 0;
     box-sizing: border-box;
     height: 52px;
     padding-top: 0;
     cursor: grab;
     touch-action: none;
+
+    /* No line under the header */
+    & + hr {
+      display: none;
+    }
   `}
 `;
 

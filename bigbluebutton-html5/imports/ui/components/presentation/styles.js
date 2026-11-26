@@ -203,21 +203,21 @@ const PresentationContainer = styled.div`
       }
     }
 
+    /* Undo and redo, in the top corner row beside the options and minimize */
     ${ExtraTools} {
-      top: auto;
+      top: 12px;
       right: auto;
       left: auto;
-      bottom: 12px;
-      inset-inline-end: 12px;
-      gap: 4px;
-      height: auto;
-      padding: 4px;
+      bottom: auto;
+      inset-inline-end: 108px;
+      gap: 0;
+      height: 40px;
+      box-sizing: border-box;
+      padding: 1px;
       border: 1px solid ${stageControlBorder};
-      border-inline-start: 0;
-      border-start-end-radius: 12px;
-      border-end-end-radius: 12px;
+      border-radius: 10px;
       background-color: ${colorWhite};
-      box-shadow: 6px 6px 18px rgba(15, 23, 36, .18);
+      box-shadow: 0 6px 18px rgba(15, 23, 36, .18);
 
       ${Button} {
         width: 36px;

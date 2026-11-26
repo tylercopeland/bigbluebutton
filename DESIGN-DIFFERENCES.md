@@ -12,7 +12,7 @@ pass of the overall architecture. Check an item off when it matches.
 ## Bottom bar
 - [ ] Extra button kept: restore presentation, while it is minimized
 - [x] Share media is a plus button (design: plus in a frame); phones keep BBB's icon
-- [ ] Bottom-bar People and Chat show a dot, not numbered badges (the tabs do)
+- [x] Bottom-bar People and Chat show numbered badges (raised hands in amber, unread messages in blue) while that tool isn't open; guests waiting with no raised hands still show BBB's dot
 - [ ] Device chevron on the mic button is not in the design
 - [ ] Phones keep the old navigation button and the white media group
 - [ ] Non-default layouts keep the left rail
@@ -114,6 +114,7 @@ pass of the overall architecture. Check an item off when it matches.
 
 ## Stage and webcams
 - [x] Slide pager, All slides grid, whiteboard tools and minimize sit on the slide and show on hover
+- [ ] Whiteboard tools are a column down the slide's right side (as in BBB), with undo and redo in the top corner row; on short slides the column scrolls
 - [ ] Slide pager: the slide number ("1 / 15") opens All slides, so there is no grid button and no slide number dropdown
 - [ ] Slide controls: adds a menu for zoom, fit to width and multi-user whiteboard (not in the design)
 - [ ] Slide controls: quick poll, smart media and plugin items show above the pager

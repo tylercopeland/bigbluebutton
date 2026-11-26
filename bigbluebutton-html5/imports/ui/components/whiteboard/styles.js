@@ -276,7 +276,7 @@ const TldrawV2GlobalStyle = createGlobalStyle`
     [data-testid="style.geo.${shape}"] { display: none !important; }
   `).join('')}
 
-  /* Tools over the slide, next to the undo and redo buttons */
+  /* Tools in a column down the slide's right side, below its corner buttons */
   .bbb-presentation--overlay {
     .tl-container {
       border-radius: ${lgBorderRadius};
@@ -284,54 +284,60 @@ const TldrawV2GlobalStyle = createGlobalStyle`
 
     .tlui-layout .tlui-layout__bottom {
       position: absolute !important;
-      top: auto !important;
+      top: 64px !important;
       left: auto !important;
       right: auto !important;
-      bottom: 12px !important;
-      inset-inline-end: 97px !important;
+      bottom: auto !important;
+      inset-inline-end: 12px !important;
+      /* Short slides: the column scrolls rather than running off the slide */
+      max-height: calc(100% - 76px) !important;
     }
 
     .tlui-toolbar {
+      max-height: 100%;
       padding: 0;
     }
 
     .tlui-toolbar .tlui-toolbar__inner {
-      flex-direction: row !important;
+      flex-direction: column !important;
       align-items: center;
       gap: 0;
-      height: 46px;
+      width: 42px;
+      max-height: 100%;
+      overflow-y: auto;
+      scrollbar-width: none;
       box-sizing: border-box;
       padding: 4px;
       border: 1px solid ${stageControlBorder};
-      border-inline-end: 0;
-      border-start-start-radius: 12px;
-      border-end-start-radius: 12px;
+      border-radius: 12px;
       background-color: ${colorWhite};
-      box-shadow: -4px 6px 18px rgba(15, 23, 36, .18);
+      box-shadow: 0 6px 18px rgba(15, 23, 36, .18);
       pointer-events: all;
     }
 
     .tlui-toolbar .tlui-toolbar__tools {
-      flex-direction: row !important;
-      gap: 4px;
-      height: 36px;
+      flex-direction: column !important;
+      gap: 2px;
+      width: 32px;
+      height: auto;
       min-height: 0;
       background: none;
       box-shadow: none;
     }
 
-    /* Color and styles */
+    /* Color and styles, under the tools */
     .tlui-toolbar__inner > .tlui-toolbar__tools {
-      margin-inline-start: 4px;
-      padding-inline: 4px;
-      border-inline: 1px solid ${stageControlBorder};
+      margin-block-start: 4px;
+      padding-block-start: 4px;
+      border-block-start: 1px solid ${stageControlBorder};
       border-radius: 0;
     }
 
     .tlui-toolbar .tlui-toolbar__tools .tlui-button__tool {
-      width: 36px !important;
-      min-width: 36px;
-      height: 36px !important;
+      width: 32px !important;
+      min-width: 32px;
+      height: 32px !important;
+      flex-shrink: 0;
       margin: 0;
       color: ${stageControlColor};
     }

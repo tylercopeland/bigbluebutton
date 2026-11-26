@@ -389,7 +389,8 @@ const StageStack = styled.div`
 
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  /* The pager, and what opens above it, centred along the slide's bottom */
+  align-items: center;
   gap: 8px;
   pointer-events: none;
 

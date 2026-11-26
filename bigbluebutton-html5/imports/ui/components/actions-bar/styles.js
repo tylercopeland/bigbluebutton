@@ -16,6 +16,7 @@ import {
   roomControlActiveColor,
   roomLive,
   roomFocusRing,
+  panelRowActionBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import Button from '/imports/ui/components/common/button/component';
 
@@ -71,6 +72,12 @@ const roomControls = `
   && .bbb-button--circle.bbb-button--primary:hover > .bbb-button__icon {
     background-color: ${roomControlActiveBg} !important;
     color: ${roomControlActiveColor} !important;
+  }
+
+  /* A raised hand is a light grey circle, not the tinted active blue */
+  && .bbb-raise-hand-toggle.bbb-button--circle.bbb-button--primary > .bbb-button__icon,
+  && .bbb-raise-hand-toggle.bbb-button--circle.bbb-button--primary:hover > .bbb-button__icon {
+    background-color: ${panelRowActionBg} !important;
   }
 
   && .bbb-button--circle:focus-visible > .bbb-button__icon {

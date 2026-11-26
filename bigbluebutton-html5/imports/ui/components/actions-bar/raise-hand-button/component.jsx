@@ -44,6 +44,7 @@ const RaiseHandButton = (props) => {
   return (
     <Styled.RaiseHandButton
       data-test={raiseHand ? 'lowerHandBtn' : 'raiseHandBtn'}
+      className="bbb-raise-hand-toggle"
       icon="hand"
       label={intl.formatMessage(label)}
       description="Reactions"

@@ -24,6 +24,7 @@ const ReactionsDropdown = styled.div`
 `;
 
 const ButtonWrapper = styled.div`
+  box-sizing: border-box;
   border: 1px solid transparent;
   cursor: pointer;
   height: 2.5rem;
@@ -61,6 +62,13 @@ const ButtonWrapper = styled.div`
       background-color: ${btnPrimaryActiveBg} !important;
     }
   `}
+`;
+
+// Each reaction sits in a true circle, as wide as it is tall
+const ReactionCircle = styled(ButtonWrapper)`
+  width: 2.5rem;
+  flex: none;
+  justify-content: center;
 `;
 
 const ReactionsButtonWrapper = styled(ButtonWrapper)`
@@ -103,6 +111,7 @@ export default {
   ReactionsButton,
   ReactionsDropdown,
   ButtonWrapper,
+  ReactionCircle,
   ReactionsButtonWrapper,
   ToggleButtonWrapper,
 };

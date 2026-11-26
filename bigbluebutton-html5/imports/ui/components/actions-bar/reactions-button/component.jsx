@@ -68,9 +68,9 @@ const ReactionsButton = (props) => {
     if (DISABLE_EMOJIS.includes(id)) return;
     actions.push({
       label: (
-        <Styled.ButtonWrapper active={currentUserReaction === native}>
+        <Styled.ReactionCircle active={currentUserReaction === native}>
           <em-emoji key={native} native={native} {...emojiProps} />
-        </Styled.ButtonWrapper>
+        </Styled.ReactionCircle>
       ),
       key: id,
       onClick: () => handleReactionSelect(native),

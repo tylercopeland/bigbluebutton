@@ -4,6 +4,7 @@ import Icon from '/imports/ui/components/common/icon/component';
 import MenuItem from '@mui/material/MenuItem';
 import {
   colorWhite,
+  panelRowActionBg,
   colorPrimary,
 } from '/imports/ui/stylesheets/styled-components/palette';
 import {
@@ -169,9 +170,10 @@ const BBBMenuItem = styled(MenuItem)`
       &:focus,
       &:hover {
         background-color: ${colorWhite} !important;
+        /* A light grey circle behind the hovered reaction, not the primary blue */
         div div div {
-          background-color: ${colorPrimary} !important;
-          border: 1px solid ${colorPrimary} !important;
+          background-color: ${panelRowActionBg} !important;
+          border: 1px solid ${panelRowActionBg} !important;
         }
       }
     }

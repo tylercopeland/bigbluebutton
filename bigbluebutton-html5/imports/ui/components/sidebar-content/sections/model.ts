@@ -1,113 +1,123 @@
-// The side panel as one or two sections, top to bottom, each with one or more
-// tools. A section with several tools shows them as tabs. Kept free of React
-// so the rules can be read, and tested, on their own.
+// The side panel as one or two sections, top to bottom, plus one tool that can
+// be docked in a panel of its own on the other side of the stage. The top
+// section holds up to two tools as tabs, the lower section one. Kept free of
+// React so the rules can be read, and tested, on their own.
 
 export interface PanelSection {
   /** Tool (panel) ids, in tab order */
   tabs: string[];
   /** The tool that is showing */
   active: string;
-  /** Collapsed to its header */
-  minimized: boolean;
 }
 
 export interface PanelSections {
   sections: PanelSection[];
   /** Share of the height that the top section takes, from 0 to 1 */
   ratio: number;
-  /** The tool used last, which the rest of the client treats as the open panel */
+  /** The tool used last in the side panel, which the rest of the client treats as the open panel */
   focus: string | null;
+  /** The tool in the panel on the other side of the stage */
+  aside: string | null;
 }
 
-export const MAX_SECTIONS = 2;
+/** How many tools each section holds: two tabs at the top, one below */
+export const SECTION_CAPACITY = [2, 1];
 export const DEFAULT_RATIO = 0.5;
 
-export const EMPTY: PanelSections = { sections: [], ratio: DEFAULT_RATIO, focus: null };
+export const EMPTY: PanelSections = {
+  sections: [], ratio: DEFAULT_RATIO, focus: null, aside: null,
+};
 
 export const findSection = (state: PanelSections, tool: string) => (
   state.sections.findIndex((section) => section.tabs.includes(tool))
 );
 
-export const isVisible = (state: PanelSections) => (
-  state.sections.some((section) => !section.minimized)
-);
+/** Whether the side panel shows */
+export const isVisible = (state: PanelSections) => state.sections.length > 0;
 
-/** Whether the tool is in the panel, even as a tab that isn't selected */
+export const isAside = (state: PanelSections, tool: string) => state.aside === tool;
+
+/** Whether the tool is in either panel, even as a tab that isn't selected */
 export const isToolOpen = (state: PanelSections, tool: string) => (
-  isVisible(state) && findSection(state, tool) !== -1
+  findSection(state, tool) !== -1 || isAside(state, tool)
 );
 
 /** Whether the tool's content is on screen */
-export const isToolShowing = (state: PanelSections, tool: string) => state.sections.some(
-  (section) => !section.minimized && section.active === tool,
+export const isToolShowing = (state: PanelSections, tool: string) => (
+  isAside(state, tool) || state.sections.some((section) => section.active === tool)
 );
 
-// The focus must always be a tool that is showing, or nothing
+const isFull = (state: PanelSections, index: number) => (
+  (state.sections[index]?.tabs.length ?? 0) >= SECTION_CAPACITY[index]
+);
+
+// The focus must always be a tool showing in the side panel, or nothing
 const withFocus = (state: PanelSections, preferred: string | null): PanelSections => {
-  const showing = (tool: string | null) => !!tool && isToolShowing(state, tool);
+  const showing = (tool: string | null) => (
+    !!tool && state.sections.some((section) => section.active === tool)
+  );
   let focus: string | null = null;
   if (showing(preferred)) focus = preferred;
   else if (showing(state.focus)) focus = state.focus;
-  else focus = state.sections.find((section) => !section.minimized)?.active ?? null;
+  else focus = state.sections[0]?.active ?? null;
   return { ...state, focus };
 };
 
-const replaceSection = (
-  state: PanelSections, index: number, section: PanelSection | null,
-): PanelSections => ({
-  ...state,
-  sections: section
-    ? state.sections.map((current, i) => (i === index ? section : current))
-    : state.sections.filter((_, i) => i !== index),
-});
-
-const withoutTool = (section: PanelSection, tool: string): PanelSection | null => {
-  const index = section.tabs.indexOf(tool);
-  if (index === -1) return section;
-  const tabs = section.tabs.filter((id) => id !== tool);
-  if (!tabs.length) return null;
-  const active = section.active === tool ? tabs[Math.max(0, index - 1)] : section.active;
-  return { ...section, tabs, active };
+const withoutTool = (state: PanelSections, tool: string): PanelSections => {
+  const sections = state.sections.map((section): PanelSection | null => {
+    const index = section.tabs.indexOf(tool);
+    if (index === -1) return section;
+    const tabs = section.tabs.filter((id) => id !== tool);
+    if (!tabs.length) return null;
+    const active = section.active === tool ? tabs[Math.max(0, index - 1)] : section.active;
+    return { tabs, active };
+  }).filter((section): section is PanelSection => section !== null);
+  // Without a top section, the lower one moves up
+  return { ...state, sections, aside: state.aside === tool ? null : state.aside };
 };
 
+const single = (tool: string): PanelSection => ({ tabs: [tool], active: tool });
+
 /**
- * Shows a tool. One already in the panel becomes the selected tab. A new one
- * opens on its own, becomes a tab next to a single tool, and stacks below
- * once a section has tabs. Past two sections, it joins the lower one.
+ * Adds a tool to the side panel: alone, then as the second tab, then as a
+ * section of its own below. Once both are full it takes the lower section's
+ * place, or the unselected tab's when there is no room to stack.
  */
+const addToPanel = (state: PanelSections, tool: string, canStack: boolean): PanelSections => {
+  const [top, bottom] = state.sections;
+  let sections: PanelSection[];
+  if (!top) {
+    sections = [single(tool)];
+  } else if (!isFull(state, 0)) {
+    sections = [{ tabs: [...top.tabs, tool], active: tool }, ...(bottom ? [bottom] : [])];
+  } else if (bottom || canStack) {
+    sections = [top, single(tool)];
+  } else {
+    const kept = top.active;
+    const tabs = top.tabs.map((id) => (id === kept ? id : tool));
+    sections = [{ tabs, active: tool }];
+  }
+  return withFocus({ ...state, sections }, tool);
+};
+
+/** Shows a tool. One already open is selected; a new one joins the side panel. */
 export const openTool = (
   state: PanelSections, tool: string, canStack: boolean,
 ): PanelSections => {
+  if (isAside(state, tool)) return state;
   const index = findSection(state, tool);
   if (index !== -1) {
-    const section = state.sections[index];
-    return withFocus(replaceSection(state, index, { ...section, active: tool, minimized: false }), tool);
+    const sections = state.sections.map((section, i) => (
+      i === index ? { ...section, active: tool } : section
+    ));
+    return withFocus({ ...state, sections }, tool);
   }
-
-  const { sections } = state;
-  if (!sections.length) {
-    return withFocus({ ...state, sections: [{ tabs: [tool], active: tool, minimized: false }] }, tool);
-  }
-
-  const last = sections.length - 1;
-  const shouldStack = canStack && sections.length < MAX_SECTIONS && sections[last].tabs.length > 1;
-  if (shouldStack) {
-    return withFocus({
-      ...state,
-      sections: [...sections, { tabs: [tool], active: tool, minimized: false }],
-    }, tool);
-  }
-
-  const target = sections[last];
-  return withFocus(replaceSection(state, last, {
-    tabs: [...target.tabs, tool], active: tool, minimized: false,
-  }), tool);
+  return addToPanel(state, tool, canStack);
 };
 
 export const closeTool = (state: PanelSections, tool: string): PanelSections => {
-  const index = findSection(state, tool);
-  if (index === -1) return state;
-  return withFocus(replaceSection(state, index, withoutTool(state.sections[index], tool)), null);
+  if (!isToolOpen(state, tool)) return state;
+  return withFocus(withoutTool(state, tool), null);
 };
 
 /** What an action bar button does: shows its tool, or closes it if it is showing */
@@ -117,57 +127,78 @@ export const toggleTool = (
   isToolShowing(state, tool) ? closeTool(state, tool) : openTool(state, tool, canStack)
 );
 
-/** Takes a tab out of the only section and stacks it below */
-export const canMoveBelow = (state: PanelSections, tool: string, canStack: boolean) => (
-  canStack
-  && state.sections.length === 1
-  && state.sections[0].tabs.length > 1
-  && state.sections[0].tabs.includes(tool)
-);
+/** Closes a section of the side panel and every tool in it */
+export const closeSection = (state: PanelSections, index: number): PanelSections => {
+  if (!state.sections[index]) return state;
+  return withFocus({ ...state, sections: state.sections.filter((_, i) => i !== index) }, null);
+};
+
+/** Stacks a tool as the lower section: a tab of the only section, or the docked tool */
+export const canMoveBelow = (state: PanelSections, tool: string, canStack: boolean) => {
+  if (!canStack || state.sections.length !== 1) return false;
+  const [top] = state.sections;
+  return isAside(state, tool) || (top.tabs.length > 1 && top.tabs.includes(tool));
+};
 
 export const moveBelow = (
   state: PanelSections, tool: string, canStack: boolean,
 ): PanelSections => {
   if (!canMoveBelow(state, tool, canStack)) return state;
-  const [top] = state.sections;
-  const rest = withoutTool(top, tool) as PanelSection;
+  const rest = withoutTool(state, tool);
   return withFocus({
-    ...state,
+    ...rest,
     ratio: DEFAULT_RATIO,
-    sections: [{ ...rest, minimized: false }, { tabs: [tool], active: tool, minimized: false }],
+    sections: [rest.sections[0], single(tool)],
   }, tool);
 };
 
-/** The section a tool can join as a tab: the other one, when there are two */
+/**
+ * The section a tool can be added to as a tab, or -1. Only the top section
+ * has tabs, so a tool dropped on the lower section joins it at the top.
+ */
 export const getCombineTarget = (state: PanelSections, tool: string) => {
+  const [top, bottom] = state.sections;
+  if (!top) return -1;
   const index = findSection(state, tool);
-  if (index === -1 || state.sections.length < 2) return -1;
-  return index === 0 ? 1 : 0;
+  if (isAside(state, tool) || index === 1) return isFull(state, 0) ? -1 : 0;
+  if (index === 0 && bottom && top.tabs.length === 1) return 1;
+  return -1;
 };
 
 export const combine = (state: PanelSections, tool: string): PanelSections => {
   const target = getCombineTarget(state, tool);
   if (target === -1) return state;
-  const source = findSection(state, tool);
-  const sections = state.sections.map((section, i) => {
-    if (i === source) return withoutTool(section, tool);
-    if (i === target) return { tabs: [...section.tabs, tool], active: tool, minimized: false };
-    return section;
-  }).filter((section): section is PanelSection => section !== null);
-  return withFocus({ ...state, sections }, tool);
+  const rest = withoutTool(state, tool);
+  // The top section emptied, so the lower one is now first
+  const [joined, ...others] = rest.sections;
+  return withFocus({
+    ...rest,
+    sections: [{ tabs: [...joined.tabs, tool], active: tool }, ...others.slice(target === 1 ? 1 : 0)],
+  }, tool);
 };
 
-export const minimize = (state: PanelSections, index: number): PanelSections => {
-  const section = state.sections[index];
-  if (!section) return state;
-  return withFocus(replaceSection(state, index, { ...section, minimized: true }), null);
+/** Docks a tool in the panel on the other side. The tool there before goes back to the side panel. */
+export const canMoveAside = (state: PanelSections, tool: string) => findSection(state, tool) !== -1;
+
+export const moveAside = (
+  state: PanelSections, tool: string, canStack: boolean,
+): PanelSections => {
+  if (!canMoveAside(state, tool)) return state;
+  const previous = state.aside;
+  const moved = withFocus({ ...withoutTool(state, tool), aside: tool }, null);
+  return previous ? addToPanel(moved, previous, canStack) : moved;
 };
 
-export const expand = (state: PanelSections, index: number): PanelSections => {
-  const section = state.sections[index];
-  if (!section) return state;
-  return withFocus(replaceSection(state, index, { ...section, minimized: false }), section.active);
+/** Brings the docked tool back to the side panel */
+export const moveBack = (state: PanelSections, canStack: boolean): PanelSections => {
+  const { aside } = state;
+  if (!aside) return state;
+  return addToPanel({ ...state, aside: null }, aside, canStack);
 };
+
+export const closeAside = (state: PanelSections): PanelSections => (
+  state.aside ? { ...state, aside: null } : state
+);
 
 export const setRatio = (state: PanelSections, ratio: number): PanelSections => ({
   ...state,
@@ -178,20 +209,35 @@ export const setRatio = (state: PanelSections, ratio: number): PanelSections => 
 export const parse = (stored: unknown, isAllowed: (tool: string) => boolean): PanelSections => {
   const value = stored as Partial<PanelSections> | null;
   if (!value || !Array.isArray(value.sections)) return EMPTY;
+  const storedSections = value.sections as Array<{ tabs?: unknown; active?: unknown; minimized?: unknown }>;
   const seen = new Set<string>();
-  const sections = value.sections.slice(0, MAX_SECTIONS).map((section): PanelSection | null => {
-    if (!section || !Array.isArray(section.tabs)) return null;
-    const tabs = section.tabs.filter((tool): tool is string => (
-      typeof tool === 'string' && isAllowed(tool) && !seen.has(tool) && !!seen.add(tool)
-    ));
-    if (!tabs.length) return null;
-    return {
-      tabs,
-      active: tabs.includes(section.active) ? section.active : tabs[0],
-      minimized: section.minimized === true,
-    };
-  }).filter((section): section is PanelSection => section !== null);
+  const take = (tool: unknown): tool is string => (
+    typeof tool === 'string' && isAllowed(tool) && !seen.has(tool) && !!seen.add(tool)
+  );
+  const aside = take(value.aside) ? value.aside as string : null;
+  const sections = storedSections
+    // Sections used to be able to collapse; a collapsed one now counts as closed
+    .filter((section) => section && Array.isArray(section.tabs) && section.minimized !== true)
+    .map((section): PanelSection | null => {
+      const tabs = (section.tabs as unknown[]).filter(take);
+      if (!tabs.length) return null;
+      return { tabs, active: tabs.includes(section.active as string) ? section.active as string : tabs[0] };
+    })
+    .filter((section): section is PanelSection => section !== null)
+    .slice(0, SECTION_CAPACITY.length)
+    .map((section, index) => {
+      const capacity = SECTION_CAPACITY[index];
+      if (section.tabs.length <= capacity) return section;
+      const tabs = [section.active, ...section.tabs.filter((id) => id !== section.active)]
+        .slice(0, capacity);
+      return { tabs, active: section.active };
+    });
   const ratio = typeof value.ratio === 'number' && value.ratio > 0 && value.ratio < 1
     ? value.ratio : DEFAULT_RATIO;
-  return withFocus({ sections, ratio, focus: null }, typeof value.focus === 'string' ? value.focus : null);
+  return withFocus(
+    {
+      sections, ratio, focus: null, aside,
+    },
+    typeof value.focus === 'string' ? value.focus : null,
+  );
 };

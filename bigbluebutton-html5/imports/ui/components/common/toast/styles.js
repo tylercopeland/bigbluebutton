@@ -201,7 +201,8 @@ const ToastifyGlobalStyle = createGlobalStyle`
     z-index: 998 !important;
     position: fixed !important;
     box-sizing: border-box !important;
-    right: ${jumboPaddingY} !important;
+    /* Toasts sit across the stage from the side panel, clear of a docked tool's panel */
+    right: calc(${jumboPaddingY} + var(--bbb-aside-width, 0px)) !important;
     left: auto !important;
     top: 4.5rem !important;
     max-height: 75vh !important;
@@ -215,17 +216,17 @@ const ToastifyGlobalStyle = createGlobalStyle`
 
   [dir="rtl"] .Toastify__toast-container {
     right: auto !important;
-    left: ${jumboPaddingY} !important;
+    left: calc(${jumboPaddingY} + var(--bbb-aside-width, 0px)) !important;
   }
 
   /* The side panel is on the other side */
   [data-panel-moved]:not([dir="rtl"]) .Toastify__toast-container {
     right: auto !important;
-    left: ${jumboPaddingY} !important;
+    left: calc(${jumboPaddingY} + var(--bbb-aside-width, 0px)) !important;
   }
 
   [data-panel-moved][dir="rtl"] .Toastify__toast-container {
-    right: ${jumboPaddingY} !important;
+    right: calc(${jumboPaddingY} + var(--bbb-aside-width, 0px)) !important;
     left: auto !important;
   }
 `;

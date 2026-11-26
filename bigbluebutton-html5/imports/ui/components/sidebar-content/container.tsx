@@ -1,6 +1,7 @@
 import React from 'react';
 import SidebarContent from './component';
 import PanelSectionsSync from './sections/sync';
+import AsidePanel from './sections/aside';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentContanerProps } from './types';
@@ -29,6 +30,7 @@ const SidebarContentContainer = ({ isSharedNotesPinned }: SidebarContentContaner
   return (
     <>
       <PanelSectionsSync />
+      <AsidePanel isSharedNotesPinned={isSharedNotesPinned} />
       {sidebarContentOutput.display !== false && (
       <SidebarContent
         top={top}

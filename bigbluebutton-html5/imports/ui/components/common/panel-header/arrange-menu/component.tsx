@@ -23,6 +23,16 @@ const intlMessages = defineMessages({
     description: 'Menu item that adds a tool as a tab next to another',
     defaultMessage: 'Combine with {other}',
   },
+  moveAside: {
+    id: 'app.sidebarContent.arrange.moveAside',
+    description: 'Menu item that opens a tool in a panel of its own, across the stage',
+    defaultMessage: '{side, select, right {Open {name} on the right} other {Open {name} on the left}}',
+  },
+  moveBack: {
+    id: 'app.sidebarContent.arrange.moveBack',
+    description: 'Menu item that brings a docked tool back to the side panel',
+    defaultMessage: 'Move {name} back to the side panel',
+  },
   moveRight: {
     id: 'app.sidebarContent.arrange.moveRight',
     description: 'Menu item that moves the panel to the right',
@@ -75,7 +85,27 @@ const ArrangeMenu: React.FC<ArrangeMenuProps> = ({ tool, isForcedOpen, onClose }
       onClick: () => sections.combine(tool),
     });
   }
-  if (canMove) {
+  if (sections.canMoveAside(tool)) {
+    actions.push({
+      key: 'moveAside',
+      dataTest: 'arrangeMoveAside',
+      label: intl.formatMessage(intlMessages.moveAside, {
+        name, side: sections.isAsideOnRight ? 'right' : 'left',
+      }),
+      onClick: () => sections.moveAside(tool),
+    });
+  }
+  const isAside = sections.isAside(tool);
+  if (isAside) {
+    actions.push({
+      key: 'moveBack',
+      dataTest: 'arrangeMoveBack',
+      label: intl.formatMessage(intlMessages.moveBack, { name }),
+      onClick: sections.moveBack,
+    });
+  }
+  // The docked panel always sits across from the side panel, so only the side panel moves
+  if (canMove && !isAside) {
     actions.push({
       key: 'moveSide',
       dataTest: 'arrangeMoveSide',

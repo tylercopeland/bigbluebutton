@@ -2,13 +2,14 @@ import { useCallback, useMemo } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Storage from '/imports/ui/services/storage/local';
 import { useStorageKey } from '/imports/ui/services/storage/hooks';
-import { layoutSelectInput, layoutSelectOutput } from '/imports/ui/components/layout/context';
-import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
+import { layoutSelectOutput } from '/imports/ui/components/layout/context';
+import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { PANELS } from '/imports/ui/components/layout/enums';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import { addAlert } from '/imports/ui/components/screenreader-alert/service';
 import * as model from './model';
 import useToolName from './useToolName';
+import usePanelSide from '../usePanelSide';
 
 /** Smallest height a section can be given, so its header always shows */
 export const MIN_SECTION_HEIGHT = 120;
@@ -44,15 +45,20 @@ const intlMessages = defineMessages({
     description: 'Screen reader announcement when a tool becomes a tab next to another',
     defaultMessage: '{name} added as a tab next to {other}',
   },
-  minimized: {
-    id: 'app.sidebarContent.announce.minimized',
-    description: 'Screen reader announcement when a panel section is minimized',
-    defaultMessage: '{name} minimized',
+  closed: {
+    id: 'app.sidebarContent.announce.closed',
+    description: 'Screen reader announcement when a section of the side panel is closed',
+    defaultMessage: '{name} closed',
   },
-  expanded: {
-    id: 'app.sidebarContent.announce.expanded',
-    description: 'Screen reader announcement when a minimized panel section is restored',
-    defaultMessage: '{name} restored',
+  movedAside: {
+    id: 'app.sidebarContent.announce.movedAside',
+    description: 'Screen reader announcement when a tool opens in a panel of its own',
+    defaultMessage: '{side, select, right {{name} opened in a panel on the right} other {{name} opened in a panel on the left}}',
+  },
+  movedBack: {
+    id: 'app.sidebarContent.announce.movedBack',
+    description: 'Screen reader announcement when a docked tool goes back to the side panel',
+    defaultMessage: '{name} moved back to the side panel',
   },
   stacked: {
     id: 'app.sidebarContent.announce.stacked',
@@ -70,13 +76,13 @@ const usePanelSections = () => {
   const toolName = useToolName();
   const isDocked = useIsNavigationDocked();
   const stored = useStorageKey(STORAGE_KEY, 'local');
-  const isAuxiliaryOpen = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary.isOpen) === true;
+  const { isPanelOnRight } = usePanelSide();
   const height = layoutSelectOutput((i: Output) => i.sidebarContent.height) || 0;
 
   const state = useMemo(() => model.parse(stored, isPanelTool), [stored]);
   // There is no height to measure while the panel is closed
   const fits = (height || window.innerHeight) >= MIN_STACK_HEIGHT;
-  const canStack = isDocked && !isAuxiliaryOpen && fits;
+  const canStack = isDocked && fits;
 
   // Reads what is stored, so that several calls in a row build on each other
   const update = useCallback((change: (current: model.PanelSections) => model.PanelSections) => {
@@ -125,16 +131,31 @@ const usePanelSections = () => {
     }));
   }, [update, intl, toolName]);
 
-  const minimize = useCallback((index: number) => {
-    const { current, next } = update((s) => model.minimize(s, index));
+  const closeSection = useCallback((index: number) => {
+    const { current, next } = update((s) => model.closeSection(s, index));
     if (next === current) return;
-    announce(intl.formatMessage(intlMessages.minimized, { name: sectionName(current.sections[index]) }));
+    const names = current.sections[index].tabs.map(toolName).join(', ');
+    announce(intl.formatMessage(intlMessages.closed, { name: names }));
   }, [update, intl, toolName]);
 
-  const expand = useCallback((index: number) => {
-    const { current, next } = update((s) => model.expand(s, index));
+  const moveAside = useCallback((tool: string) => {
+    const { current, next } = update((s) => model.moveAside(s, tool, canStack));
     if (next === current) return;
-    announce(intl.formatMessage(intlMessages.expanded, { name: sectionName(current.sections[index]) }));
+    announce(intl.formatMessage(intlMessages.movedAside, {
+      name: toolName(tool), side: isPanelOnRight ? 'left' : 'right',
+    }));
+  }, [update, canStack, intl, toolName, isPanelOnRight]);
+
+  const moveBack = useCallback(() => {
+    const { current, next } = update((s) => model.moveBack(s, canStack));
+    if (next === current || !current.aside) return;
+    announce(intl.formatMessage(intlMessages.movedBack, { name: toolName(current.aside) }));
+  }, [update, canStack, intl, toolName]);
+
+  const closeAside = useCallback(() => {
+    const { current, next } = update(model.closeAside);
+    if (next === current || !current.aside) return;
+    announce(intl.formatMessage(intlMessages.closed, { name: toolName(current.aside) }));
   }, [update, intl, toolName]);
 
   const setRatio = useCallback((ratio: number) => {
@@ -148,6 +169,7 @@ const usePanelSections = () => {
     isDocked,
     canStack,
     isVisible: model.isVisible(state),
+    hasAside: isDocked && !!state.aside,
     isStacked: state.sections.length > 1,
     findSection: (tool: string) => model.findSection(state, tool),
     isToolOpen: (tool: string) => model.isToolOpen(state, tool),
@@ -159,8 +181,14 @@ const usePanelSections = () => {
     closeTool,
     moveBelow,
     combine,
-    minimize,
-    expand,
+    closeSection,
+    canMoveAside: (tool: string) => isDocked && model.canMoveAside(state, tool),
+    moveAside,
+    moveBack,
+    closeAside,
+    isAside: (tool: string) => model.isAside(state, tool),
+    /** The side the docked tool's panel is on: across the stage from the side panel */
+    isAsideOnRight: !isPanelOnRight,
     setRatio,
     resetRatio,
   };

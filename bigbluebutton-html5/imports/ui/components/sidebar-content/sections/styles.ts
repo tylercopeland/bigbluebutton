@@ -1,22 +1,17 @@
 import styled from 'styled-components';
 import {
+  colorWhite,
   colorPrimary,
   panelBorder,
-  panelMutedText,
-  panelTabsBg,
 } from '/imports/ui/stylesheets/styled-components/palette';
 
-const Section = styled.section<{ $share: number; $isMinimized: boolean; $isStacked: boolean }>`
+const Section = styled.section<{ $share: number; $isStacked: boolean }>`
   position: relative;
   display: flex;
   flex: ${({ $share }) => $share} 1 0;
   flex-direction: column;
   min-height: 0;
   overflow: hidden;
-
-  ${({ $isMinimized }) => $isMinimized && `
-    flex: 0 0 auto;
-  `}
 
   ${({ $isStacked }) => $isStacked && `
     & + & {
@@ -26,61 +21,6 @@ const Section = styled.section<{ $share: number; $isMinimized: boolean; $isStack
 
   @media (prefers-reduced-motion: no-preference) {
     transition: flex-grow .3s cubic-bezier(.2, .8, .2, 1);
-  }
-`;
-
-const MinimizedHeader = styled.div`
-  display: flex;
-  flex-shrink: 0;
-  align-items: center;
-  gap: 8px;
-  box-sizing: border-box;
-  height: 52px;
-  padding-inline: var(--panel-inset, 12px);
-  cursor: grab;
-  touch-action: none;
-`;
-
-const MinimizedTitle = styled.button`
-  flex: 1;
-  min-width: 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-family: inherit;
-  text-align: start;
-  cursor: pointer;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-
-  &:focus-visible {
-    outline: 2px solid ${colorPrimary};
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-`;
-
-const Expand = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  border-radius: 8px;
-  background: none;
-  color: ${panelMutedText};
-  cursor: pointer;
-
-  &:hover {
-    background-color: ${panelTabsBg};
-  }
-
-  &:focus-visible {
-    outline: 2px solid ${colorPrimary};
-    outline-offset: -2px;
   }
 `;
 
@@ -126,6 +66,25 @@ const Divider = styled.div`
   }
 `;
 
+// The panel on the other side of the stage, for one docked tool
+const Aside = styled.aside<{ $isOnRight: boolean }>`
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background-color: ${colorWhite};
+  ${({ $isOnRight }) => ($isOnRight ? 'border-left' : 'border-right')}: 1px solid ${panelBorder};
+
+  @media (prefers-reduced-motion: no-preference) {
+    animation: bbb-aside-in .2s cubic-bezier(.2, .8, .2, 1);
+  }
+
+  @keyframes bbb-aside-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+`;
+
 export default {
-  Section, Divider, MinimizedHeader, MinimizedTitle, Expand,
+  Section, Divider, Aside,
 };

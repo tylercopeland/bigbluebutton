@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react';
 import { throttle } from '/imports/utils/throttle';
 import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/components/layout/context';
 import DEFAULT_VALUES, {
+  DOCKED_PANEL_MAX_PERCENTAGE_WIDTH,
+  DOCKED_PANEL_WIDTH,
   SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
   SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
 } from '/imports/ui/components/layout/defaultValues';
@@ -40,7 +42,7 @@ const UnifiedLayout = (props) => {
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
   // For the layout, right-to-left only means that the side panel is on the right
-  const { isStacked: isPanelStacked } = usePanelSections();
+  const { isStacked: isPanelStacked, hasAside } = usePanelSections();
   const { isPanelOnRight: isRTL, isMoved: isPanelMoved } = usePanelSide();
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
@@ -97,7 +99,7 @@ const UnifiedLayout = (props) => {
     return () => null;
   }, [
     input, deviceType, isRTL, isPanelMoved, fontSize, fullscreen,
-    isPresentationEnabled, isNavigationDocked, isPanelStacked,
+    isPresentationEnabled, isNavigationDocked, isPanelStacked, hasAside,
   ]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
@@ -325,7 +327,7 @@ const UnifiedLayout = (props) => {
     // Until the dock is moved: a row across the top of the stage while the side
     // panel is open, and a column on the right while it is closed
     if (hasAutomaticCameraPosition()) {
-      return input.sidebarContent.isOpen
+      return input.sidebarContent.isOpen || hasAside
         ? CAMERADOCK_POSITION.CONTENT_TOP
         : CAMERADOCK_POSITION.CONTENT_RIGHT;
     }
@@ -671,7 +673,13 @@ const UnifiedLayout = (props) => {
     const sidebarNavWidth = calculatesSidebarNavWidth();
     const sidebarNavHeight = calculatesSidebarNavHeight();
     const sidebarContentWidth = calculatesSidebarContentWidth();
-    const sidebarContentAuxiliaryWidth = calculatesSidebarContentWidth(true);
+    // A tool docked across the stage takes the auxiliary panel's room, on the far side
+    const asideWidth = hasAside
+      ? min(DOCKED_PANEL_WIDTH, windowWidth() * DOCKED_PANEL_MAX_PERCENTAGE_WIDTH)
+      : 0;
+    const sidebarContentAuxiliaryWidth = hasAside
+      ? { minWidth: asideWidth, width: asideWidth, maxWidth: asideWidth }
+      : calculatesSidebarContentWidth(true);
     const sidebarNavBounds = calculatesSidebarNavBounds();
     const sidebarContentBounds = calculatesSidebarContentBounds(
       sidebarNavWidth.horizontalSpaceOccupied,
@@ -740,6 +748,31 @@ const UnifiedLayout = (props) => {
       cameraHorizontal.right = 0;
     }
 
+    // The sizes above already leave room for the docked panel, but place it next
+    // to the side panel. It sits at the far edge instead, so what is between the
+    // two moves over by its width. Fullscreen content is left where it is.
+    const asideShift = isRTL ? asideWidth : -asideWidth;
+    const shift = (bounds, isFullscreen = false) => {
+      if (!asideShift || isFullscreen) return bounds;
+      return {
+        ...bounds,
+        left: typeof bounds.left === 'number' ? bounds.left + asideShift : bounds.left,
+        right: typeof bounds.right === 'number' ? bounds.right - asideShift : bounds.right,
+      };
+    };
+    const isStageFullscreen = mediaBounds.width === windowWidth();
+    const shiftedMedia = shift(mediaHorizontal, isStageFullscreen);
+    // The webcams move by left - right on screen, whichever way the page reads
+    const shiftedCamera = fullscreen.group === 'webcams' ? cameraHorizontal : {
+      left: (cameraHorizontal.left || 0) + asideShift,
+      right: cameraHorizontal.right,
+    };
+    const shiftedDropAreas = Object.fromEntries(
+      Object.entries(dropZoneAreas).map(([key, area]) => [
+        key, key === CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM ? area : shift(area),
+      ]),
+    );
+
     layoutContextDispatch({
       type: ACTIONS.SET_NAVBAR_OUTPUT,
       value: {
@@ -747,7 +780,7 @@ const UnifiedLayout = (props) => {
         width: navbarBounds.width,
         height: navbarBounds.height,
         top: navbarBounds.top,
-        left: navbarBounds.left,
+        left: shift({ left: navbarBounds.left }).left,
         tabOrder: DEFAULT_VALUES.navBarTabOrder,
         zIndex: navbarBounds.zIndex,
       },
@@ -761,7 +794,7 @@ const UnifiedLayout = (props) => {
         height: actionbarBounds.height,
         innerHeight: actionbarBounds.innerHeight,
         top: actionbarBounds.top,
-        left: actionbarBounds.left,
+        left: shift({ left: actionbarBounds.left }).left,
         padding: actionbarBounds.padding,
         tabOrder: DEFAULT_VALUES.actionBarTabOrder,
         zIndex: actionbarBounds.zIndex,
@@ -771,8 +804,10 @@ const UnifiedLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_CAPTIONS_OUTPUT,
       value: {
-        left: !isRTL ? sidebarSize + captionsMargin : null,
-        right: isRTL ? sidebarSize + captionsMargin : null,
+        ...shift({
+          left: !isRTL ? sidebarSize + captionsMargin : null,
+          right: isRTL ? sidebarSize + captionsMargin : null,
+        }),
         maxWidth: mediaAreaBounds.width - captionsMargin * 2,
       },
     });
@@ -816,7 +851,23 @@ const UnifiedLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_SIDEBAR_CONTENT_AUXILIARY_OUTPUT,
-      value: {
+      value: hasAside ? {
+        display: true,
+        minWidth: asideWidth,
+        width: asideWidth,
+        maxWidth: asideWidth,
+        height: windowHeight() - bannerAreaHeight(),
+        minHeight: sidebarContentMinHeight,
+        maxHeight: windowHeight() - bannerAreaHeight(),
+        top: sidebarContentBounds.top,
+        // From the window's left edge, whichever way the page reads
+        left: isRTL ? 0 : windowWidth() - asideWidth,
+        right: null,
+        currentPanelType,
+        tabOrder: DEFAULT_VALUES.sidebarContentTabOrder,
+        isResizable: false,
+        zIndex: sidebarContentBounds.zIndex,
+      } : {
         display: sidebarContentAuxiliaryInput.isOpen,
         minWidth: sidebarContentAuxiliaryWidth.minWidth,
         width: sidebarContentAuxiliaryWidth.width,
@@ -859,7 +910,7 @@ const UnifiedLayout = (props) => {
     layoutContextDispatch({
       type: ACTIONS.SET_MEDIA_AREA_SIZE,
       value: {
-        width: windowWidth() - sidebarContentWidth.width
+        width: windowWidth() - sidebarContentWidth.width - asideWidth
           - (isNavigationDocked ? sidebarNavWidth.horizontalSpaceOccupied : sidebarNavWidth.width)
           - (windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH),
         height: windowHeight() - getNavBarBaseHeight() - actionBarHeight,
@@ -882,8 +933,8 @@ const UnifiedLayout = (props) => {
         height: cameraDockBounds.height,
         maxHeight: cameraDockBounds.maxHeight,
         top: cameraDockBounds.top,
-        left: cameraHorizontal.left,
-        right: cameraHorizontal.right,
+        left: shiftedCamera.left,
+        right: shiftedCamera.right,
         tabOrder: 4,
         isDraggable: !isMobile && !isTablet && !isCameraDockLocked && isMediaOpen,
         resizableEdge: {
@@ -911,7 +962,7 @@ const UnifiedLayout = (props) => {
 
     layoutContextDispatch({
       type: ACTIONS.SET_DROP_AREAS,
-      value: dropZoneAreas,
+      value: shiftedDropAreas,
     });
 
     layoutContextDispatch({
@@ -921,8 +972,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaHorizontal.left,
-        right: mediaHorizontal.right,
+        left: shiftedMedia.left,
+        right: shiftedMedia.right,
         tabOrder: DEFAULT_VALUES.presentationTabOrder,
         isResizable: false,
         zIndex: mediaBounds.zIndex,
@@ -935,8 +986,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaHorizontal.left,
-        right: mediaHorizontal.right,
+        left: shiftedMedia.left,
+        right: shiftedMedia.right,
         zIndex: mediaBounds.zIndex,
       },
     });
@@ -948,8 +999,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaHorizontal.left,
-        right: mediaHorizontal.right,
+        left: shiftedMedia.left,
+        right: shiftedMedia.right,
       },
     });
 
@@ -959,8 +1010,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaHorizontal.left,
-        right: mediaHorizontal.right,
+        left: shiftedMedia.left,
+        right: shiftedMedia.right,
       },
     });
 
@@ -970,8 +1021,8 @@ const UnifiedLayout = (props) => {
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
-        left: mediaHorizontal.left,
-        right: mediaHorizontal.right,
+        left: shiftedMedia.left,
+        right: shiftedMedia.right,
       },
     });
   };

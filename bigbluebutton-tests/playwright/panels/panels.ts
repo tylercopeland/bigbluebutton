@@ -12,7 +12,8 @@ const panel = {
   peopleTab: '[data-test="peopleTab"]',
   chatTab: '[data-test="chatTab"]',
   notesButton: 'div[data-test="sharedNotesSidebarButton"]',
-  arrangeButton: '[data-test="arrangeMenuButton"]',
+  arrangeButton: '.bbb-sidebar-content [data-test="arrangeMenuButton"]',
+  aside: '[data-test="asidePanel"]',
   dropArea: '[data-test^="panelDrop-"]',
   sidebar: '.bbb-sidebar-content',
   pluginsPopover: '[data-test="appsPopover"]',
@@ -42,6 +43,19 @@ export class Panels extends MultiUsers {
         { message },
       )
       .toEqual(expected);
+  }
+
+  private async expectAside(expected: string | null, message: string) {
+    await expect
+      .poll(
+        () => this.page.evaluate((key) => JSON.parse(localStorage.getItem(key) || '{}').aside ?? null, STORAGE_KEY),
+        { message },
+      )
+      .toBe(expected);
+  }
+
+  private minimizeButton(index: number): Locator {
+    return this.section(index).locator('button[aria-label^="Minimize"]').first();
   }
 
   private async expectPressed(selector: string, pressed: boolean, message: string) {
@@ -121,6 +135,57 @@ export class Panels extends MultiUsers {
       'aria-selected',
       'true',
     );
+  }
+
+  async fourthToolTakesLowerSection() {
+    await this.openThirdTool();
+    await this.modPage.waitAndClick(e.appsGallerySidebarButton);
+    await this.modPage.waitAndClick(panel.pollCard);
+    await this.expectSections([['userlist', 'chat'], ['poll']], 'should keep two tabs on top and one tool below');
+    await this.expectPressed(panel.notesButton, false, 'should close Notes, which Poll replaced');
+  }
+
+  async minimizeClosesSection() {
+    await this.openThirdTool();
+    await this.minimizeButton(1).click();
+    await this.expectSections([['userlist', 'chat']], 'should close the lower section');
+    await this.expectPressed(panel.notesButton, false, 'should unpress Notes');
+    await this.minimizeButton(0).click();
+    await this.expectSections([], 'should close both tabs of the top section');
+    await this.modPage.wasRemoved(panel.sidebar, 'should close the side panel');
+    await this.expectPressed(e.usersListSidebarButton, false, 'should unpress People');
+  }
+
+  async dragTabToRightPanel() {
+    await this.modPage.waitAndClick(e.usersListSidebarButton);
+    await this.modPage.waitAndClick(e.messagesSidebarButton);
+    const viewport = this.page.viewportSize()!;
+    await this.drag(
+      this.page.locator(panel.chatTab),
+      { x: viewport.width - 60, y: viewport.height / 2 },
+      'Drop to open Chat in a panel on the right',
+    );
+    await this.expectAside('chat', 'should dock Chat on the right');
+    await this.expectSections([['userlist']], 'should leave People in the side panel');
+    const aside = await this.page.locator(panel.aside).boundingBox();
+    expect(aside && aside.x, 'should put the panel at the right edge').toBeGreaterThan(viewport.width / 2);
+    await this.expectPressed(e.messagesSidebarButton, true, 'should keep Chat pressed');
+
+    await this.page.reload();
+    await this.modPage.closeAudioModal();
+    await expect(this.page.locator(panel.aside), 'should keep the right panel after a reload').toBeVisible({
+      timeout: 20000,
+    });
+
+    // its title goes back onto the side panel as a tab
+    const sidebar = await this.sidebarBox();
+    await this.drag(
+      this.page.locator(`${panel.aside} ${panel.title}`),
+      { x: sidebar.x + sidebar.width / 2, y: sidebar.y + 120 },
+      'Drop to add Chat as a tab next to People',
+    );
+    await this.expectAside(null, 'should close the right panel');
+    await this.expectSections([['userlist', 'chat']], 'should add Chat back as a tab');
   }
 
   async dragTabDownToStack() {

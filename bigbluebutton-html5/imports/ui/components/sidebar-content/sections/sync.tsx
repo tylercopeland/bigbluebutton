@@ -20,7 +20,9 @@ const SETTLE_DELAY = 1500;
 const PanelSectionsSync = () => {
   const layoutContextDispatch = layoutDispatch();
   const sections = usePanelSections();
-  const { isDocked, focus, isVisible } = sections;
+  const {
+    isDocked, focus, isVisible, aside,
+  } = sections;
   const isOpen = layoutSelectInput((i: Input) => i.sidebarContent.isOpen) === true;
   const panel = layoutSelectInput((i: Input) => i.sidebarContent.sidebarContentPanel);
   const idChatOpen = layoutSelect((i: Layout) => i.idChatOpen);
@@ -43,24 +45,32 @@ const PanelSectionsSync = () => {
   }, [isDocked]);
   const desiredPanel = isVisible && focus ? focus : PANELS.NONE;
 
-  // Sections to layout
-  useEffect(() => {
-    if (!isActive) return;
-    lastFocus.current = desiredPanel === PANELS.NONE ? lastFocus.current : desiredPanel;
-    if (desiredPanel === PANELS.CHAT && !idChatOpen) {
-      layoutContextDispatch({
-        type: ACTIONS.SET_ID_CHAT_OPEN,
-        value: window.meetingClientSettings.public.chat.public_group_id,
-      });
-    }
-    const shouldBeOpen = desiredPanel !== PANELS.NONE;
-    if (panel !== desiredPanel) {
-      layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: desiredPanel });
+  const applyToLayout = (desired: string) => {
+    const shouldBeOpen = desired !== PANELS.NONE;
+    if (panel !== desired) {
+      layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL, value: desired });
     }
     if (isOpen !== shouldBeOpen) {
       layoutContextDispatch({ type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN, value: shouldBeOpen });
     }
+  };
+
+  // Sections to layout
+  useEffect(() => {
+    if (!isActive) return;
+    lastFocus.current = desiredPanel === PANELS.NONE ? lastFocus.current : desiredPanel;
+    applyToLayout(desiredPanel);
   }, [isActive, desiredPanel]);
+
+  // Chat needs a conversation to show, wherever it is
+  useEffect(() => {
+    if (!isActive || idChatOpen) return;
+    if (desiredPanel !== PANELS.CHAT && aside !== PANELS.CHAT) return;
+    layoutContextDispatch({
+      type: ACTIONS.SET_ID_CHAT_OPEN,
+      value: window.meetingClientSettings.public.chat.public_group_id,
+    });
+  }, [isActive, desiredPanel, aside, idChatOpen]);
 
   // Layout to sections, for changes made elsewhere in the client. Skipped as
   // the sync starts: the layout still shows the client's own first panel,
@@ -75,7 +85,10 @@ const PanelSectionsSync = () => {
     const actual = isOpen ? panel : PANELS.NONE;
     if (actual === expected) return;
 
-    if (isPanelTool(actual)) {
+    if (model.isAside(current, actual)) {
+      // Opened from elsewhere while it is docked on the other side, where it already shows
+      applyToLayout(expected);
+    } else if (isPanelTool(actual)) {
       sections.openTool(actual);
     } else if (expected !== PANELS.NONE) {
       // Closed from elsewhere, such as Polling when the presenter role moves:

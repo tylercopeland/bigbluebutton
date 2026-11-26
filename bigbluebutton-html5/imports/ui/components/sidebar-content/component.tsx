@@ -1,23 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { Resizable } from 're-resizable';
 import { ACTIONS, DEVICE_TYPE, PANELS } from '../layout/enums';
-import ChatContainer from '/imports/ui/components/chat/chat-graphql/component';
-import ProfileSettings from '/imports/ui/components/profile-settings/component';
 import NotesContainer from '/imports/ui/components/notes/component';
-import PollContainer from '/imports/ui/components/poll/container';
-import UserListComponent from '/imports/ui/components/user-list/component';
-import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
-import TimerContainer from '/imports/ui/components/timer/panel/component';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import usePanelSections from './sections/usePanelSections';
 import SectionDivider from './sections/divider';
-import MinimizedSection from './sections/minimized';
+import renderTool from './sections/renderTool';
 import SectionsStyled from './sections/styles';
 import Styled from './styles';
-import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
-import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
-import AppsGallery from '../apps-gallery/container';
-import GenericContentSidekickContainer from '/imports/ui/components/generic-content/generic-sidekick-content/container';
 import browserInfo from '/imports/utils/browserInfo';
 import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -27,7 +17,6 @@ import {
   SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
   SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
 } from '/imports/ui/components/layout/defaultValues';
-import AudioCaptionsPanel from '../audio-captions/panel/component';
 import NotesRenderMode from '/imports/ui/components/notes/constants';
 
 // Sections are kept in place by position, so a section's tool stays mounted
@@ -91,29 +80,6 @@ const SidebarContent = (props: SidebarContentProps) => {
 
   const { isChrome } = browserInfo;
 
-  const renderTool = (tool: string) => {
-    switch (tool) {
-      case PANELS.CHAT:
-        return (
-          <ErrorBoundary Fallback={FallbackView}>
-            <ChatContainer />
-          </ErrorBoundary>
-        );
-      case PANELS.USERLIST: return <UserListComponent />;
-      case PANELS.SHARED_NOTES: return null;
-      case PANELS.PROFILE: return <ProfileSettings />;
-      case PANELS.BREAKOUT: return <BreakoutRoomContainer />;
-      case PANELS.TIMER: return <TimerContainer />;
-      case PANELS.POLL: return <PollContainer />;
-      case PANELS.APPS_GALLERY: return <AppsGallery />;
-      case PANELS.AUDIO_CAPTIONS: return <AudioCaptionsPanel />;
-      default:
-        return tool.includes(PANELS.GENERIC_CONTENT_SIDEKICK)
-          ? <GenericContentSidekickContainer genericSidekickContentId={tool} />
-          : null;
-    }
-  };
-
   // Notes stay mounted while hidden, so their editor isn't reloaded each time
   const renderNotes = (isVisible: boolean) => !isSharedNotesPinned && (
     <NotesContainer key="notes" renderMode={NotesRenderMode.SIDEBAR} isVisible={isVisible} />
@@ -121,11 +87,12 @@ const SidebarContent = (props: SidebarContentProps) => {
 
   const renderSections = () => {
     const { sections, ratio } = panelSections;
+    // Notes that show, in a section or the docked panel, are rendered there
     const isNotesShowing = panelSections.isToolShowing(PANELS.SHARED_NOTES);
-    const bothExpanded = sections.length > 1 && sections.every((section) => !section.minimized);
+    const isStacked = sections.length > 1;
     const items: React.ReactNode[] = [];
     sections.forEach((section, index) => {
-      if (index === 1 && bothExpanded) {
+      if (index === 1) {
         items.push(
           <SectionDivider
             key="divider"
@@ -136,25 +103,20 @@ const SidebarContent = (props: SidebarContentProps) => {
         );
       }
       let share = 1;
-      if (bothExpanded) share = index === 0 ? ratio : 1 - ratio;
+      if (isStacked) share = index === 0 ? ratio : 1 - ratio;
       items.push(
         <SectionsStyled.Section
           key={SECTION_KEYS[index]}
           data-panel-section={index}
           data-active-tool={section.active}
           $share={share}
-          $isMinimized={section.minimized}
-          $isStacked={sections.length > 1}
+          $isStacked={isStacked}
         >
-          {section.minimized
-            ? <MinimizedSection index={index} section={section} />
-            : (
-              <React.Fragment key={section.active}>
-                {section.active === PANELS.SHARED_NOTES
-                  ? renderNotes(true)
-                  : renderTool(section.active)}
-              </React.Fragment>
-            )}
+          <React.Fragment key={section.active}>
+            {section.active === PANELS.SHARED_NOTES
+              ? renderNotes(true)
+              : renderTool(section.active)}
+          </React.Fragment>
         </SectionsStyled.Section>,
       );
     });

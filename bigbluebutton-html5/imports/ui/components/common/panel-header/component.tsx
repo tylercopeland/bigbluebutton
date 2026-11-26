@@ -24,6 +24,11 @@ const intlMessages = defineMessages({
     description: 'Label for the button that minimizes a section of the side panel',
     defaultMessage: 'Minimize {name}',
   },
+  and: {
+    id: 'app.sidebarContent.minimizeSection.and',
+    description: 'Joins the names of the tools in a section, as in "People and Chat"',
+    defaultMessage: ' and ',
+  },
 });
 
 interface PanelHeaderProps {
@@ -76,11 +81,17 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
 
   const sectionIndex = sections.findSection(panelId);
   const section = sections.sections[sectionIndex];
-  const isInSection = isDocked && !!section;
+  const isAside = isDocked && sections.isAside(panelId);
+  const isInSection = isDocked && (!!section || isAside);
+  const tabs = section?.tabs ?? [panelId];
 
+  // Minimizing closes the section, with every tool in it
   const resolvedCloseLabel = isInSection
-    ? intl.formatMessage(intlMessages.minimizeSection, { name: toolName(panelId) })
+    ? intl.formatMessage(intlMessages.minimizeSection, {
+      name: tabs.map(toolName).join(intl.formatMessage(intlMessages.and)),
+    })
     : closeButtonLabel ?? intl.formatMessage(intlMessages.minimize, { panelName: title });
+  const minimizeSection = () => (isAside ? sections.closeAside() : sections.closeSection(sectionIndex));
 
   const multifunctionalModeButton = <MultifunctionalModeButton panelId={panelId} />;
   const rightButton = customRightButton !== undefined
@@ -103,8 +114,8 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
             onClose={() => setMenuTool(null)}
           />
         )}
-        {section.tabs.length > 1
-          ? <SectionTabs panelId={panelId} tabs={section.tabs} onOpenMenu={setMenuTool} />
+        {tabs.length > 1
+          ? <SectionTabs panelId={panelId} tabs={tabs} onOpenMenu={setMenuTool} />
           : <SectionTitle tool={panelId} count={count} />}
       </>
     );
@@ -125,7 +136,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
           'data-test': closeButtonDataTest,
           icon: isInSection || !isDocked ? 'minus' : 'close',
           label: resolvedCloseLabel,
-          onClick: isInSection ? () => sections.minimize(sectionIndex) : closePanel,
+          onClick: isInSection ? minimizeSection : closePanel,
           ...closeButtonProps,
         }}
         customRightButton={rightButton}

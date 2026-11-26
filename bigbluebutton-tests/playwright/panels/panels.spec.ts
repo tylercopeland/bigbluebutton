@@ -26,6 +26,24 @@ test.describe.parallel('Side panel sections', { tag: '@ci' }, () => {
     await panels.openThirdTool();
   });
 
+  test('A fourth tool takes the place of the lower one', async ({ browser, context, page }, testInfo) => {
+    const panels = new Panels(browser, context);
+    await panels.initModPage(page, { testInfo });
+    await panels.fourthToolTakesLowerSection();
+  });
+
+  test('Minimizing a section closes it', async ({ browser, context, page }, testInfo) => {
+    const panels = new Panels(browser, context);
+    await panels.initModPage(page, { testInfo });
+    await panels.minimizeClosesSection();
+  });
+
+  test('Dragging a tab to the right edge docks it in a right panel', async ({ browser, context, page }, testInfo) => {
+    const panels = new Panels(browser, context);
+    await panels.initModPage(page, { testInfo });
+    await panels.dragTabToRightPanel();
+  });
+
   test('Dragging a tab down stacks it', async ({ browser, context, page }, testInfo) => {
     const panels = new Panels(browser, context);
     await panels.initModPage(page, { testInfo });

@@ -45,7 +45,12 @@ import { throttle } from '/imports/utils/throttle';
 import logger from '/imports/startup/client/logger';
 import { CHAT_EDIT_MESSAGE_MUTATION } from '../chat-message-list/page/chat-message/mutations';
 import ChatTypingIndicatorContainer from '../chat-typing-indicator/component';
-import { btnPrimaryBg } from '/imports/ui/stylesheets/styled-components/palette';
+import {
+  btnPrimaryBg,
+  btnPrimaryHoverBg,
+  panelMutedText,
+  panelTabsBg,
+} from '/imports/ui/stylesheets/styled-components/palette';
 
 import {
   LastSentMessageData,
@@ -154,6 +159,7 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
   const [hasErrors, setHasErrors] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
   const [message, setMessage] = React.useState('');
+  const hasMessage = message.trim().length > 0;
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const emojiPickerRef = useRef<HTMLDivElement>(null);
   const emojiPickerButtonRef = useRef<HTMLButtonElement>(null);
@@ -776,7 +782,13 @@ const ChatMessageForm: React.FC<ChatMessageFormProps> = ({
                     minWidth: 'auto',
                     padding: 0,
                     boxShadow: 'none',
-                    backgroundColor: btnPrimaryBg,
+                    // Only looks like the main action once there is something to send
+                    backgroundColor: hasMessage ? btnPrimaryBg : panelTabsBg,
+                    color: hasMessage ? '#FFF' : panelMutedText,
+                    '&:hover': {
+                      backgroundColor: hasMessage ? btnPrimaryHoverBg : panelTabsBg,
+                      boxShadow: 'none',
+                    },
                   }}
                   variant="contained"
                   disabled={disabled || partnerIsLoggedOut || chatSendMessageLoading}

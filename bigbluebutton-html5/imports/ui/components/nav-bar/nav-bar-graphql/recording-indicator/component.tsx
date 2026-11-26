@@ -53,6 +53,11 @@ const intlMessages = defineMessages({
     id: 'app.recording.startTitle',
     description: 'start recording title',
   },
+  recordLabel: {
+    id: 'app.recording.recordLabel',
+    description: 'Label of the top bar button that starts recording',
+    defaultMessage: 'Record',
+  },
   stopTitle: {
     id: 'app.recording.stopTitle',
     description: 'stop recording title',
@@ -234,7 +239,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
 
       return time > 0
         ? intl.formatMessage(intlMessages.resumeTitle)
-        : intl.formatMessage(intlMessages.startTitle);
+        : intl.formatMessage(intlMessages.recordLabel);
     }
 
     // Read-only viewers cannot stop anything, so the pill states what is

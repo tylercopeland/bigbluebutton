@@ -22,6 +22,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Connection status only shows while the connection is poor or lost (amber or red), so its details, including moderators' view of everyone's connection, can't be opened while it is good
 - [x] Options (three dots) hidden while docked, when the bottom bar has its own leave button; settings and leave are in the bottom bar
 - [ ] Recording uses BBB's start/stop button, not the small REC label
+- [ ] Recording button says "Record" before the first recording (English only; BBB's "Start recording" was translated)
 - [ ] Talking indicator is kept, in the top row (the design has none)
 - [ ] Slide keeps its proportions, so wide windows leave space at its sides
 - [x] Raised hands alert chip, which opens People on the Raised hands filter
@@ -32,6 +33,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [x] People and Chat share one panel with tabs, 360px wide by default
 - [ ] People tab keeps the download button, Chat tab keeps its options menu
 - [x] Chat has an Everyone/Direct switch, a direct message list, conversation bubbles and the restyled input
+- [x] Chat: the send button is grey until there is text to send, then blue
 - [ ] Chat: privacy note leaves out "Moderators can't read it" until we confirm that holds on every setup
 - [ ] Chat: privacy note uses the full name and sits at the top, not above the first message
 - [ ] Chat: unread direct messages show a count, not a dot; Everyone also shows a count while in Direct

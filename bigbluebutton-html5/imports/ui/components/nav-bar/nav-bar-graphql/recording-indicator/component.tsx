@@ -58,6 +58,16 @@ const intlMessages = defineMessages({
     description: 'Label of the top bar button that starts recording',
     defaultMessage: 'Record',
   },
+  pauseLabel: {
+    id: 'app.recording.pauseLabel',
+    description: 'Label of the top bar button that pauses the recording',
+    defaultMessage: 'Pause',
+  },
+  resumeLabel: {
+    id: 'app.recording.resumeLabel',
+    description: 'Label of the top bar button that resumes a paused recording',
+    defaultMessage: 'Resume',
+  },
   stopTitle: {
     id: 'app.recording.stopTitle',
     description: 'stop recording title',
@@ -238,14 +248,14 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
       }
 
       return time > 0
-        ? intl.formatMessage(intlMessages.resumeTitle)
+        ? intl.formatMessage(intlMessages.resumeLabel)
         : intl.formatMessage(intlMessages.recordLabel);
     }
 
     // Read-only viewers cannot stop anything, so the pill states what is
     // happening instead of offering the moderator's action.
     return showButton
-      ? intl.formatMessage(intlMessages.stopTitle)
+      ? intl.formatMessage(intlMessages.pauseLabel)
       : intl.formatMessage(intlMessages.recordingTitle);
   }, [recording, disabled, showButton, time, intl.locale]);
 
@@ -288,7 +298,7 @@ const RecordingIndicator: React.FC<RecordingIndicatorProps> = ({
     }
 
     return showButton
-      ? intl.formatMessage(intlMessages.stopTitle)
+      ? intl.formatMessage(intlMessages.pauseLabel)
       : intl.formatMessage(intlMessages.recordingTitle);
   }, [recording, isPhone, isModerator, recordTitle]);
 

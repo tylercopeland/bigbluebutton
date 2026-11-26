@@ -18,7 +18,7 @@ const intlMessages = defineMessages({
 
 const Info = styled.span`
   color: ${roomMutedText};
-  font-size: .9rem;
+  font-size: .93rem;
   line-height: 1;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;

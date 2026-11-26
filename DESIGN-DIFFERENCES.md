@@ -22,7 +22,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Connection status only shows while the connection is poor or lost (amber or red), so its details, including moderators' view of everyone's connection, can't be opened while it is good
 - [x] Options (three dots) hidden while docked, when the bottom bar has its own leave button; settings and leave are in the bottom bar
 - [ ] Recording uses BBB's start/stop button, not the small REC label
-- [ ] Recording button says "Record" before the first recording (English only; BBB's "Start recording" was translated)
+- [ ] Recording is plain text in the top row (dot + Record, then red dot + time + Pause, then Resume), not the design's REC label; the labels are English only
 - [ ] Talking indicator is kept, in the top row (the design has none)
 - [ ] Slide keeps its proportions, so wide windows leave space at its sides
 - [x] Raised hands alert chip, which opens People on the Raised hands filter

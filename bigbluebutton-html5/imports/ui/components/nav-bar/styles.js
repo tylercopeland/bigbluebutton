@@ -48,6 +48,60 @@ const Left = styled.div`
       font-weight: 700;
       min-width: 0;
     }
+
+    /*
+     * One quiet row, as in the design: the recording control is plain text
+     * beside a dot, sized and coloured like the people and time after it,
+     * not a filled pill. It turns red while recording.
+     */
+    & .bbb-recording-indicator {
+      padding: 0;
+    }
+
+    & .bbb-recording-indicator button {
+      height: 28px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 6px;
+      background-color: transparent;
+      color: #A9B6C6;
+      font-size: 13px;
+    }
+
+    & .bbb-recording-indicator button:hover,
+    & .bbb-recording-indicator button:focus-visible {
+      background-color: rgba(255, 255, 255, .08);
+      color: #FFF;
+    }
+
+    & .bbb-recording-indicator button > span:first-child {
+      width: 10px;
+      height: 10px;
+      margin-inline-end: 6px;
+      font-size: 10px;
+    }
+
+    & .bbb-recording-indicator button > span:first-child svg {
+      width: 10px;
+      height: 10px;
+    }
+
+    & .bbb-recording-indicator button > div,
+    & .bbb-recording-indicator button > span {
+      color: inherit;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    & .bbb-recording-indicator.bbb-recording-indicator--recording button,
+    & .bbb-recording-indicator.bbb-recording-indicator--recording button:hover {
+      color: #FF8A8F;
+    }
+
+    & .bbb-recording-indicator--recording button > span:first-child svg circle {
+      fill: #FF5A5F;
+      stroke: #FF5A5F;
+    }
   `}
 `;
 

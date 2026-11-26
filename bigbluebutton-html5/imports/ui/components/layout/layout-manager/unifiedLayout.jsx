@@ -4,7 +4,7 @@ import { layoutSelect, layoutSelectInput, layoutDispatch } from '/imports/ui/com
 import DEFAULT_VALUES, {
   DOCKED_PANEL_MAX_PERCENTAGE_WIDTH,
   DOCKED_PANEL_WIDTH,
-  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  getMarginToMedia,
   SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
 } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
@@ -107,8 +107,7 @@ const UnifiedLayout = (props) => {
     const isMultiFunctionalModeActive = sidebarContentAuxiliary.isOpen;
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const mediaAreaHeight = windowHeight() - (getNavBarBaseHeight() + actionBarHeight);
-    const sidebarContentMarginToMedia = windowWidth()
-      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+    const sidebarContentMarginToMedia = getMarginToMedia(isNavigationDocked, windowWidth());
     const mediaAreaWidth = windowWidth()
       - (sidebarNavWidth + sidebarContentWidth) - sidebarContentMarginToMedia;
     const DROP_ZONE_DEFAUL_SIZE = 100;
@@ -409,8 +408,7 @@ const UnifiedLayout = (props) => {
     const stoppedResizing = prevIsResizing && !isResizing;
     if (stoppedResizing) {
       const isCameraTopOrBottom = isCameraTop || isCameraBottom;
-      const sidebarContentMarginToMedia = windowWidth()
-        * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+      const sidebarContentMarginToMedia = getMarginToMedia(isNavigationDocked, windowWidth());
 
       Storage.setItem('webcamSize', {
         width: (isCameraTopOrBottom || isCameraSidebar)
@@ -523,8 +521,7 @@ const UnifiedLayout = (props) => {
       }
       const sidebarContentVerticalMargin = windowHeight()
         * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;
-      const sidebarContentMarginToMedia = windowWidth()
-        * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+      const sidebarContentMarginToMedia = getMarginToMedia(isNavigationDocked, windowWidth());
 
       cameraDockBounds.top = windowHeight() - cameraDockHeight - bannerAreaHeight();
       if (!isNavigationDocked) {
@@ -553,8 +550,7 @@ const UnifiedLayout = (props) => {
     const navBarHeight = calculatesNavbarHeight();
     const mediaAreaHeight = windowHeight()
       - (getNavBarBaseHeight() + actionBarHeight + bannerAreaHeight());
-    const sidebarContentMarginToMedia = windowWidth()
-      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+    const sidebarContentMarginToMedia = getMarginToMedia(isNavigationDocked, windowWidth());
     const mediaAreaWidth = windowWidth()
       - (sidebarNavWidth + sidebarContentWidth) - (isMobile ? 0 : sidebarContentMarginToMedia);
     const mediaBounds = {};
@@ -912,7 +908,7 @@ const UnifiedLayout = (props) => {
       value: {
         width: windowWidth() - sidebarContentWidth.width - asideWidth
           - (isNavigationDocked ? sidebarNavWidth.horizontalSpaceOccupied : sidebarNavWidth.width)
-          - (windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH),
+          - (getMarginToMedia(isNavigationDocked, windowWidth())),
         height: windowHeight() - getNavBarBaseHeight() - actionBarHeight,
       },
     });

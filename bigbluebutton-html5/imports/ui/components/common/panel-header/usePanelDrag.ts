@@ -6,7 +6,7 @@ import { Output } from '/imports/ui/components/layout/layoutTypes';
 import {
   DOCKED_PANEL_MAX_PERCENTAGE_WIDTH,
   DOCKED_PANEL_WIDTH,
-  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  DOCKED_STAGE_GAP,
 } from '/imports/ui/components/layout/defaultValues';
 import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 import usePanelSections from '/imports/ui/components/sidebar-content/sections/usePanelSections';
@@ -154,8 +154,7 @@ const usePanelDrag = () => {
 
     if (current.kind === 'column') {
       const isRight = x > window.innerWidth / 2;
-      const width = panelOutput.width
-        - window.innerWidth * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+      const width = panelOutput.width - DOCKED_STAGE_GAP;
       const isActive = isRight !== isPanelOnRight;
       return {
         action: isActive ? 'moveSide' as const : null,

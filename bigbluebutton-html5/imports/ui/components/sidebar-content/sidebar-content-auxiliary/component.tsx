@@ -21,7 +21,7 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentProps } from '../types';
 import {
-  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  getMarginToMedia,
   SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
 } from '/imports/ui/components/layout/defaultValues';
 import AudioCaptionsPanel from '/imports/ui/components/audio-captions/panel/component';
@@ -83,7 +83,7 @@ const SidebarContentAuxiliary = (props: SidebarContentProps) => {
 
   const { isChrome } = browserInfo;
 
-  const sidebarContentMarginToMedia = window.innerWidth * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+  const sidebarContentMarginToMedia = getMarginToMedia(isDocked, window.innerWidth);
   const sidebarContentVerticalMargin = isDocked
     ? 0
     : window.innerHeight * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;

@@ -14,7 +14,7 @@ import { layoutSelect } from '/imports/ui/components/layout/context';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentProps } from './types';
 import {
-  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  getMarginToMedia,
   SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
 } from '/imports/ui/components/layout/defaultValues';
 import NotesRenderMode from '/imports/ui/components/notes/constants';
@@ -133,7 +133,7 @@ const SidebarContent = (props: SidebarContentProps) => {
 
   if (sidebarContentPanel === PANELS.NONE) return null;
 
-  const sidebarContentMarginToMedia = window.innerWidth * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+  const sidebarContentMarginToMedia = getMarginToMedia(isDocked, window.innerWidth);
   const sidebarContentVerticalMargin = isDocked
     ? 0
     : window.innerHeight * SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT;

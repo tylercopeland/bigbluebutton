@@ -65,6 +65,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [x] The side panel can be dragged by its header or grip to the other side, or moved from the options menu (three dots, hidden for now); remembered per browser (not in the design)
 - [ ] Moving the panel: the bottom bar buttons stay in place; phones and layouts without docked navigation can't move it
 - [x] Side panels share one condensed spacing scale: 52px header, 12px sides, 8px gaps (design: 14px sides)
+- [x] The stage keeps 12px from the side panel, the right panel and the window edges, the same as the panel's own padding (was 1.7% of the window width)
 - [ ] Spacing: Notes keeps its editor's own indent, and Profile and breakout room lists keep their inner spacing
 - [x] Other panels use the same plain title and close button as People and Chat
 - [ ] Other panels keep BBB's content (Notes, Profile, Breakout Rooms) and phones keep BBB's headers

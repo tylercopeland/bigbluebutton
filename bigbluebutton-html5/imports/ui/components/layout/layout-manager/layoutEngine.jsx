@@ -3,7 +3,7 @@ import { layoutSelect, layoutSelectInput, layoutSelectOutput } from '/imports/ui
 import DEFAULT_VALUES, {
   DOCKED_PANEL_MAX_PERCENTAGE_WIDTH,
   DOCKED_PANEL_WIDTH,
-  SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+  getMarginToMedia,
   SIDEBAR_NAVIGATION_PANEL_WIDTH,
   SIDEBAR_NAVIGATION_MARGIN_PERCENTAGE_WIDTH,
 } from '/imports/ui/components/layout/defaultValues';
@@ -156,7 +156,7 @@ const LayoutEngine = () => {
 
   // Space between the stage and the window edge when the panel is on the right
   const getOuterGutter = () => (isNavigationDocked
-    ? windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH
+    ? getMarginToMedia(isNavigationDocked, windowWidth())
     : 0);
 
   const calculatesNavbarBounds = (mediaAreaBounds) => {
@@ -234,7 +234,7 @@ const LayoutEngine = () => {
       const isPanelOpen = sidebarContentInput.isOpen || sidebarContentAuxiliaryInput.isOpen;
       horizontalSpaceOccupied = isPanelOpen
         ? 0
-        : windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+        : getMarginToMedia(isNavigationDocked, windowWidth());
     } else if (isOpen) {
       if (isMobile) {
         width = sidebarNavWidthMobile;
@@ -326,7 +326,7 @@ const LayoutEngine = () => {
         if (sidebarContentWidth === 0) {
           const dockedWidth = min(
             DOCKED_PANEL_WIDTH
-              + windowWidth() * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH,
+              + getMarginToMedia(isNavigationDocked, windowWidth()),
             windowWidth() * DOCKED_PANEL_MAX_PERCENTAGE_WIDTH,
           );
           const defaultWidth = isNavigationDocked ? dockedWidth : windowWidth() * 0.2;
@@ -375,8 +375,7 @@ const LayoutEngine = () => {
   ) => {
     const { height: actionBarHeight } = calculatesActionbarHeight();
     const navBarHeight = calculatesNavbarHeight();
-    const sidebarContentMarginToMedia = windowWidth()
-      * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+    const sidebarContentMarginToMedia = getMarginToMedia(isNavigationDocked, windowWidth());
 
     let left = 0;
     let width = 0;

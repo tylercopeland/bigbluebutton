@@ -19,6 +19,7 @@ import { smallOnly, mediumUp } from '/imports/ui/stylesheets/styled-components/b
 import { SidebarContentPanelProps } from './types';
 import Header from '../common/control-header/component';
 import { textFontWeight } from '../../stylesheets/styled-components/typography';
+import { DOCKED_STAGE_GAP } from '/imports/ui/components/layout/defaultValues';
 
 const SidebarContentBackdrop = styled.div<{
   isRTL: boolean, isMobile: boolean, $isDocked?: boolean,
@@ -33,9 +34,10 @@ const SidebarContentBackdrop = styled.div<{
       ${contentSidebarVerticalMargin} ${contentSidebarMarginToMedia} ${contentSidebarVerticalMargin} 0px
     `};
   `}
-  ${({ $isDocked, isMobile }) => $isDocked && !isMobile && `
+  ${({ $isDocked, isMobile, isRTL }) => $isDocked && !isMobile && `
     padding-top: 0;
     padding-bottom: 0;
+    padding-${isRTL ? 'left' : 'right'}: ${DOCKED_STAGE_GAP}px;
   `}
 `;
 

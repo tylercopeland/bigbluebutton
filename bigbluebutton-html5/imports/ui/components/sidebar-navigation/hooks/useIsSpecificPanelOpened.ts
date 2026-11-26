@@ -1,5 +1,5 @@
 import { layoutSelectInput } from '/imports/ui/components/layout/context';
-import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
+import usePanelSections from '/imports/ui/components/sidebar-content/sections/usePanelSections';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 
 // Selects the boolean directly (instead of the whole sidebarContent/
@@ -11,14 +11,15 @@ import { Input } from '/imports/ui/components/layout/layoutTypes';
 // useIsPanelOpened instead, since a parameterized hook can't be called a
 // variable number of times per render.
 const useIsSpecificPanelOpened = (panelId: string) => {
-  // Stacked panels are open together, but only one is the current panel
-  const { isStacked, panels } = usePanelStack();
+  // While docked, a tool is open when it is anywhere in the panel, even as a
+  // tab that isn't selected
+  const { isDocked, isToolOpen } = usePanelSections();
   const isCurrent = layoutSelectInput((i: Input) => (
     (i.sidebarContent.isOpen === true && i.sidebarContent.sidebarContentPanel === panelId)
     || (i.sidebarContentAuxiliary.isOpen === true && i.sidebarContentAuxiliary.sidebarContentPanel === panelId)
   ));
 
-  return isCurrent || (isStacked && panels.includes(panelId));
+  return isCurrent || (isDocked && isToolOpen(panelId));
 };
 
 export default useIsSpecificPanelOpened;

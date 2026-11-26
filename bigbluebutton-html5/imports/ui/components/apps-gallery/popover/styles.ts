@@ -265,6 +265,56 @@ const RowLabel = styled.span`
   overflow-wrap: anywhere;
 `;
 
+const RowText = styled.span`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+`;
+
+const RowDescription = styled.span`
+  overflow: hidden;
+  color: ${panelMutedText};
+  font-size: 12.5px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const Chevron = styled.span`
+  display: flex;
+  flex-shrink: 0;
+  color: ${panelMutedText};
+  font-size: 14px;
+
+  [dir="rtl"] & {
+    transform: scaleX(-1);
+  }
+`;
+
+const CatalogRow = styled.button`
+  ${resetButton}
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px;
+  border-radius: 10px;
+  text-align: start;
+
+  &:hover:not([aria-disabled="true"]) {
+    background-color: ${panelRowHoverBg};
+  }
+
+  &[aria-disabled="true"] {
+    cursor: default;
+
+    ${RowLabel}, ${RowIcon} {
+      opacity: .55;
+    }
+  }
+`;
+
 const Badge = styled.span`
   max-width: 100%;
   padding: 1px 8px;
@@ -317,6 +367,10 @@ export default {
   RowButton,
   RowIcon,
   RowLabel,
+  RowText,
+  RowDescription,
+  Chevron,
+  CatalogRow,
   Badge,
   Dot,
   Empty,

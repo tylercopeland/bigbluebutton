@@ -20,8 +20,6 @@ import {
   muteAway,
 } from '/imports/ui/components/audio/audio-graphql/audio-controls/input-stream-live-selector/service';
 import connectionStatus from '/imports/ui/core/graphql/singletons/connectionStatus';
-import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
-import { PANELS } from '/imports/ui/components/layout/enums';
 import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 
 const { isIphone } = deviceInfo;
@@ -34,7 +32,6 @@ const setAudioCaptions = (value) => Session.setItem('audioCaptions', value);
 const OptionsDropdownContainer = (props) => {
   const isRTL = layoutSelect((i) => i.isRTL);
   const { canMove: canMovePanel, isPanelOnRight, togglePanelSide } = usePanelSide();
-  const panelStack = usePanelStack();
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
   let optionsDropdownItems = [];
   if (pluginsExtensibleAreasAggregatedState.optionsDropdownItems) {
@@ -99,11 +96,6 @@ const OptionsDropdownContainer = (props) => {
       canMovePanel,
       isPanelOnRight,
       togglePanelSide,
-      canStackPanels: panelStack.canStack && panelStack.isOpen && panelStack.fits,
-      arePanelsDetached: panelStack.isDetached,
-      stackPanels: () => panelStack.detach(panelStack.currentPanel === PANELS.CHAT
-        ? PANELS.USERLIST : PANELS.CHAT),
-      combinePanels: () => panelStack.combine(),
       ...props,
     }}
     />

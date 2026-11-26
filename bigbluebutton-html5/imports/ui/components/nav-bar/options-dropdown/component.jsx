@@ -218,7 +218,6 @@ class OptionsDropdown extends PureComponent {
       intl, amIModerator, isBreakoutRoom, isConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
       isDirectLeaveButtonEnabled, canMovePanel, isPanelOnRight, togglePanelSide,
-      canStackPanels, arePanelsDetached, stackPanels, combinePanels,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -242,18 +241,6 @@ class OptionsDropdown extends PureComponent {
           ? intlMessages.movePanelLeft
           : intlMessages.movePanelRight),
         onClick: () => togglePanelSide(),
-      });
-    }
-
-    if (canStackPanels) {
-      this.menuItems.push({
-        key: 'list-item-stack-panels',
-        dataTest: 'stackPanels',
-        icon: 'user',
-        label: intl.formatMessage(arePanelsDetached
-          ? intlMessages.combinePanels
-          : intlMessages.stackPanels),
-        onClick: () => (arePanelsDetached ? combinePanels() : stackPanels()),
       });
     }
 

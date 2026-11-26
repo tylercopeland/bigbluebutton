@@ -1,6 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import SidebarContent from './component';
-import usePanelStack, { setVisibleStackPanels, STACKABLE_PANELS } from './stack/usePanelStack';
+import PanelSectionsSync from './sections/sync';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentContanerProps } from './types';
@@ -25,36 +25,30 @@ const SidebarContentContainer = ({ isSharedNotesPinned }: SidebarContentContaner
     resizableEdge,
   } = sidebarContentOutput;
 
-  const { isDetached, isOpen, visiblePanels } = usePanelStack();
-
-  // A stacked panel that is opened, from anywhere, stays until it is closed
-  useEffect(() => {
-    if (isDetached && isOpen && sidebarContentPanel
-      && STACKABLE_PANELS.includes(sidebarContentPanel)) {
-      setVisibleStackPanels(visiblePanels);
-    }
-  }, [isDetached, isOpen, sidebarContentPanel]);
-
-  if (sidebarContentOutput.display === false) return null;
-
+  // The sync runs while the panel is closed too, to pick up panels opened elsewhere
   return (
-    <SidebarContent
-      top={top}
-      left={left}
-      right={right}
-      zIndex={zIndex}
-      minWidth={minWidth}
-      width={width}
-      maxWidth={maxWidth}
-      minHeight={minHeight}
-      height={height}
-      maxHeight={maxHeight}
-      isResizable={isResizable}
-      resizableEdge={resizableEdge}
-      contextDispatch={layoutContextDispatch}
-      sidebarContentPanel={sidebarContentPanel}
-      isSharedNotesPinned={isSharedNotesPinned}
-    />
+    <>
+      <PanelSectionsSync />
+      {sidebarContentOutput.display !== false && (
+      <SidebarContent
+        top={top}
+        left={left}
+        right={right}
+        zIndex={zIndex}
+        minWidth={minWidth}
+        width={width}
+        maxWidth={maxWidth}
+        minHeight={minHeight}
+        height={height}
+        maxHeight={maxHeight}
+        isResizable={isResizable}
+        resizableEdge={resizableEdge}
+        contextDispatch={layoutContextDispatch}
+        sidebarContentPanel={sidebarContentPanel}
+        isSharedNotesPinned={isSharedNotesPinned}
+      />
+      )}
+    </>
   );
 };
 

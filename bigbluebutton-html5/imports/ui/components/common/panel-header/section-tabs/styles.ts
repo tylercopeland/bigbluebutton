@@ -70,6 +70,16 @@ const Badge = styled.span<{ $isRaisedHand?: boolean }>`
   background-color: ${({ $isRaisedHand }) => ($isRaisedHand ? panelRaisedHandBadge : colorDanger)};
 `;
 
+// Read by screen readers only
+const Hint = styled.span`
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+`;
+
 export default {
-  TabList, Tab, TabLabel, Badge,
+  TabList, Tab, TabLabel, Badge, Hint,
 };

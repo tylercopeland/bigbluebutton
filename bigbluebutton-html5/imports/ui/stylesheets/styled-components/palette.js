@@ -178,6 +178,8 @@ const panelTabColor = 'var(--panel-tab-color, #4B5563)';
 const panelTabActiveColor = 'var(--panel-tab-active-color, #111827)';
 const panelText = 'var(--panel-text, #111827)';
 const panelMutedText = 'var(--panel-muted-text, #6B7280)';
+const panelSectionTitle = 'var(--panel-section-title, #4A5568)';
+const panelSectionCount = 'var(--panel-section-count, #6B7280)';
 const panelBorder = 'var(--panel-border, #CBD3DD)';
 const panelRowHoverBg = 'var(--panel-row-hover-bg, #F4F6F9)';
 const panelRowActionBg = 'var(--panel-row-action-bg, #E6EAF0)';
@@ -276,6 +278,8 @@ export {
   chatOwnBubbleBg,
   panelText,
   panelMutedText,
+  panelSectionTitle,
+  panelSectionCount,
   panelBorder,
   panelRowHoverBg,
   panelRowActionBg,

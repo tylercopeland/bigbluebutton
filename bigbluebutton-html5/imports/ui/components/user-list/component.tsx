@@ -218,6 +218,7 @@ const UserList: React.FC<UserListComponentProps> = () => {
       <PanelHeader
         panelId={PANELS.USERLIST}
         title={title}
+        count={count}
         dataTest="userListTitle"
         closeButtonLabel={intl.formatMessage(
           intlMessages.minimize,

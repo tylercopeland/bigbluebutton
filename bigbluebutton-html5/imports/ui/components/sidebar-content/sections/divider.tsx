@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import KEYS from '/imports/utils/keys';
 import Styled from './styles';
-import { MIN_STACKED_HEIGHT } from './usePanelStack';
+import { MIN_SECTION_HEIGHT } from './usePanelSections';
 
 const KEYBOARD_STEP = 0.05;
 
@@ -27,7 +27,8 @@ const StackDivider: React.FC<StackDividerProps> = ({ ratio, onChange, onReset })
   const update = (newRatio: number) => {
     const height = ref.current?.parentElement?.clientHeight ?? 0;
     if (!height) return;
-    const min = Math.min(0.5, MIN_STACKED_HEIGHT / height);
+    // Neither section can get so small that its header is hidden
+    const min = Math.min(0.5, MIN_SECTION_HEIGHT / height);
     onChange(Math.min(1 - min, Math.max(min, newRatio)));
   };
 

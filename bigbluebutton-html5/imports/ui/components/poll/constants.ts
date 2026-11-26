@@ -12,3 +12,6 @@ export default {
   POLLS_ICON,
   POLLS_LABEL,
 };
+
+/** Set before opening Polling to start on the Quiz tab; read once */
+export const POLL_START_AS_QUIZ = 'pollStartAsQuiz';

@@ -2,6 +2,7 @@ import React, {
   memo,
   useCallback,
   useContext,
+  useEffect,
   useRef,
   useState,
 } from 'react';
@@ -29,6 +30,12 @@ const AppsListItem: React.FC = () => {
   const anchorRef = useRef<HTMLSpanElement>(null);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const closePopover = useCallback(() => setIsPopoverOpen(false), []);
+  const openPanel = layoutSelectInput((i: Input) => (
+    i.sidebarContent.isOpen ? i.sidebarContent.sidebarContentPanel : null
+  ));
+
+  // Opening People, Chat or Notes, from anywhere, closes the popover
+  useEffect(() => closePopover(), [openPanel]);
   const isPanelOpened = useIsSpecificPanelOpened(PANELS.APPS_GALLERY);
   const isOpened = isDocked ? isPopoverOpen : isPanelOpened;
   const label = intl.formatMessage(intlMessages.wigetsLabel);

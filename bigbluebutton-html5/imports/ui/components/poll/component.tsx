@@ -5,10 +5,9 @@ import { defineMessages, useIntl } from 'react-intl';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { BBBToggle } from '@bigbluebutton/bbb-ui-components-react/Toggle';
 import { BBButton } from '@bigbluebutton/bbb-ui-components-react/Button';
-import { Input } from '../layout/layoutTypes';
-import { layoutDispatch, layoutSelectInput } from '../layout/context';
 import { addAlert } from '../screenreader-alert/service';
-import { PANELS, ACTIONS } from '../layout/enums';
+import { PANELS } from '../layout/enums';
+import { POLL_START_AS_QUIZ } from './constants';
 import useMeeting from '/imports/ui/core/hooks/useMeeting';
 import { GetHasCurrentPresentationResponse, getHasCurrentPresentation } from './queries';
 import {
@@ -236,7 +235,12 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
   const intl = useIntl();
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const [customInput, setCustomInput] = React.useState(false);
-  const [isQuiz, setIsQuiz] = React.useState(false);
+  const [isQuiz, setIsQuiz] = React.useState(() => {
+    // Quiz in the plugins popover opens Polling on the Quiz tab
+    const startAsQuiz = Session.getItem(POLL_START_AS_QUIZ) === true;
+    if (startAsQuiz) Session.setItem(POLL_START_AS_QUIZ, false);
+    return startAsQuiz && isQuizEnabled;
+  });
   const [question, setQuestion] = useState<string[] | string>('');
   const [questionAndOptions, setQuestionAndOptions] = useState<string[] | string>('');
   const [optList, setOptList] = useState<Array<{key: string, val: string}>>([]);
@@ -805,9 +809,7 @@ const PollCreationPanel: React.FC<PollCreationPanelProps> = ({
 };
 
 const PollCreationPanelContainer: React.FC = () => {
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
-  const layoutContextDispatch = layoutDispatch();
-  const { sidebarContentPanel } = sidebarContent;
+  const { closePanel: closePollPanel } = usePanelClose(PANELS.POLL);
   const {
     data: currentUser,
     loading: currentUserLoading,
@@ -816,6 +818,13 @@ const PollCreationPanelContainer: React.FC = () => {
       presenter: u?.presenter,
     };
   });
+
+  // Polling is for the presenter. When the role moves, only Polling closes:
+  // while docked, the rest of the panel stays as it was.
+  const isPresenter = currentUser?.presenter;
+  useEffect(() => {
+    if (!currentUserLoading && currentUser && !isPresenter) closePollPanel();
+  }, [isPresenter, currentUserLoading]);
 
   const {
     data: currentMeeting,
@@ -834,17 +843,6 @@ const PollCreationPanelContainer: React.FC = () => {
   if (currentUserLoading || !currentUser) return null;
   if (currentMeetingLoading || !currentMeeting) return null;
   if (getHasCurrentPresentationLoading || !getHasCurrentPresentationData) return null;
-
-  if (!currentUser.presenter && sidebarContentPanel === PANELS.POLL) {
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
-      value: false,
-    });
-    layoutContextDispatch({
-      type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-      value: PANELS.NONE,
-    });
-  }
 
   return (
     <PollCreationPanel

@@ -14,7 +14,7 @@ import { defaultsDeep } from '/imports/utils/array-utils';
 import { isPhoneLandscape } from '../utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
-import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
+import usePanelSections from '/imports/ui/components/sidebar-content/sections/usePanelSections';
 import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
@@ -40,7 +40,7 @@ const UnifiedLayout = (props) => {
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
   // For the layout, right-to-left only means that the side panel is on the right
-  const { isStacked: isPanelStacked } = usePanelStack();
+  const { isStacked: isPanelStacked } = usePanelSections();
   const { isPanelOnRight: isRTL, isMoved: isPanelMoved } = usePanelSide();
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
@@ -320,28 +320,14 @@ const UnifiedLayout = (props) => {
     && presentationInput.isOpen
     && !isMediaContentOff();
 
-  // Until the dock is moved, it goes wherever it leaves the larger slide.
-  const isSideLargerThanTop = () => {
-    const {
-      calculatesSidebarNavWidth, calculatesSidebarContentWidth, calculatesMediaAreaBounds,
-    } = props;
-    const { cameraDockMinHeight, cameraDockDockedWidth, camerasMargin } = DEFAULT_VALUES;
-    const { width, height } = calculatesMediaAreaBounds(
-      calculatesSidebarNavWidth().horizontalSpaceOccupied,
-      calculatesSidebarContentWidth().width + calculatesSidebarContentWidth(true).width,
-    );
-    const { size } = presentationInput.currentSlide;
-    const ratio = size?.width && size?.height ? size.width / size.height : 16 / 9;
-    const slideWidth = (w, h) => min(w, h * ratio);
-
-    return slideWidth(width - cameraDockDockedWidth - camerasMargin * 2, height)
-      > slideWidth(width, height - cameraDockMinHeight - camerasMargin);
-  };
-
   const getCameraDockPosition = () => {
     if (isSideBySideCamerasEnforced()) return CAMERADOCK_POSITION.CONTENT_RIGHT;
-    if (hasAutomaticCameraPosition() && isSideLargerThanTop()) {
-      return CAMERADOCK_POSITION.CONTENT_RIGHT;
+    // Until the dock is moved: a row across the top of the stage while the side
+    // panel is open, and a column on the right while it is closed
+    if (hasAutomaticCameraPosition()) {
+      return input.sidebarContent.isOpen
+        ? CAMERADOCK_POSITION.CONTENT_TOP
+        : CAMERADOCK_POSITION.CONTENT_RIGHT;
     }
     return cameraDockInput.position;
   };

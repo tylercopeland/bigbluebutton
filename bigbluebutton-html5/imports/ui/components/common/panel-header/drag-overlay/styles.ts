@@ -19,7 +19,8 @@ const Area = styled.div<{ $isActive: boolean }>`
   justify-content: center;
   box-sizing: border-box;
   padding: 16px;
-  border: 3px dashed ${colorPrimary};
+  border: 2px dashed ${colorPrimary};
+  border-radius: 12px;
   color: ${colorWhite};
   font-weight: 700;
   text-align: center;
@@ -29,9 +30,20 @@ const Area = styled.div<{ $isActive: boolean }>`
     position: absolute;
     inset: 0;
     z-index: -1;
+    border-radius: inherit;
     background-color: ${colorPrimary};
-    opacity: ${({ $isActive }) => ($isActive ? 0.75 : 0.12)};
+    opacity: ${({ $isActive }) => ($isActive ? 0.85 : 0.12)};
   }
+`;
+
+const Label = styled.span<{ $isActive: boolean }>`
+  padding: 6px 12px;
+  border-radius: 999px;
+  ${({ $isActive }) => !$isActive && `
+    background-color: ${colorWhite};
+    color: ${colorPrimary};
+    box-shadow: 0 4px 14px rgba(15, 23, 36, .2);
+  `}
 `;
 
 const Ghost = styled.div`
@@ -45,4 +57,6 @@ const Ghost = styled.div`
   pointer-events: none;
 `;
 
-export default { Overlay, Area, Ghost };
+export default {
+  Overlay, Area, Label, Ghost,
+};

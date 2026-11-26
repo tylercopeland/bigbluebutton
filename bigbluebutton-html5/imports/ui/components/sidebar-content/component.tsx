@@ -9,9 +9,10 @@ import UserListComponent from '/imports/ui/components/user-list/component';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
 import TimerContainer from '/imports/ui/components/timer/panel/component';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
-import usePanelStack from './stack/usePanelStack';
-import StackDivider from './stack/divider';
-import StackStyled from './stack/styles';
+import usePanelSections from './sections/usePanelSections';
+import SectionDivider from './sections/divider';
+import MinimizedSection from './sections/minimized';
+import SectionsStyled from './sections/styles';
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
@@ -28,6 +29,10 @@ import {
 } from '/imports/ui/components/layout/defaultValues';
 import AudioCaptionsPanel from '../audio-captions/panel/component';
 import NotesRenderMode from '/imports/ui/components/notes/constants';
+
+// Sections are kept in place by position, so a section's tool stays mounted
+// when the other section changes
+const SECTION_KEYS = ['top-section', 'bottom-section'];
 
 const SidebarContent = (props: SidebarContentProps) => {
   const {
@@ -54,9 +59,7 @@ const SidebarContent = (props: SidebarContentProps) => {
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
   const [resizeStartHeight, setResizeStartHeight] = useState(0);
   const isDocked = useIsNavigationDocked();
-  const {
-    isStacked, panels, ratio, setRatio, resetRatio,
-  } = usePanelStack();
+  const panelSections = usePanelSections();
   const { isPanelOnRight: isRTL } = usePanelSide();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
@@ -88,42 +91,83 @@ const SidebarContent = (props: SidebarContentProps) => {
 
   const { isChrome } = browserInfo;
 
-  const isPanelShown = (panel: string) => sidebarContentPanel === panel
-    || (isStacked && panels.includes(panel));
+  const renderTool = (tool: string) => {
+    switch (tool) {
+      case PANELS.CHAT:
+        return (
+          <ErrorBoundary Fallback={FallbackView}>
+            <ChatContainer />
+          </ErrorBoundary>
+        );
+      case PANELS.USERLIST: return <UserListComponent />;
+      case PANELS.SHARED_NOTES: return null;
+      case PANELS.PROFILE: return <ProfileSettings />;
+      case PANELS.BREAKOUT: return <BreakoutRoomContainer />;
+      case PANELS.TIMER: return <TimerContainer />;
+      case PANELS.POLL: return <PollContainer />;
+      case PANELS.APPS_GALLERY: return <AppsGallery />;
+      case PANELS.AUDIO_CAPTIONS: return <AudioCaptionsPanel />;
+      default:
+        return tool.includes(PANELS.GENERIC_CONTENT_SIDEKICK)
+          ? <GenericContentSidekickContainer genericSidekickContentId={tool} />
+          : null;
+    }
+  };
 
-  const renderStackItem = (panel: string, share: number, content: React.ReactNode) => (
-    isPanelShown(panel) && (
-      <StackStyled.StackItem
-        key={panel}
-        data-stack-panel={panel}
-        $isStacked={isStacked}
-        $share={share}
-      >
-        {content}
-      </StackStyled.StackItem>
-    )
+  // Notes stay mounted while hidden, so their editor isn't reloaded each time
+  const renderNotes = (isVisible: boolean) => !isSharedNotesPinned && (
+    <NotesContainer key="notes" renderMode={NotesRenderMode.SIDEBAR} isVisible={isVisible} />
   );
 
-  const getShare = (panel: string) => (panels[0] === panel ? ratio : 1 - ratio);
-  const chatItem = renderStackItem(
-    PANELS.CHAT,
-    getShare(PANELS.CHAT),
-    <ErrorBoundary Fallback={FallbackView}>
-      <ChatContainer />
-    </ErrorBoundary>,
+  const renderSections = () => {
+    const { sections, ratio } = panelSections;
+    const isNotesShowing = panelSections.isToolShowing(PANELS.SHARED_NOTES);
+    const bothExpanded = sections.length > 1 && sections.every((section) => !section.minimized);
+    const items: React.ReactNode[] = [];
+    sections.forEach((section, index) => {
+      if (index === 1 && bothExpanded) {
+        items.push(
+          <SectionDivider
+            key="divider"
+            ratio={ratio}
+            onChange={panelSections.setRatio}
+            onReset={panelSections.resetRatio}
+          />,
+        );
+      }
+      let share = 1;
+      if (bothExpanded) share = index === 0 ? ratio : 1 - ratio;
+      items.push(
+        <SectionsStyled.Section
+          key={SECTION_KEYS[index]}
+          data-panel-section={index}
+          data-active-tool={section.active}
+          $share={share}
+          $isMinimized={section.minimized}
+          $isStacked={sections.length > 1}
+        >
+          {section.minimized
+            ? <MinimizedSection index={index} section={section} />
+            : (
+              <React.Fragment key={section.active}>
+                {section.active === PANELS.SHARED_NOTES
+                  ? renderNotes(true)
+                  : renderTool(section.active)}
+              </React.Fragment>
+            )}
+        </SectionsStyled.Section>,
+      );
+    });
+    if (!isNotesShowing) items.push(renderNotes(false));
+    return items;
+  };
+
+  const renderSinglePanel = () => (
+    <>
+      {sidebarContentPanel !== PANELS.SHARED_NOTES && renderTool(sidebarContentPanel)}
+      {renderNotes(sidebarContentPanel === PANELS.SHARED_NOTES)}
+    </>
   );
-  const userListItem = renderStackItem(
-    PANELS.USERLIST,
-    getShare(PANELS.USERLIST),
-    <UserListComponent />,
-  );
-  const divider = isStacked && (
-    <StackDivider key="divider" ratio={ratio} onChange={setRatio} onReset={resetRatio} />
-  );
-  // Keyed, so a panel stays mounted when it moves
-  const stackItems = panels[0] === PANELS.CHAT
-    ? [chatItem, divider, userListItem]
-    : [userListItem, divider, chatItem];
 
   if (sidebarContentPanel === PANELS.NONE) return null;
 
@@ -189,12 +233,14 @@ const SidebarContent = (props: SidebarContentProps) => {
         data-test="sidebarContentMain"
         onResizeStart={() => {
           setIsResizing(true);
+          document.documentElement.classList.add('bbb-layout-resizing');
           setResizeStartWidth(resizableWidth);
           setResizeStartHeight(resizableHeight);
         }}
         onResize={(...[, , , delta]) => setSidebarContentSize(delta.width, delta.height)}
         onResizeStop={() => {
           setIsResizing(false);
+          document.documentElement.classList.remove('bbb-layout-resizing');
           setResizeStartWidth(0);
           setResizeStartHeight(0);
         }}
@@ -219,24 +265,7 @@ const SidebarContent = (props: SidebarContentProps) => {
         }}
       >
         <Styled.SidebarContentPanel $isDocked={isDocked} isRTL={isRTL} isChrome={isChrome}>
-          {stackItems}
-          {!isSharedNotesPinned && (
-            <NotesContainer
-              renderMode={NotesRenderMode.SIDEBAR}
-              isVisible={sidebarContentPanel === PANELS.SHARED_NOTES}
-            />
-          )}
-          {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}
-          {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
-          {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
-          {sidebarContentPanel === PANELS.POLL && <PollContainer />}
-          {sidebarContentPanel === PANELS.APPS_GALLERY && <AppsGallery />}
-          {sidebarContentPanel === PANELS.AUDIO_CAPTIONS && <AudioCaptionsPanel />}
-          {sidebarContentPanel.includes(PANELS.GENERIC_CONTENT_SIDEKICK) && (
-            <GenericContentSidekickContainer
-              genericSidekickContentId={sidebarContentPanel}
-            />
-          )}
+          {isDocked && panelSections.isVisible ? renderSections() : renderSinglePanel()}
         </Styled.SidebarContentPanel>
       </Resizable>
     </Styled.SidebarContentBackdrop>

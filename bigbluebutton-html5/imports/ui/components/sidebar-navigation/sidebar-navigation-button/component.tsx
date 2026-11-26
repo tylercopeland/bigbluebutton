@@ -10,7 +10,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { SidebarNavigationButtonProps } from './types';
 import NavigationDockContext from '../dock/context';
 import Styled from './styles';
-import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
+import usePanelSections from '/imports/ui/components/sidebar-content/sections/usePanelSections';
 import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
 
 const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
@@ -39,11 +39,13 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
     isOpen: isAuxiliaryOpen,
   } = sidebarContentAuxiliaryInput;
   const isInAuxiliaryPanel = isAuxiliaryOpen && sidebarContentPanelAuxiliary === panel;
-  const { closeInStack } = usePanelStack();
+  const panelSections = usePanelSections();
   const isMultiFunctionalModeEnabled = useIsMultiFunctionalModeEnabled();
 
   const togglePanel = useCallback(() => {
-    const willOpen = !isOpened;
+    const willOpen = panelSections.isDocked && panel
+      ? !panelSections.isToolShowing(panel)
+      : !isOpened;
 
     if (onToggle) {
       onToggle(willOpen);
@@ -55,12 +57,9 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
         value: willOpen,
       });
     } else {
-      const nextPanel = !willOpen && panel ? closeInStack(panel) : null;
-      if (nextPanel) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: nextPanel,
-        });
+      // While docked: open the tool, select its tab, or close it if it is showing
+      if (panelSections.isDocked && panel) {
+        panelSections.toggleTool(panel);
         return;
       }
 
@@ -75,7 +74,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
       });
     }
   }, [layoutContextDispatch, isOpened, panel, onToggle, isInAuxiliaryPanel,
-    isMultiFunctionalModeEnabled, closeInStack]);
+    isMultiFunctionalModeEnabled, panelSections]);
 
   const handleClick = useCallback(() => {
     if (isDisabled) return;

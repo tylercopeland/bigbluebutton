@@ -5,39 +5,51 @@ import { layoutSelectOutput } from '/imports/ui/components/layout/context';
 import { Output } from '/imports/ui/components/layout/layoutTypes';
 import { SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH } from '/imports/ui/components/layout/defaultValues';
 import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
-import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
+import usePanelSections from '/imports/ui/components/sidebar-content/sections/usePanelSections';
+import useToolName from '/imports/ui/components/sidebar-content/sections/useToolName';
+import useMovePanelSide from './useMovePanelSide';
 
-const DRAG_THRESHOLD = 10;
+/** A shorter press is a click, which selects a tab */
+const DRAG_THRESHOLD = 6;
+const SOURCE_OPACITY = '0.35';
 
 const intlMessages = defineMessages({
-  moveColumn: {
-    id: 'app.sidebarContent.dropHere',
-    description: 'Shown where the panel goes when it is dropped',
-    defaultMessage: 'Move panel here',
+  moveRight: {
+    id: 'app.sidebarContent.drop.moveRight',
+    description: 'Shown where the panel goes when it is dropped on the right',
+    defaultMessage: 'Drop to move the panel to the right',
   },
-  detach: {
-    id: 'app.sidebarContent.dropBelow',
-    description: 'Shown where a tab goes when it is dropped below the visible panel',
-    defaultMessage: 'Show {name} below',
+  moveLeft: {
+    id: 'app.sidebarContent.drop.moveLeft',
+    description: 'Shown where the panel goes when it is dropped on the left',
+    defaultMessage: 'Drop to move the panel to the left',
   },
-  combine: {
-    id: 'app.sidebarContent.dropCombine',
-    description: 'Shown where a stacked panel can be dropped to connect both as tabs',
-    defaultMessage: 'Combine into tabs',
+  stackBelow: {
+    id: 'app.sidebarContent.drop.stackBelow',
+    description: 'Shown where a tab goes when it is dropped below the panel',
+    defaultMessage: 'Drop to stack {name} below',
+  },
+  addAsTab: {
+    id: 'app.sidebarContent.drop.addAsTab',
+    description: 'Shown on a section that a tool can join as a tab',
+    defaultMessage: 'Drop to add {name} as a tab next to {other}',
   },
 });
 
-// column: moves everything to the other side of the window
-// detach: takes a tab out of the segmented control, below the visible panel
-// combine: connects stacked panels back to the segmented control
-type DragKind = 'column' | 'detach' | 'combine';
+// column: moves the whole panel to the other side of the window
+// tab: a tab, which stacks below or joins the other section
+// title: a section's plain title, which joins the other section
+type DragKind = 'column' | 'tab' | 'title';
+type DropAction = 'moveSide' | 'moveBelow' | 'combine';
+
+interface Area { left: number; top: number; width: number; height: number }
 
 export interface PanelDrag {
   kind: DragKind;
   x: number;
   y: number;
-  /** Where the panel goes, in the window. Null if it can't be dropped. */
-  area: { left: number; top: number; width: number; height: number } | null;
+  /** Where the item goes, in the window. Null if it can't be dropped anywhere. */
+  area: Area | null;
   /** Whether dropping now has an effect */
   isActive: boolean;
   label: string;
@@ -50,100 +62,116 @@ interface DragStart {
   pointerId: number;
   x: number;
   y: number;
-  panel: string;
-  name: string;
+  tool: string;
+  source: HTMLElement | null;
 }
 
-const isInside = (x: number, y: number, area: PanelDrag['area']) => !!area
+const isInside = (x: number, y: number, area: Area | null) => !!area
   && x >= area.left && x <= area.left + area.width
   && y >= area.top && y <= area.top + area.height;
 
-const toArea = (element: Element | null): PanelDrag['area'] => {
+const toArea = (element: Element | null): Area | null => {
   const rect = element?.getBoundingClientRect();
   return rect ? {
     left: rect.left, top: rect.top, width: rect.width, height: rect.height,
   } : null;
 };
 
+/**
+ * One drag system for the panel: press a header to move the panel to the other
+ * side, a tab to stack it below or add it to the other section, or a section's
+ * title to add it to the other section.
+ */
 const usePanelDrag = () => {
   const intl = useIntl();
-  const { canMove, isPanelOnRight, togglePanelSide } = usePanelSide();
-  const stack = usePanelStack();
+  const toolName = useToolName();
+  const { canMove, isPanelOnRight } = usePanelSide();
+  const movePanelSide = useMovePanelSide();
+  const sections = usePanelSections();
   const panelOutput = layoutSelectOutput((i: Output) => i.sidebarContent);
   const start = useRef<DragStart | null>(null);
-  const dragRef = useRef<PanelDrag | null>(null);
+  const dragRef = useRef<{ drag: PanelDrag; action: DropAction | null } | null>(null);
   const [isPressed, setIsPressed] = useState(false);
   const [drag, setDrag] = useState<PanelDrag | null>(null);
 
-  const getKind = (target: HTMLElement): Partial<DragStart> | null => {
+  const getStart = (target: HTMLElement): Omit<DragStart, 'pointerId' | 'x' | 'y'> | null => {
     const tab = target.closest<HTMLElement>('[role=tab][data-panel]');
-    if (tab) {
-      return stack.canStack
-        ? { kind: 'detach', panel: tab.dataset.panel, name: tab.dataset.name }
-        : null;
+    if (tab) return { kind: 'tab', tool: tab.dataset.panel ?? '', source: tab };
+    const title = target.closest<HTMLElement>('[data-section-title]');
+    if (title && sections.getCombineTarget(title.dataset.sectionTitle ?? '') !== -1) {
+      return { kind: 'title', tool: title.dataset.sectionTitle ?? '', source: title };
     }
+    // The grip opens a menu when clicked, and moves the panel when dragged
+    if (target.closest('[data-column-grip]')) return { kind: 'column', tool: '', source: null };
     if (target.closest('button, input, a, [role=button]')) return null;
-    const title = target.closest<HTMLElement>('[data-stack-title]');
-    if (title && stack.isStacked) {
-      return { kind: 'combine', panel: title.dataset.stackTitle, name: title.textContent ?? '' };
-    }
-    return { kind: 'column', panel: '', name: '' };
+    return { kind: 'column', tool: '', source: null };
   };
 
-  const getDrag = (current: DragStart, x: number, y: number): PanelDrag => {
+  const getDrag = (current: DragStart, x: number, y: number) => {
     const base = { kind: current.kind, x, y };
+    const name = current.tool ? toolName(current.tool) : '';
 
     if (current.kind === 'column') {
       const isRight = x > window.innerWidth / 2;
       const width = panelOutput.width
         - window.innerWidth * SIDEBAR_CONTENT_MARGIN_TO_MEDIA_PERCENTAGE_WIDTH;
+      const isActive = isRight !== isPanelOnRight;
       return {
-        ...base,
-        area: {
-          left: isRight ? window.innerWidth - width : 0,
-          top: 0,
-          width,
-          height: window.innerHeight,
+        action: isActive ? 'moveSide' as const : null,
+        drag: {
+          ...base,
+          area: {
+            left: isRight ? window.innerWidth - width : 0, top: 0, width, height: window.innerHeight,
+          },
+          isActive,
+          label: intl.formatMessage(isRight ? intlMessages.moveRight : intlMessages.moveLeft),
+          ghost: null,
         },
-        isActive: isRight !== isPanelOnRight,
-        label: intl.formatMessage(intlMessages.moveColumn),
-        ghost: null,
       };
     }
 
-    if (current.kind === 'detach') {
+    if (current.kind === 'tab' && sections.canMoveBelow(current.tool)) {
       const panel = toArea(document.querySelector('.bbb-sidebar-content__panel'));
-      const area = panel && stack.fits ? {
-        ...panel,
-        top: panel.top + panel.height / 2,
-        height: panel.height / 2,
-      } : null;
+      const area = panel && {
+        ...panel, top: panel.top + panel.height / 2, height: panel.height / 2,
+      };
+      const isActive = isInside(x, y, area);
       return {
+        action: isActive ? 'moveBelow' as const : null,
+        drag: {
+          ...base,
+          area,
+          isActive,
+          label: intl.formatMessage(intlMessages.stackBelow, { name }),
+          ghost: name,
+        },
+      };
+    }
+
+    const targetIndex = sections.getCombineTarget(current.tool);
+    const target = sections.sections[targetIndex];
+    const area = target
+      ? toArea(document.querySelector(`[data-panel-section="${targetIndex}"]`))
+      : null;
+    const isActive = isInside(x, y, area);
+    return {
+      action: isActive ? 'combine' as const : null,
+      drag: {
         ...base,
         area,
-        isActive: isInside(x, y, area),
-        label: intl.formatMessage(intlMessages.detach, { name: current.name }),
-        ghost: current.name,
-      };
-    }
-
-    const other = stack.panels.find((id) => id !== current.panel);
-    const area = toArea(document.querySelector(`[data-stack-panel="${other}"]`));
-    return {
-      ...base,
-      area,
-      isActive: isInside(x, y, area),
-      label: intl.formatMessage(intlMessages.combine),
-      ghost: current.name,
+        isActive,
+        label: target
+          ? intl.formatMessage(intlMessages.addAsTab, { name, other: toolName(target.active) })
+          : '',
+        ghost: name,
+      },
     };
   };
 
-  const drop = (current: DragStart) => {
-    if (current.kind === 'column') togglePanelSide();
-    if (current.kind === 'detach') stack.detach(current.panel);
-    if (current.kind === 'combine') {
-      stack.combine(stack.panels.find((id) => id !== current.panel));
-    }
+  const drop = (current: DragStart, action: DropAction | null) => {
+    if (action === 'moveSide') movePanelSide();
+    if (action === 'moveBelow') sections.moveBelow(current.tool);
+    if (action === 'combine') sections.combine(current.tool);
   };
 
   // The listeners live as long as the press, and need what is current
@@ -152,32 +180,33 @@ const usePanelDrag = () => {
 
   const onPointerDown = (event: React.PointerEvent<HTMLElement>) => {
     if (event.button !== 0 || !event.isPrimary) return;
-    const kind = getKind(event.target as HTMLElement);
+    const kind = getStart(event.target as HTMLElement);
     if (!kind) return;
     start.current = {
       pointerId: event.pointerId,
       x: event.clientX,
       y: event.clientY,
       ...kind,
-    } as DragStart;
+    };
     setIsPressed(true);
   };
 
   useEffect(() => {
     if (!isPressed) return undefined;
 
-    const update = (value: PanelDrag | null) => {
+    const update = (value: { drag: PanelDrag; action: DropAction | null } | null) => {
       dragRef.current = value;
-      setDrag(value);
+      setDrag(value?.drag ?? null);
     };
 
     const stop = () => {
+      if (start.current?.source) start.current.source.style.opacity = '';
       start.current = null;
       setIsPressed(false);
       update(null);
     };
 
-    // A drag that starts on a tab must not also select it
+    // A drag that starts on a tab or the grip must not also click it
     const ignoreNextClick = () => {
       const ignore = (event: MouseEvent) => {
         event.preventDefault();
@@ -192,14 +221,17 @@ const usePanelDrag = () => {
       if (event.pointerId !== current?.pointerId) return;
       const distance = Math.hypot(event.clientX - current.x, event.clientY - current.y);
       if (!dragRef.current && distance < DRAG_THRESHOLD) return;
+      if (!dragRef.current && current.source) current.source.style.opacity = SOURCE_OPACITY;
       update(latest.current.getDrag(current, event.clientX, event.clientY));
     };
 
     const onPointerUp = (event: PointerEvent) => {
       const { current } = start;
       if (event.pointerId !== current?.pointerId) return;
-      if (dragRef.current) ignoreNextClick();
-      if (dragRef.current?.isActive) latest.current.drop(current);
+      if (dragRef.current) {
+        ignoreNextClick();
+        latest.current.drop(current, dragRef.current.action);
+      }
       stop();
     };
 

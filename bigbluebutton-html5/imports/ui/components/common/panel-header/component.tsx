@@ -1,14 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { defineMessages, useIntl } from 'react-intl';
 import Styled from '/imports/ui/components/sidebar-content/styles';
 import MultifunctionalModeButton from '../multifunctional-mode-button/component';
-import PeopleChatTabs from './people-chat-tabs/component';
-import useShowPeopleChatTabs from './people-chat-tabs/useShowPeopleChatTabs';
+import SectionTabs from './section-tabs/component';
+import SectionTitle from './section-title/component';
+import ArrangeMenu from './arrange-menu/component';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import usePanelDrag from './usePanelDrag';
 import DragOverlay from './drag-overlay/component';
-import StackTitle, { ColumnGrip } from './stack-title/component';
-import usePanelStack, { STACKABLE_PANELS } from '/imports/ui/components/sidebar-content/stack/usePanelStack';
+import usePanelSections from '/imports/ui/components/sidebar-content/sections/usePanelSections';
+import useToolName from '/imports/ui/components/sidebar-content/sections/useToolName';
 import usePanelClose from './usePanelClose';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -17,6 +18,11 @@ const intlMessages = defineMessages({
   minimize: {
     id: 'app.sidebarContent.minimizePanelLabel',
     description: 'Generic minimize label for panels',
+  },
+  minimizeSection: {
+    id: 'app.sidebarContent.minimizeSection',
+    description: 'Label for the button that minimizes a section of the side panel',
+    defaultMessage: 'Minimize {name}',
   },
 });
 
@@ -44,6 +50,8 @@ interface PanelHeaderProps {
    * The MultifunctionalModeButton is always included automatically.
    */
   customRightButton?: React.ReactElement | null;
+  /** Shown after the title in a section of its own, like the number of people */
+  count?: number;
 }
 
 const PanelHeader: React.FC<PanelHeaderProps> = ({
@@ -55,17 +63,24 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   closeButtonProps = {},
   onBeforeClose,
   customRightButton,
+  count,
 }) => {
   const intl = useIntl();
   const { onPointerDown, canMove, drag } = usePanelDrag();
-  const { isDetached, isStacked, panels } = usePanelStack();
+  const sections = usePanelSections();
+  const toolName = useToolName();
   const { closePanel } = usePanelClose(panelId, onBeforeClose);
-  const showTabs = useShowPeopleChatTabs(panelId);
   const isDocked = useIsNavigationDocked();
   const isRTL = layoutSelect((i: Layout) => i.isRTL);
+  const [menuTool, setMenuTool] = useState<string | null>(null);
 
-  const resolvedCloseLabel = closeButtonLabel
-    ?? intl.formatMessage(intlMessages.minimize, { panelName: title });
+  const sectionIndex = sections.findSection(panelId);
+  const section = sections.sections[sectionIndex];
+  const isInSection = isDocked && !!section;
+
+  const resolvedCloseLabel = isInSection
+    ? intl.formatMessage(intlMessages.minimizeSection, { name: toolName(panelId) })
+    : closeButtonLabel ?? intl.formatMessage(intlMessages.minimize, { panelName: title });
 
   const multifunctionalModeButton = <MultifunctionalModeButton panelId={panelId} />;
   const rightButton = customRightButton !== undefined
@@ -76,17 +91,21 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
       </>
     ) : multifunctionalModeButton;
 
-  // Tabs and stacked titles have drags of their own, so the column needs a grip
-  const isStackable = STACKABLE_PANELS.includes(panelId);
-  const isDetachedPanel = isDetached && isStackable;
-  const showGrip = canMove && isStackable
-    && (showTabs || (isStacked && panels[0] === panelId));
+  // The header starts the drags; tabs and the title have drags of their own
   let customTitle;
-  if (showTabs || isDetachedPanel) {
+  if (isInSection) {
     customTitle = (
       <>
-        {showGrip && <ColumnGrip />}
-        {isDetachedPanel ? <StackTitle panelId={panelId} /> : <PeopleChatTabs panelId={panelId} />}
+        {canMove && (
+          <ArrangeMenu
+            tool={menuTool ?? panelId}
+            isForcedOpen={menuTool !== null}
+            onClose={() => setMenuTool(null)}
+          />
+        )}
+        {section.tabs.length > 1
+          ? <SectionTabs panelId={panelId} tabs={section.tabs} onOpenMenu={setMenuTool} />
+          : <SectionTitle tool={panelId} count={count} />}
       </>
     );
   }
@@ -104,9 +123,9 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
         rightButtonProps={{
           'aria-label': resolvedCloseLabel,
           'data-test': closeButtonDataTest,
-          icon: showTabs || isDocked ? 'close' : 'minus',
+          icon: isInSection || !isDocked ? 'minus' : 'close',
           label: resolvedCloseLabel,
-          onClick: closePanel,
+          onClick: isInSection ? () => sections.minimize(sectionIndex) : closePanel,
           ...closeButtonProps,
         }}
         customRightButton={rightButton}

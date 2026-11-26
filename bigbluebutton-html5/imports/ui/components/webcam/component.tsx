@@ -85,6 +85,11 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
   isPanelOnRight,
 }) => {
   const [isResizing, setIsResizing] = useState(false);
+
+  // The docked layout animates the dock, but not while it follows the pointer
+  useEffect(() => {
+    document.documentElement.classList.toggle('bbb-layout-resizing', isResizing);
+  }, [isResizing]);
   const [isDragging, setIsDragging] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [resizeStart, setResizeStart] = useState({ width: 0, height: 0 });
@@ -369,6 +374,7 @@ const WebcamComponent: React.FC<WebcamComponentProps> = ({
               bottomLeft: false,
               bottomRight: false,
             }}
+            className="bbb-camera-dock"
             style={{
               position: 'absolute',
               zIndex: isCameraSidebar && !isDragging ? 0 : cameraDock?.zIndex,

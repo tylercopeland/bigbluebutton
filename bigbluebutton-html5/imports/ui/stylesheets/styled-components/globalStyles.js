@@ -167,6 +167,18 @@ const GlobalStyle = createGlobalStyle`
       left: none !important;
     }
   }
+
+  // Docked layout: the stage and webcams ease into place when the side panel
+  // opens, closes or moves. Not while something follows the pointer.
+  @media (prefers-reduced-motion: no-preference) {
+    .bbb-docked:not(.bbb-layout-resizing) .bbb-presentation,
+    .bbb-docked:not(.bbb-layout-resizing) .bbb-camera-dock:not(.react-draggable-dragging),
+    .bbb-docked:not(.bbb-layout-resizing) .bbb-camera-dock:not(.react-draggable-dragging) #cameraDock {
+      transition-property: top, left, right, width, height, transform;
+      transition-duration: .3s;
+      transition-timing-function: cubic-bezier(.2, .8, .2, 1);
+    }
+  }
 `;
 
 export default GlobalStyle;

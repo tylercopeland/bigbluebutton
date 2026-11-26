@@ -46,8 +46,16 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials
 - [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
 - [ ] Hidden for now on desktop and tablet, to come back to (sidebar-navigation/hidden-controls.ts): mute all and permissions in People, minimize presentation and Profile in the bottom bar
-- [x] People and Chat start as tabs; dragging a tab to the lower half of the panel stacks it below, 50/50, without changing the slide's size (not in the design)
-- [ ] Stacked panels: titles can't be dragged to swap places; the options menu (three dots) stacks and combines without dragging
+- [x] Nothing is open on join. The first tool opens alone with a plain title ("PEOPLE 14"), a second turns the header into tabs, a third stacks below as its own section, and later tools join the lower section as tabs
+- [x] Action bar buttons: pressed while the tool is anywhere in the panel; select its tab when it isn't showing; close it when it is
+- [x] Drag a tab down to stack it, a section's title onto the other section to make it a tab, the header or grip to the other side; dashed overlay with a plain-language label, ghost under the pointer, source at 35%, 6px before a drag starts
+- [x] 50/50 split with a draggable divider; neither section can be made shorter than 120px
+- [x] Every drag has a keyboard way: the grip in each section header opens an Arrange menu (Move below, Combine with, Move panel to left/right); Shift+F10 or right-click on a tab opens it for that tab. Changes are announced to screen readers
+- [x] Losing the presenter role with Polling open closes only Polling; the rest of the panel stays
+- [ ] Sections: at most two; minimize (–) collapses a section to its header, and the panel closes when no section is left open (reopening a tool brings the arrangement back)
+- [ ] Section title count is #6B7280, not a lighter grey: #A0AEC0 is 2.3:1 on white and fails contrast
+- [ ] Switching tabs remounts the tool, as BBB did with panels; People with 100+ people takes about a second to switch to
+- [ ] The panel arrangement is stored per browser, not per meeting or user
 - [ ] The second column is hidden (sidebar-navigation/hidden-controls.ts), to explore later on the right
 - [x] The side panel can be dragged by its header or grip to the other side, or moved from the options menu (three dots); remembered per browser (not in the design)
 - [ ] Moving the panel: the bottom bar buttons stay in place; phones and layouts without docked navigation can't move it
@@ -56,6 +64,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [x] Other panels use the same plain title and close button as People and Chat
 - [ ] Other panels keep BBB's content (Notes, Profile, Breakout Rooms) and phones keep BBB's headers
 - [ ] Tabs are hidden while two panels are open side by side (second column, hidden for now)
+- [ ] Pressing a stacked tab's or title's grip without moving opens the Arrange menu, and the options menu (three dots) no longer stacks panels (move panel stays there)
 - [ ] Dark mode: the selected tab is hard to tell apart
 - [ ] New strings (tabs, people count, filters, statuses, chat switch, placeholders, slide controls, webcam overflow and raised hands chip) are English only
 - [ ] Chat input placeholder was translated in BBB and is now English only
@@ -75,11 +84,12 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Timer: after time runs out, Reset clears "Time is up" only for the person who pressed it
 - [ ] Timer: new card strings are English only
 - [ ] Timer: opening the timer starts sharing it with everyone right away, as in BBB
-- [x] Apps opens as a popover above its button, with tiles for breakouts, polls and timer and a list for other apps
-- [ ] Apps: pin buttons show on hover, search shows with more than 8 apps (neither is in the design); the grid or list choice is gone
-- [ ] Apps: called Apps, not Plugins; the list has no descriptions, plugins don't provide one
-- [ ] Apps: polls and breakouts still open in the side panel; phones and layouts without docked navigation keep the gallery panel
-- [x] Share media menu opens above its button, 360px wide like Apps (design: wider)
+- [x] Plugins opens as a 360px popover above the left edge of the actions bar: "Plugins", Breakout rooms, Poll and Timer cards, then "More plugins" with Q&A board, Quiz, Word cloud and Random picker (icon, one-line description, chevron)
+- [x] Picking a plugin closes the popover and starts it; opening People, Chat or Notes closes it
+- [ ] Plugins: Q&A board, Word cloud and Random picker aren't built into BBB 4.0, so they show as "Not available on this server"; Quiz opens Polling on the Quiz tab
+- [ ] Plugins: pin buttons show on hover, search shows with more than 8 apps, installed plugins are listed after the four (none of this is in the design); the button is still labelled Apps Gallery
+- [ ] Plugins: polls and breakouts open in the side panel as tools; phones and layouts without docked navigation keep the gallery panel
+- [x] Share media menu opens above its button, 360px wide like Plugins (design: wider)
 - [x] Share media menu shows previews above a row of media types (Slides, Video, Screen, Camera, More)
 - [ ] Share media: no Audio or URL tab, BBB has no such feature (tab audio comes with screen share)
 - [ ] Share media: Camera tab kept (BBB feature, not in the design); More only shows with plugins and has no whiteboard or poll shortcut
@@ -100,7 +110,9 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Phones, touch devices, small and portrait slides keep BBB's toolbars (design: pager under the slide, annotate mode)
 - [ ] Minimized presentation does not become a tile in the webcam grid
 - [ ] Dark mode: white divider lines in the whiteboard tools
-- [x] Webcams go on the top or the right, wherever the slide ends up larger, until someone moves them
+- [x] Webcams: a row across the top while the side panel is open, a column on the right while it is closed, until someone moves them
+- [x] Stage and webcams ease into place over 300ms when the panel opens, closes or moves (off with reduced motion, and while dragging or resizing)
+- [ ] Stage animation: the slide itself resizes at once while its frame eases
 - [x] Webcam tiles restyled, with initials for people without a camera and a "+N more" tile
 - [ ] Webcams: the strip only appears once someone shares a camera (design: always)
 - [ ] Webcams: people without a camera are listed by name, not by speaker or raised hand
@@ -111,8 +123,9 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Phones: BBB's webcam placement, with the new tile look
 
 ## Not yet tested
-- [ ] People list: large meetings (over 50 people), guests waiting, locked viewers, listen-only, plugins
-- [ ] BBB's own Playwright tests still expect the old people list, chat buttons and slide toolbar
+- [ ] People list: guests waiting, locked viewers, listen-only, plugins (111 people checked with lightweight GraphQL users, no cameras)
+- [ ] Panel sections: real touch tablets and screen readers (checked with tablet touch emulation, Firefox and WebKit in Playwright, fullscreen with the panel on the right)
+- [ ] BBB's own Playwright tests still expect the old people list, chat buttons, slide toolbar and apps gallery panel; the new panels/ tests cover the side panel
 - [ ] Chat: direct messages on phone, locked chat, offline participants, pinned messages, polls, plugins, chat in the second panel
 - [ ] Slide controls: infinite whiteboard, long decks in All slides, plugin toolbar items, screen magnifiers
 - [ ] Webcams: more than 8 people, pinning, focus, virtual backgrounds, plugins, locked webcams, LiveKit, screen share with webcams, dark mode

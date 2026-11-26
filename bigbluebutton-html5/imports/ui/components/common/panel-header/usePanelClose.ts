@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
-import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
+import usePanelSections from '/imports/ui/components/sidebar-content/sections/usePanelSections';
 import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
 
 /**
@@ -20,7 +20,7 @@ const usePanelClose = (panelId: string, onBeforeClose?: (isInAuxiliaryPanel: boo
   const sidebarContentAuxiliary = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
   const isInAuxiliaryPanel = sidebarContentAuxiliary.isOpen
     && sidebarContentAuxiliary.sidebarContentPanel === panelId;
-  const { closeInStack } = usePanelStack();
+  const { isDocked, closeTool } = usePanelSections();
   const isMultifunctionalModeEnabled = useIsMultiFunctionalModeEnabled();
 
   const closePanel = useCallback(() => {
@@ -36,12 +36,9 @@ const usePanelClose = (panelId: string, onBeforeClose?: (isInAuxiliaryPanel: boo
       // panel is rendered there even when it's closed. This allows us to restore the correct panel
       // when re-opening the auxiliary sidebar.
     } else {
-      const nextPanel = closeInStack(panelId);
-      if (nextPanel) {
-        layoutContextDispatch({
-          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
-          value: nextPanel,
-        });
+      // While docked, only this tool leaves the panel; the sections update the layout
+      if (isDocked) {
+        closeTool(panelId);
         return;
       }
 
@@ -55,7 +52,7 @@ const usePanelClose = (panelId: string, onBeforeClose?: (isInAuxiliaryPanel: boo
       });
     }
   }, [layoutContextDispatch, isInAuxiliaryPanel, onBeforeClose, isMultifunctionalModeEnabled,
-    closeInStack, panelId]);
+    isDocked, closeTool, panelId]);
 
   return { closePanel, isInAuxiliaryPanel };
 };

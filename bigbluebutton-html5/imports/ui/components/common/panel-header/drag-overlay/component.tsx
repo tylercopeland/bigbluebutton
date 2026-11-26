@@ -12,8 +12,9 @@ const DragOverlay: React.FC<{ drag: PanelDrag }> = ({ drag }) => createPortal(
         $isActive={drag.isActive}
         style={drag.area}
         data-test={`panelDrop-${drag.kind}`}
+        data-active={drag.isActive}
       >
-        {drag.isActive && drag.label}
+        {drag.label && <Styled.Label $isActive={drag.isActive}>{drag.label}</Styled.Label>}
       </Styled.Area>
     )}
     {drag.ghost && (

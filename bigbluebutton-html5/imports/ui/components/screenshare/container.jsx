@@ -25,6 +25,7 @@ import { EXTERNAL_VIDEO_STOP } from '../external-video-player/mutations';
 import AudioManager from '/imports/ui/services/audio-manager';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { PIN_NOTES } from '../notes/mutations';
+import useStageSwitch from '/imports/ui/components/stage-switch/useStageSwitch';
 
 const screenshareIntlMessages = defineMessages({
   // SCREENSHARE
@@ -99,6 +100,7 @@ const cameraAsContentIntlMessages = defineMessages({
 const ScreenshareContainer = (props) => {
   const { shouldShowScreenshare } = props;
   const screenShare = layoutSelectOutput((i) => i.screenShare);
+  const { isVisible: hasStageSwitch } = useStageSwitch();
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const layoutContextDispatch = layoutDispatch();
   const { pluginsExtensibleAreasAggregatedState } = useContext(PluginsContext);
@@ -196,6 +198,7 @@ const ScreenshareContainer = (props) => {
           ),
           ...selectedInfo,
           isPresenter,
+          hasStageSwitch,
           streamId,
           shouldShowScreenshare,
           isBot,

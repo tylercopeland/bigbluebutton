@@ -105,6 +105,9 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Share media: no video file upload
 - [ ] Share media: a Stop sharing button shows above the tabs while sharing; presentation cards keep download and delete
 - [x] Share media: picking a presentation only selects it, a share button then shows it to everyone (design: no button)
+- [x] Share media: while the presenter shares a screen or camera, a Presentation / Entire screen switch above the stage shows everyone the slides without stopping the share (uses BBB's existing screenshare-as-content flag, presenter only)
+- [ ] Share media: on the screen side, the shared screen's box matches the slide's, so the switch keeps its corner; the presenter's preview is half that box with "Everyone sees your …" and Stop sharing under it (the design shows the screen full size)
+- [ ] Share media: a new share always starts on the screen; the switch's labels (Entire screen, Window, Browser tab, Camera) are English only; phones and layouts without docked navigation keep BBB's behaviour
 - [ ] Share media: phones and viewers keep BBB's menu
 - [ ] Share media: while the screen is shared, the camera can only be shared after Stop sharing (BBB stopped the screen share for you)
 

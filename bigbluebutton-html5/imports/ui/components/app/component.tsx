@@ -16,6 +16,7 @@ import ScreenReaderAlertAdapter from '../screenreader-alert/adapter';
 import WebcamContainer from '../webcam/component';
 import PresentationContainer from '../presentation/container';
 import ScreenshareContainer from '../screenshare/container';
+import StageSwitch from '/imports/ui/components/stage-switch/component';
 import ExternalVideoPlayerContainer from '../external-video-player/external-video-player-graphql/component';
 import GenericContentMainAreaContainer from '../generic-content/generic-main-content/container';
 import FloatingTimerContainer from '../timer/floating-card/component';
@@ -174,6 +175,7 @@ const App: React.FC<AppProps> = ({
           {!isNonMediaLayout && (
             <ScreenshareContainer shouldShowScreenshare={shouldShowScreenshare} />
           )}
+          {!isNonMediaLayout && <StageSwitch />}
           {isSharedNotesPinned ? (
             <NotesContainer
               renderMode={NotesRenderMode.PINNED}

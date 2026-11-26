@@ -431,8 +431,11 @@ class ScreenshareComponent extends React.Component {
   }
 
   renderVideo(switched) {
-    const { isGloballyBroadcasting } = this.props;
+    const { isGloballyBroadcasting, hasStageSwitch } = this.props;
     const { videoTagRef } = this.state;
+    // With the stage switch, the presenter's preview is bigger and has the
+    // switch's live note below it instead of a caption
+    const previewSize = hasStageSwitch ? '50%' : '25%';
 
     return (
       <Styled.ScreenshareVideo
@@ -441,7 +444,7 @@ class ScreenshareComponent extends React.Component {
         unhealthyStream={!isGloballyBroadcasting}
         style={switched
           ? { maxHeight: '100%', width: '100%', height: '100%' }
-          : { maxHeight: '25%', width: '25%', height: '25%' }}
+          : { maxHeight: previewSize, width: previewSize, height: previewSize }}
         playsInline
         onLoadedData={this.onLoadedData}
         onLoadedMetadata={this.onLoadedMetadata}
@@ -489,7 +492,7 @@ class ScreenshareComponent extends React.Component {
 
   renderScreensharePresenter() {
     const { switched } = this.state;
-    const { isGloballyBroadcasting, intl } = this.props;
+    const { isGloballyBroadcasting, intl, hasStageSwitch } = this.props;
 
     return (
       <>
@@ -499,7 +502,7 @@ class ScreenshareComponent extends React.Component {
           isGloballyBroadcasting
             ? (
               <div data-test="isSharingScreen">
-                {!switched
+                {!switched && !hasStageSwitch
                   && ScreenshareComponent.renderScreenshareContainerInside(
                     intl.formatMessage(this.locales.presenterSharingLabel),
                   )}
@@ -678,4 +681,5 @@ ScreenshareComponent.propTypes = {
   outputDeviceId: PropTypes.string,
   streamId: PropTypes.string.isRequired,
   isBot: PropTypes.bool.isRequired,
+  hasStageSwitch: PropTypes.bool,
 };

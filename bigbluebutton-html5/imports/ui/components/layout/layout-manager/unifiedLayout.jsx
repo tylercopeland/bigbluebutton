@@ -5,6 +5,7 @@ import DEFAULT_VALUES, {
   DOCKED_PANEL_MAX_PERCENTAGE_WIDTH,
   DOCKED_PANEL_WIDTH,
   getMarginToMedia,
+  STAGE_SWITCH_HEIGHT,
   SIDEBAR_CONTENT_VERTICAL_MARGIN_PERCENTAGE_HEIGHT,
 } from '/imports/ui/components/layout/defaultValues';
 import { INITIAL_INPUT_STATE } from '/imports/ui/components/layout/initState';
@@ -16,6 +17,8 @@ import { defaultsDeep } from '/imports/utils/array-utils';
 import { isPhoneLandscape } from '../utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import useStageSwitch from '/imports/ui/components/stage-switch/useStageSwitch';
+import fitToSlide from '/imports/ui/components/stage-switch/fitToSlide';
 import usePanelSections from '/imports/ui/components/sidebar-content/sections/usePanelSections';
 import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 
@@ -43,6 +46,7 @@ const UnifiedLayout = (props) => {
   const deviceType = layoutSelect((i) => i.deviceType);
   // For the layout, right-to-left only means that the side panel is on the right
   const { isStacked: isPanelStacked, hasAside } = usePanelSections();
+  const { isVisible: hasStageSwitch } = useStageSwitch();
   const { isPanelOnRight: isRTL, isMoved: isPanelMoved } = usePanelSide();
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
@@ -99,7 +103,7 @@ const UnifiedLayout = (props) => {
     return () => null;
   }, [
     input, deviceType, isRTL, isPanelMoved, fontSize, fullscreen,
-    isPresentationEnabled, isNavigationDocked, isPanelStacked, hasAside,
+    isPresentationEnabled, isNavigationDocked, isPanelStacked, hasAside, hasStageSwitch,
   ]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
@@ -647,6 +651,12 @@ const UnifiedLayout = (props) => {
       mediaBounds.right = isRTL ? sidebarSize : null;
     }
 
+    // The presenter's slides / shared screen switch sits above the stage
+    if (hasStageSwitch) {
+      mediaBounds.top += STAGE_SWITCH_HEIGHT;
+      mediaBounds.height = max(mediaBounds.height - STAGE_SWITCH_HEIGHT, 0);
+    }
+
     return mediaBounds;
   };
 
@@ -976,14 +986,27 @@ const UnifiedLayout = (props) => {
       },
     });
 
-    layoutContextDispatch({
-      type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
-      value: {
+    // With the presenter's switch, the shared screen takes the slide's box, so
+    // the switch above it stays put when the presenter flips between the two
+    const screenShareBounds = hasStageSwitch
+      ? fitToSlide({
         width: mediaBounds.width,
         height: mediaBounds.height,
         top: mediaBounds.top,
         left: shiftedMedia.left,
         right: shiftedMedia.right,
+      }, presentationInput.currentSlide?.size)
+      : {
+        width: mediaBounds.width,
+        height: mediaBounds.height,
+        top: mediaBounds.top,
+        left: shiftedMedia.left,
+        right: shiftedMedia.right,
+      };
+    layoutContextDispatch({
+      type: ACTIONS.SET_SCREEN_SHARE_OUTPUT,
+      value: {
+        ...screenShareBounds,
         zIndex: mediaBounds.zIndex,
       },
     });

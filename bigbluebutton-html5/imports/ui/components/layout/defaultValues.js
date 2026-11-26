@@ -14,6 +14,8 @@ export const DOCKED_PANEL_WIDTH = 360; // px
 export const DOCKED_PANEL_MAX_PERCENTAGE_WIDTH = 0.34;
 // Space around the stage when the navigation is docked: the side panel's own padding
 export const DOCKED_STAGE_GAP = 12; // px
+// Room above the stage for the presenter's slides / shared screen switch
+export const STAGE_SWITCH_HEIGHT = 44; // px
 
 /** Space between the side panel, or the window edge, and the stage */
 export const getMarginToMedia = (isDocked, windowWidth) => (isDocked

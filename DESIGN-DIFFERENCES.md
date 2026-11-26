@@ -47,7 +47,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials
 - [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
 - [ ] Hidden for now on desktop and tablet, to come back to (sidebar-navigation/hidden-controls.ts): mute all and permissions in People, minimize presentation and Profile in the bottom bar, and Options (three dots) in the top bar, which takes fullscreen, keyboard shortcuts, audio captions, move panel and plugin menu items with it
-- [x] Nothing is open on join. The first tool opens alone with a plain title ("People 14"), a second turns the header into tabs, a third stacks below as its own section. The top section holds two tabs, the lower section one tool
+- [x] Nothing is open on join. The first tool opens alone with a plain title ("People", without the count, which the All filter shows), a second turns the header into tabs, a third stacks below as its own section. The top section holds two tabs, the lower section one tool
 - [x] Action bar buttons: pressed while the tool is anywhere in the panel; select its tab when it isn't showing; close it when it is
 - [x] Drag a tab down to stack it, a section's title onto the other section to make it a tab, the header or grip to the other side; dashed overlay with a plain-language label, ghost under the pointer, source at 35%, 6px before a drag starts
 - [x] Drag a tab or a section's title to the far edge to open that tool in a panel of its own on the right; the other tools stay in the side panel. Drag its title back onto the side panel to dock it again

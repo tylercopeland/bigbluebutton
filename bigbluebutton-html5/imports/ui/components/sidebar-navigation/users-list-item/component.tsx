@@ -13,6 +13,11 @@ import NavigationDockContext from '../dock/context';
 import Styled from './styles';
 
 const intlMessages = defineMessages({
+  raisedHands: {
+    id: 'app.sidebarContent.tabs.raisedHands',
+    description: 'Accessible count of raised hands',
+    defaultMessage: '{count, plural, one {# raised hand} other {# raised hands}}',
+  },
   usersListLabel: {
     id: 'app.userList.participantsTitle',
     description: 'Title for the participants list',
@@ -41,8 +46,9 @@ const UsersListItem: React.FC = () => {
   );
 
   const label = intl.formatMessage(intlMessages.usersListLabel);
+  const raisedHands = raisedHandUsersData?.user?.length ?? 0;
   const hasNotification = (guestWaitingUsersData?.user_guest?.length ?? 0) > 0
-    || (raisedHandUsersData?.user?.length ?? 0) > 0;
+    || raisedHands > 0;
 
   return (
     <SidebarNavigationButton
@@ -55,6 +61,9 @@ const UsersListItem: React.FC = () => {
       ariaDescribedBy="usersList"
       dataTest="usersListSidebarButton"
       hasNotification={hasNotification}
+      badgeCount={raisedHands}
+      badgeTone="hand"
+      badgeLabel={intl.formatMessage(intlMessages.raisedHands, { count: raisedHands })}
     >
       {/* Docked, the count is shown in the nav bar instead */}
       {!isDocked && (

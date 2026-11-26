@@ -19,6 +19,11 @@ export interface SidebarNavigationButtonProps {
   onToggle?: (isOpening: boolean) => void;
   children?: ReactNode;
   ariaDescribedBy?: string;
+  /** A number shown on the button while docked, like raised hands or unread messages */
+  badgeCount?: number;
+  badgeTone?: 'hand' | 'unread';
+  /** Read after the label by screen readers while the badge shows */
+  badgeLabel?: string;
 }
 
 export interface ListItemProps {
@@ -27,4 +32,5 @@ export interface ListItemProps {
   $hasPrivateNotification?: boolean;
   $disabled?: boolean;
   $locked?: boolean;
+  $hasBadge?: boolean;
 }

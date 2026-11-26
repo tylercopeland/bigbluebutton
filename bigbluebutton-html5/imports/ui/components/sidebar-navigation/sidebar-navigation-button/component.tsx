@@ -30,6 +30,9 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
   onToggle,
   children,
   ariaDescribedBy,
+  badgeCount = 0,
+  badgeTone = 'unread',
+  badgeLabel,
 }) => {
   const isDocked = useContext(NavigationDockContext);
   const layoutContextDispatch = layoutDispatch();
@@ -100,6 +103,10 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
     }
   }, [onKeyDown, togglePanel, isDisabled, onClick, panel]);
 
+  // Docked, a count replaces the dot, as in the design; hidden while the tool is open
+  const showBadge = isDocked && badgeCount > 0 && !isOpened;
+  const MAX_BADGE = 99;
+
   return (
     <TooltipContainer
       title={label}
@@ -114,7 +121,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
           'bbb-navigation__item--locked': isLocked,
         })}
         accessKey={accessKey}
-        aria-label={label}
+        aria-label={showBadge && badgeLabel ? `${label}, ${badgeLabel}` : label}
         aria-describedby={ariaDescribedBy}
         aria-expanded={isOpened}
         $active={isOpened}
@@ -127,9 +134,15 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
         $hasPrivateNotification={hasPrivateNotification}
         $disabled={isDisabled}
         $locked={isLocked}
+        $hasBadge={showBadge}
       >
         {resolveIcon(iconName)}
         {children}
+        {showBadge && (
+          <Styled.CountBadge aria-hidden="true" $tone={badgeTone} data-test="navigationBadge">
+            {badgeCount > MAX_BADGE ? `${MAX_BADGE}+` : badgeCount}
+          </Styled.CountBadge>
+        )}
       </Styled.ListItem>
     </TooltipContainer>
   );

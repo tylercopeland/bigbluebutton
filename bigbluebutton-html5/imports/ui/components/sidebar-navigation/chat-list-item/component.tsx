@@ -15,6 +15,11 @@ const intlMessages = defineMessages({
     id: 'app.userList.messagesTitle',
     description: 'Title for the messages list',
   },
+  unread: {
+    id: 'app.sidebarContent.tabs.unread',
+    description: 'Accessible count of unread messages',
+    defaultMessage: '{count, plural, one {# unread message} other {# unread messages}}',
+  },
   unreadPlural: {
     id: 'app.userList.chatListItem.unreadPlural',
     description: 'singular aria label for new message',
@@ -34,6 +39,7 @@ const ChatListItem: React.FC = () => {
   const {
     hasUnreadMessages,
     hasUnreadPrivateMessages,
+    totalUnreadMessages,
     activeChat,
   } = useHasUnreadChatMessages({ isChatPanelOpened: isOpened });
 
@@ -75,6 +81,9 @@ const ChatListItem: React.FC = () => {
       dataTest="messagesSidebarButton"
       hasNotification={hasUnreadMessages}
       hasPrivateNotification={hasUnreadPrivateMessages}
+      badgeCount={totalUnreadMessages}
+      badgeTone="unread"
+      badgeLabel={intl.formatMessage(intlMessages.unread, { count: totalUnreadMessages })}
       onToggle={handleChatToggle}
     />
   );

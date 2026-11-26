@@ -72,7 +72,8 @@ export const ListItem = styled.div<ListItemProps>`
     }
   `}
 
-  ${({ $hasNotification, $hasPrivateNotification }: ListItemProps) => $hasNotification && !$hasPrivateNotification && `
+  ${({ $hasNotification, $hasPrivateNotification, $hasBadge }: ListItemProps) => $hasNotification
+    && !$hasPrivateNotification && !$hasBadge && `
     &:after {
       content: '';
       ${notificationBadgeShape}
@@ -80,7 +81,7 @@ export const ListItem = styled.div<ListItemProps>`
     }
   `}
 
-  ${({ $hasPrivateNotification }: ListItemProps) => $hasPrivateNotification && `
+  ${({ $hasPrivateNotification, $hasBadge }: ListItemProps) => $hasPrivateNotification && !$hasBadge && `
     &:after {
       content: '@';
       ${notificationBadgeShape}
@@ -106,6 +107,35 @@ export const ListItem = styled.div<ListItemProps>`
   }
 `;
 
+// "4" raised hands on People, "2" unread on Chat, on the button's corner
+const CountBadge = styled.span<{ $tone: 'hand' | 'unread' }>`
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  min-width: 17px;
+  height: 17px;
+  box-sizing: border-box;
+  padding: 0 4px;
+  border-radius: 9px;
+  border: 2px solid #0B1220;
+  background-color: ${({ $tone }) => ($tone === 'hand' ? '#B7791F' : '#1F62D0')};
+  color: #FFF;
+  font-size: 10.5px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+
+  [dir="rtl"] & {
+    right: auto;
+    left: -3px;
+  }
+`;
+
 export default {
   ListItem,
+  CountBadge,
 };

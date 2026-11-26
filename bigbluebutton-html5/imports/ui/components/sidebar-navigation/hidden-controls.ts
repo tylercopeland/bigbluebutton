@@ -9,6 +9,12 @@ const HIDDEN_CONTROLS = {
   profile: true,
   /** The button that opens a second column beside the side panel */
   secondColumn: true,
+  /**
+   * Options (three dots) in the top bar: settings, fullscreen, keyboard
+   * shortcuts, move panel, plugin items. Only hidden while the bottom bar has
+   * its own leave button, so there is always a way out of the meeting.
+   */
+  optionsMenu: true,
 };
 
 export default HIDDEN_CONTROLS;

@@ -140,6 +140,18 @@ class ConnectionStatusButton extends PureComponent {
         color = 'success';
     }
 
+    // Only shows while there is a problem. A good connection (BBB's green,
+    // which includes 'warning') shows nothing, but the modals stay mounted so
+    // one that is open doesn't close when the connection recovers.
+    if (color === 'success') {
+      return (
+        <>
+          {ConnectionStatusModal}
+          {this.renderAjustYourSettingsModal()}
+        </>
+      );
+    }
+
     return (
       <Styled.ButtonWrapper>
         <Button

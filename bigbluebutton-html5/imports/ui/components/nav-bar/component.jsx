@@ -24,6 +24,7 @@ import SessionStorage from '../../services/storage/session';
 import { ModalRegistration } from '../../core/singletons/modalController';
 import browserInfo from '/imports/utils/browserInfo';
 import deviceInfo from '/imports/utils/deviceInfo';
+import HIDDEN_CONTROLS from '/imports/ui/components/sidebar-navigation/hidden-controls';
 
 const intlMessages = defineMessages({
   defaultBreakoutName: {
@@ -374,10 +375,13 @@ class NavBar extends Component {
               {ConnectionStatusService.isEnabled() ? <ConnectionStatus /> : null}
               {!isNavigationDocked && isDirectLeaveButtonEnabled && isConnected
                 ? <LeaveMeetingButtonContainer amIModerator={amIModerator} /> : null}
-              <OptionsDropdownContainer
-                amIModerator={amIModerator}
-                isDirectLeaveButtonEnabled={isDirectLeaveButtonEnabled}
-              />
+              {!(isNavigationDocked && isDirectLeaveButtonEnabled
+                && HIDDEN_CONTROLS.optionsMenu) && (
+                <OptionsDropdownContainer
+                  amIModerator={amIModerator}
+                  isDirectLeaveButtonEnabled={isDirectLeaveButtonEnabled}
+                />
+              )}
             </Styled.Right>
           </Styled.Top>
         )}

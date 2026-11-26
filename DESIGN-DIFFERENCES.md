@@ -19,7 +19,8 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Polls, timer and breakouts open from Apps; existing pins can still show
 
 ## Top bar
-- [ ] Extra controls kept: connection status, options (three dots)
+- [ ] Connection status only shows while the connection is poor or lost (amber or red), so its details, including moderators' view of everyone's connection, can't be opened while it is good
+- [x] Options (three dots) hidden while docked, when the bottom bar has its own leave button; settings and leave are in the bottom bar
 - [ ] Recording uses BBB's start/stop button, not the small REC label
 - [ ] Talking indicator is kept, in the top row (the design has none)
 - [ ] Slide keeps its proportions, so wide windows leave space at its sides
@@ -45,7 +46,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] People list: the mic icon is also the mute button; raised hands add a lower hand button on hover
 - [ ] People list: avatars use BBB's role colors and first two letters, not per-person colors and initials
 - [ ] Dark mode: "Presenter" label has low contrast, filter selection is subtle
-- [ ] Hidden for now on desktop and tablet, to come back to (sidebar-navigation/hidden-controls.ts): mute all and permissions in People, minimize presentation and Profile in the bottom bar
+- [ ] Hidden for now on desktop and tablet, to come back to (sidebar-navigation/hidden-controls.ts): mute all and permissions in People, minimize presentation and Profile in the bottom bar, and Options (three dots) in the top bar, which takes fullscreen, keyboard shortcuts, audio captions, move panel and plugin menu items with it
 - [x] Nothing is open on join. The first tool opens alone with a plain title ("PEOPLE 14"), a second turns the header into tabs, a third stacks below as its own section. The top section holds two tabs, the lower section one tool
 - [x] Action bar buttons: pressed while the tool is anywhere in the panel; select its tab when it isn't showing; close it when it is
 - [x] Drag a tab down to stack it, a section's title onto the other section to make it a tab, the header or grip to the other side; dashed overlay with a plain-language label, ghost under the pointer, source at 35%, 6px before a drag starts
@@ -61,7 +62,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] Switching tabs remounts the tool, as BBB did with panels; People with 100+ people takes about a second to switch to
 - [ ] The panel arrangement is stored per browser, not per meeting or user
 - [ ] BBB's own second column (multi-functional mode) stays hidden while docked (sidebar-navigation/hidden-controls.ts); the right panel takes its room in the layout
-- [x] The side panel can be dragged by its header or grip to the other side, or moved from the options menu (three dots); remembered per browser (not in the design)
+- [x] The side panel can be dragged by its header or grip to the other side, or moved from the options menu (three dots, hidden for now); remembered per browser (not in the design)
 - [ ] Moving the panel: the bottom bar buttons stay in place; phones and layouts without docked navigation can't move it
 - [x] Side panels share one condensed spacing scale: 52px header, 12px sides, 8px gaps (design: 14px sides)
 - [ ] Spacing: Notes keeps its editor's own indent, and Profile and breakout room lists keep their inner spacing
@@ -128,7 +129,7 @@ pass of the overall architecture. Check an item off when it matches.
 ## Not yet tested
 - [ ] People list: guests waiting, locked viewers, listen-only, plugins (111 people checked with lightweight GraphQL users, no cameras)
 - [ ] Panel sections: real touch tablets and screen readers (checked with tablet touch emulation, Firefox and WebKit in Playwright, fullscreen with the panel on the right)
-- [ ] BBB's own Playwright tests still expect the old people list, chat buttons, slide toolbar and apps gallery panel; the new panels/ tests cover the side panel
+- [ ] BBB's own Playwright tests still expect the old people list, an always-visible connection status button, chat buttons, slide toolbar and apps gallery panel; the new panels/ tests cover the side panel
 - [ ] Chat: direct messages on phone, locked chat, offline participants, pinned messages, polls, plugins, chat in the second panel
 - [ ] Slide controls: infinite whiteboard, long decks in All slides, plugin toolbar items, screen magnifiers
 - [ ] Webcams: more than 8 people, pinning, focus, virtual backgrounds, plugins, locked webcams, LiveKit, screen share with webcams, dark mode

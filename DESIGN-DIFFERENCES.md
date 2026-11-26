@@ -34,6 +34,7 @@ pass of the overall architecture. Check an item off when it matches.
 - [ ] People tab keeps the download button, Chat tab keeps its options menu
 - [x] Chat has an Everyone/Direct switch, a direct message list, conversation bubbles and the restyled input
 - [x] Chat: the send button is grey until there is text to send, then blue
+- [ ] Chat: Direct with no conversations shows a centred empty state (icon, "No direct messages yet", a line on how to start one, Open People); not in the design, English only
 - [ ] Chat: privacy note leaves out "Moderators can't read it" until we confirm that holds on every setup
 - [ ] Chat: privacy note uses the full name and sits at the top, not above the first message
 - [ ] Chat: unread direct messages show a count, not a dot; Everyone also shows a count while in Direct

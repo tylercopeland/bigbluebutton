@@ -15,6 +15,16 @@ const intlMessages = defineMessages({
     description: 'Shown when there are no private chats',
     defaultMessage: 'No direct messages yet',
   },
+  emptyBody: {
+    id: 'app.chat.direct.emptyBody',
+    description: 'Explains how to start a private chat, under the empty state title',
+    defaultMessage: 'Pick someone in People to send them a private message.',
+  },
+  emptyAction: {
+    id: 'app.chat.direct.emptyAction',
+    description: 'Button in the empty state that opens People',
+    defaultMessage: 'Open People',
+  },
   hint: {
     id: 'app.chat.direct.hint',
     description: 'Explains how to start a private chat',
@@ -46,7 +56,19 @@ const PrivateChatList: React.FC<PrivateChatListProps> = ({
   return (
     <Styled.ScrollableList>
       {chats.length === 0 ? (
-        <Styled.Empty data-test="noPrivateChats">{intl.formatMessage(intlMessages.empty)}</Styled.Empty>
+        <Styled.Empty data-test="noPrivateChats">
+          <Styled.EmptyIcon aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h12a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H9l-4 3.5V15H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z" />
+              <path d="M18 8.5h1.5a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H19v2.5L16 19h-4.5" />
+            </svg>
+          </Styled.EmptyIcon>
+          <Styled.EmptyTitle>{intl.formatMessage(intlMessages.empty)}</Styled.EmptyTitle>
+          <Styled.EmptyBody>{intl.formatMessage(intlMessages.emptyBody)}</Styled.EmptyBody>
+          <Styled.EmptyAction type="button" onClick={onOpenPeople} data-test="openPeopleFromChat">
+            {intl.formatMessage(intlMessages.emptyAction)}
+          </Styled.EmptyAction>
+        </Styled.Empty>
       ) : (
         <Styled.List
           role="list"
@@ -65,6 +87,7 @@ const PrivateChatList: React.FC<PrivateChatListProps> = ({
           ))}
         </Styled.List>
       )}
+      {chats.length > 0 && (
       <Styled.Hint>
         {intl.formatMessage(intlMessages.hint, {
           people: (text: React.ReactNode) => (
@@ -74,6 +97,7 @@ const PrivateChatList: React.FC<PrivateChatListProps> = ({
           ),
         })}
       </Styled.Hint>
+      )}
     </Styled.ScrollableList>
   );
 };

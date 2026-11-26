@@ -2,6 +2,7 @@ import { useCallback } from 'react';
 import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
+import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
 import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
 
 /**
@@ -19,6 +20,7 @@ const usePanelClose = (panelId: string, onBeforeClose?: (isInAuxiliaryPanel: boo
   const sidebarContentAuxiliary = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
   const isInAuxiliaryPanel = sidebarContentAuxiliary.isOpen
     && sidebarContentAuxiliary.sidebarContentPanel === panelId;
+  const { closeInStack } = usePanelStack();
   const isMultifunctionalModeEnabled = useIsMultiFunctionalModeEnabled();
 
   const closePanel = useCallback(() => {
@@ -34,6 +36,15 @@ const usePanelClose = (panelId: string, onBeforeClose?: (isInAuxiliaryPanel: boo
       // panel is rendered there even when it's closed. This allows us to restore the correct panel
       // when re-opening the auxiliary sidebar.
     } else {
+      const nextPanel = closeInStack(panelId);
+      if (nextPanel) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: nextPanel,
+        });
+        return;
+      }
+
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: false,
@@ -43,7 +54,8 @@ const usePanelClose = (panelId: string, onBeforeClose?: (isInAuxiliaryPanel: boo
         value: PANELS.NONE,
       });
     }
-  }, [layoutContextDispatch, isInAuxiliaryPanel, onBeforeClose, isMultifunctionalModeEnabled]);
+  }, [layoutContextDispatch, isInAuxiliaryPanel, onBeforeClose, isMultifunctionalModeEnabled,
+    closeInStack, panelId]);
 
   return { closePanel, isInAuxiliaryPanel };
 };

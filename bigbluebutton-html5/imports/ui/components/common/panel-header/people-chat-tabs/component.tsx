@@ -109,6 +109,8 @@ const PeopleChatTabs: React.FC<PeopleChatTabsProps> = ({ panelId }) => {
         aria-label={count > 0 ? `${label}, ${countLabel}` : label}
         tabIndex={isSelected ? 0 : -1}
         data-test={dataTest}
+        data-panel={target}
+        data-name={label}
         onClick={() => select(target)}
       >
         <Styled.TabLabel>{label}</Styled.TabLabel>

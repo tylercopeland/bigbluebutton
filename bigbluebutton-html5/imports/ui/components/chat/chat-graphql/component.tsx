@@ -19,6 +19,7 @@ import usePendingChat from '/imports/ui/core/local-states/usePendingChat';
 import useChat from '/imports/ui/core/hooks/useChat';
 import { Chat as ChatType } from '/imports/ui/Types/chat';
 import { layoutDispatch } from '/imports/ui/components/layout/context';
+import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
 import { GraphqlDataHookSubscriptionResponse } from '/imports/ui/Types/hook';
 import useCurrentUser from '/imports/ui/core/hooks/useCurrentUser';
 import { ChatEvents } from '/imports/ui/core/enums/chat';
@@ -188,6 +189,7 @@ const ChatContainer: React.FC = () => {
   const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
   const sidebarContentAuxiliary = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
   const layoutContextDispatch = layoutDispatch();
+  const { isStacked } = usePanelStack();
   const isPrivateChatEnabled = useIsPrivateChatEnabled();
   const { data: chats } = useChat((chat) => {
     return {
@@ -245,7 +247,7 @@ const ChatContainer: React.FC = () => {
 
   const isLocked = currentUser?.locked || currentUser?.userLockSettings?.disablePublicChat;
 
-  if (sidebarContent.sidebarContentPanel !== PANELS.CHAT
+  if (!isStacked && sidebarContent.sidebarContentPanel !== PANELS.CHAT
     && sidebarContentAuxiliary.sidebarContentPanel !== PANELS.CHAT) {
     return null;
   }

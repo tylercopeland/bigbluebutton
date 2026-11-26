@@ -9,6 +9,9 @@ import UserListComponent from '/imports/ui/components/user-list/component';
 import BreakoutRoomContainer from '../breakout-room/breakout-room/component';
 import TimerContainer from '/imports/ui/components/timer/panel/component';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
+import usePanelStack from './stack/usePanelStack';
+import StackDivider from './stack/divider';
+import StackStyled from './stack/styles';
 import Styled from './styles';
 import ErrorBoundary from '/imports/ui/components/common/error-boundary/component';
 import FallbackView from '/imports/ui/components/common/fallback-errors/fallback-view/component';
@@ -51,6 +54,9 @@ const SidebarContent = (props: SidebarContentProps) => {
   const [resizeStartWidth, setResizeStartWidth] = useState(0);
   const [resizeStartHeight, setResizeStartHeight] = useState(0);
   const isDocked = useIsNavigationDocked();
+  const {
+    isStacked, panels, ratio, setRatio, resetRatio,
+  } = usePanelStack();
   const { isPanelOnRight: isRTL } = usePanelSide();
   const deviceType = layoutSelect((i: Layout) => i.deviceType);
   const isMobile = deviceType === DEVICE_TYPE.MOBILE;
@@ -81,6 +87,43 @@ const SidebarContent = (props: SidebarContentProps) => {
   };
 
   const { isChrome } = browserInfo;
+
+  const isPanelShown = (panel: string) => sidebarContentPanel === panel
+    || (isStacked && panels.includes(panel));
+
+  const renderStackItem = (panel: string, share: number, content: React.ReactNode) => (
+    isPanelShown(panel) && (
+      <StackStyled.StackItem
+        key={panel}
+        data-stack-panel={panel}
+        $isStacked={isStacked}
+        $share={share}
+      >
+        {content}
+      </StackStyled.StackItem>
+    )
+  );
+
+  const getShare = (panel: string) => (panels[0] === panel ? ratio : 1 - ratio);
+  const chatItem = renderStackItem(
+    PANELS.CHAT,
+    getShare(PANELS.CHAT),
+    <ErrorBoundary Fallback={FallbackView}>
+      <ChatContainer />
+    </ErrorBoundary>,
+  );
+  const userListItem = renderStackItem(
+    PANELS.USERLIST,
+    getShare(PANELS.USERLIST),
+    <UserListComponent />,
+  );
+  const divider = isStacked && (
+    <StackDivider key="divider" ratio={ratio} onChange={setRatio} onReset={resetRatio} />
+  );
+  // Keyed, so a panel stays mounted when it moves
+  const stackItems = panels[0] === PANELS.CHAT
+    ? [chatItem, divider, userListItem]
+    : [userListItem, divider, chatItem];
 
   if (sidebarContentPanel === PANELS.NONE) return null;
 
@@ -176,14 +219,7 @@ const SidebarContent = (props: SidebarContentProps) => {
         }}
       >
         <Styled.SidebarContentPanel $isDocked={isDocked} isRTL={isRTL} isChrome={isChrome}>
-          {sidebarContentPanel === PANELS.CHAT
-            && (
-              <ErrorBoundary
-                Fallback={FallbackView}
-              >
-                <ChatContainer />
-              </ErrorBoundary>
-            )}
+          {stackItems}
           {!isSharedNotesPinned && (
             <NotesContainer
               renderMode={NotesRenderMode.SIDEBAR}
@@ -191,7 +227,6 @@ const SidebarContent = (props: SidebarContentProps) => {
             />
           )}
           {sidebarContentPanel === PANELS.PROFILE && <ProfileSettings />}
-          {sidebarContentPanel === PANELS.USERLIST && <UserListComponent />}
           {sidebarContentPanel === PANELS.BREAKOUT && <BreakoutRoomContainer />}
           {sidebarContentPanel === PANELS.TIMER && <TimerContainer />}
           {sidebarContentPanel === PANELS.POLL && <PollContainer />}

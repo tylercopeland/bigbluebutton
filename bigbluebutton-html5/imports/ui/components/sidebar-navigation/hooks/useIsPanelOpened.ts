@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { layoutSelectInput } from '/imports/ui/components/layout/context';
+import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
 import { Input } from '/imports/ui/components/layout/layoutTypes';
 
 // Returns a checker function rather than a single boolean because some
@@ -19,16 +20,21 @@ const useIsPanelOpened = () => {
     isOpen: sidebarContentPanelAuxiliaryIsOpened,
   } = layoutSelectInput((i: Input) => i.sidebarContentAuxiliary);
 
+  const { isStacked, panels } = usePanelStack();
+
   return useCallback((panelId: string) => {
     return (
       (sidebarContentIsOpened === true && sidebarContentPanel === panelId)
       || (sidebarContentPanelAuxiliaryIsOpened === true && sidebarContentPanelAuxiliary === panelId)
+      || (isStacked && panels.includes(panelId))
     );
   }, [
     sidebarContentPanel,
     sidebarContentIsOpened,
     sidebarContentPanelAuxiliary,
     sidebarContentPanelAuxiliaryIsOpened,
+    isStacked,
+    panels,
   ]);
 };
 

@@ -5,6 +5,8 @@ import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
 import { ACTIONS } from '/imports/ui/components/layout/enums';
 import { isMobile } from '/imports/utils/deviceInfo';
 import Styled from './styles';
+import HIDDEN_CONTROLS from '/imports/ui/components/sidebar-navigation/hidden-controls';
+import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
 
 const intlMessages = defineMessages({
@@ -33,6 +35,7 @@ const MultifunctionalModeButton: React.FC<MultifunctionalModeButtonProps> = ({ p
   const beingRenderedInAuxiliaryPanel = isAuxiliaryOpen && sidebarContentPanelAuxiliary === panelId;
   const sidebarContentAuxiliaryOutput = layoutSelectOutput((i: Output) => i.sidebarContentAuxiliary);
   const { display } = sidebarContentAuxiliaryOutput;
+  const isDocked = useIsNavigationDocked();
   const isFeatureEnabled = useIsMultiFunctionalModeEnabled();
   const isEnabled = isAuxiliaryOpen && display;
 
@@ -43,7 +46,9 @@ const MultifunctionalModeButton: React.FC<MultifunctionalModeButtonProps> = ({ p
     });
   }, [layoutContextDispatch, display]);
 
-  if (isMobile || beingRenderedInAuxiliaryPanel || !isFeatureEnabled) return null;
+  const isHidden = isDocked && HIDDEN_CONTROLS.secondColumn;
+
+  if (isHidden || isMobile || beingRenderedInAuxiliaryPanel || !isFeatureEnabled) return null;
   const label = !isEnabled
     ? intl.formatMessage(intlMessages.enableMultiFunctionalMode)
     : intl.formatMessage(intlMessages.disableMultiFunctionalMode);

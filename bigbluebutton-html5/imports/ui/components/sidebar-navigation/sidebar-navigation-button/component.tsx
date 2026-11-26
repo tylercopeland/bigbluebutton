@@ -10,6 +10,7 @@ import TooltipContainer from '/imports/ui/components/common/tooltip/container';
 import { SidebarNavigationButtonProps } from './types';
 import NavigationDockContext from '../dock/context';
 import Styled from './styles';
+import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
 import { useIsMultiFunctionalModeEnabled } from '/imports/ui/services/features';
 
 const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
@@ -38,6 +39,7 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
     isOpen: isAuxiliaryOpen,
   } = sidebarContentAuxiliaryInput;
   const isInAuxiliaryPanel = isAuxiliaryOpen && sidebarContentPanelAuxiliary === panel;
+  const { closeInStack } = usePanelStack();
   const isMultiFunctionalModeEnabled = useIsMultiFunctionalModeEnabled();
 
   const togglePanel = useCallback(() => {
@@ -53,6 +55,15 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
         value: willOpen,
       });
     } else {
+      const nextPanel = !willOpen && panel ? closeInStack(panel) : null;
+      if (nextPanel) {
+        layoutContextDispatch({
+          type: ACTIONS.SET_SIDEBAR_CONTENT_PANEL,
+          value: nextPanel,
+        });
+        return;
+      }
+
       layoutContextDispatch({
         type: ACTIONS.SET_SIDEBAR_CONTENT_IS_OPEN,
         value: willOpen,
@@ -63,7 +74,8 @@ const SidebarNavigationButton: React.FC<SidebarNavigationButtonProps> = ({
         value: willOpen ? panel : PANELS.NONE,
       });
     }
-  }, [layoutContextDispatch, isOpened, panel, onToggle, isInAuxiliaryPanel, isMultiFunctionalModeEnabled]);
+  }, [layoutContextDispatch, isOpened, panel, onToggle, isInAuxiliaryPanel,
+    isMultiFunctionalModeEnabled, closeInStack]);
 
   const handleClick = useCallback(() => {
     if (isDisabled) return;

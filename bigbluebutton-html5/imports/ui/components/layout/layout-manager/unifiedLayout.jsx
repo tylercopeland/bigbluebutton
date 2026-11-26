@@ -14,6 +14,7 @@ import { defaultsDeep } from '/imports/utils/array-utils';
 import { isPhoneLandscape } from '../utils';
 import Session from '/imports/ui/services/storage/in-memory';
 import getFromUserSettings from '/imports/ui/services/users-settings';
+import usePanelStack from '/imports/ui/components/sidebar-content/stack/usePanelStack';
 import usePanelSide from '/imports/ui/components/sidebar-content/usePanelSide';
 
 const windowWidth = () => window.document.documentElement.clientWidth;
@@ -39,6 +40,7 @@ const UnifiedLayout = (props) => {
   const input = layoutSelect((i) => i.input);
   const deviceType = layoutSelect((i) => i.deviceType);
   // For the layout, right-to-left only means that the side panel is on the right
+  const { isStacked: isPanelStacked } = usePanelStack();
   const { isPanelOnRight: isRTL, isMoved: isPanelMoved } = usePanelSide();
   const fullscreen = layoutSelect((i) => i.fullscreen);
   const fontSize = layoutSelect((i) => i.fontSize);
@@ -95,7 +97,7 @@ const UnifiedLayout = (props) => {
     return () => null;
   }, [
     input, deviceType, isRTL, isPanelMoved, fontSize, fullscreen,
-    isPresentationEnabled, isNavigationDocked,
+    isPresentationEnabled, isNavigationDocked, isPanelStacked,
   ]);
 
   const calculatesDropAreas = (sidebarNavWidth, sidebarContentWidth, cameraDockBounds) => {
@@ -148,7 +150,7 @@ const UnifiedLayout = (props) => {
       zIndex: cameraDockBounds.zIndex,
     };
 
-    if (!isMultiFunctionalModeActive) {
+    if (!isMultiFunctionalModeActive && !isPanelStacked) {
       dropZones[CAMERADOCK_POSITION.SIDEBAR_CONTENT_BOTTOM] = {
         top: windowHeight() - DROP_ZONE_DEFAUL_SIZE,
         left: !isRTL ? sidebarNavWidth : null,

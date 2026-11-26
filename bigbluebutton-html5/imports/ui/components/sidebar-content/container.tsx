@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import SidebarContent from './component';
+import usePanelStack, { setVisibleStackPanels, STACKABLE_PANELS } from './stack/usePanelStack';
 import { layoutSelectInput, layoutSelectOutput, layoutDispatch } from '../layout/context';
 import { Input, Output } from '/imports/ui/components/layout/layoutTypes';
 import { SidebarContentContanerProps } from './types';
@@ -23,6 +24,16 @@ const SidebarContentContainer = ({ isSharedNotesPinned }: SidebarContentContaner
     isResizable,
     resizableEdge,
   } = sidebarContentOutput;
+
+  const { isDetached, isOpen, visiblePanels } = usePanelStack();
+
+  // A stacked panel that is opened, from anywhere, stays until it is closed
+  useEffect(() => {
+    if (isDetached && isOpen && sidebarContentPanel
+      && STACKABLE_PANELS.includes(sidebarContentPanel)) {
+      setVisibleStackPanels(visiblePanels);
+    }
+  }, [isDetached, isOpen, sidebarContentPanel]);
 
   if (sidebarContentOutput.display === false) return null;
 

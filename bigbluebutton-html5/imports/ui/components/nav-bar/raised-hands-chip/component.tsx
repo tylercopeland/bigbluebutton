@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineMessages, useIntl } from 'react-intl';
-import { layoutDispatch, layoutSelectInput } from '/imports/ui/components/layout/context';
-import { Input } from '/imports/ui/components/layout/layoutTypes';
+import { layoutDispatch } from '/imports/ui/components/layout/context';
+import useIsSpecificPanelOpened from '/imports/ui/components/sidebar-navigation/hooks/useIsSpecificPanelOpened';
 import usePanelClose from '/imports/ui/components/common/panel-header/usePanelClose';
 import { ACTIONS, PANELS } from '/imports/ui/components/layout/enums';
 import Tooltip from '/imports/ui/components/common/tooltip/component';
@@ -31,7 +31,7 @@ const RaisedHandsChip: React.FC = () => {
   const intl = useIntl();
   const layoutContextDispatch = layoutDispatch();
   const [filter, setUserListFilter] = useUserListFilter();
-  const sidebarContent = layoutSelectInput((i: Input) => i.sidebarContent);
+  const isUserListOpen = useIsSpecificPanelOpened(PANELS.USERLIST);
   const { closePanel } = usePanelClose(PANELS.USERLIST);
   const { data: currentUser } = useCurrentUser((user) => ({ locked: user.locked }));
   const { data: meeting } = useMeeting((m) => ({
@@ -51,8 +51,7 @@ const RaisedHandsChip: React.FC = () => {
   ).length;
   if (count === 0) return null;
 
-  const isShowingRaisedHands = sidebarContent.isOpen
-    && sidebarContent.sidebarContentPanel === PANELS.USERLIST
+  const isShowingRaisedHands = isUserListOpen
     && filter === 'raisedHands';
 
   const toggleRaisedHands = () => {

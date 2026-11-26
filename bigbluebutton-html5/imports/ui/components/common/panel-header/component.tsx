@@ -6,7 +6,9 @@ import PeopleChatTabs from './people-chat-tabs/component';
 import useShowPeopleChatTabs from './people-chat-tabs/useShowPeopleChatTabs';
 import useIsNavigationDocked from '/imports/ui/components/sidebar-navigation/hooks/useIsNavigationDocked';
 import usePanelDrag from './usePanelDrag';
-import DropSide from './drop-side/component';
+import DragOverlay from './drag-overlay/component';
+import StackTitle, { ColumnGrip } from './stack-title/component';
+import usePanelStack, { STACKABLE_PANELS } from '/imports/ui/components/sidebar-content/stack/usePanelStack';
 import usePanelClose from './usePanelClose';
 import { Layout } from '/imports/ui/components/layout/layoutTypes';
 import { layoutSelect } from '/imports/ui/components/layout/context';
@@ -55,9 +57,8 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
   customRightButton,
 }) => {
   const intl = useIntl();
-  const {
-    onPointerDown, canMove, target, isNewSide,
-  } = usePanelDrag();
+  const { onPointerDown, canMove, drag } = usePanelDrag();
+  const { isDetached, isStacked, panels } = usePanelStack();
   const { closePanel } = usePanelClose(panelId, onBeforeClose);
   const showTabs = useShowPeopleChatTabs(panelId);
   const isDocked = useIsNavigationDocked();
@@ -75,6 +76,21 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
       </>
     ) : multifunctionalModeButton;
 
+  // Tabs and stacked titles have drags of their own, so the column needs a grip
+  const isStackable = STACKABLE_PANELS.includes(panelId);
+  const isDetachedPanel = isDetached && isStackable;
+  const showGrip = canMove && isStackable
+    && (showTabs || (isStacked && panels[0] === panelId));
+  let customTitle;
+  if (showTabs || isDetachedPanel) {
+    customTitle = (
+      <>
+        {showGrip && <ColumnGrip />}
+        {isDetachedPanel ? <StackTitle panelId={panelId} /> : <PeopleChatTabs panelId={panelId} />}
+      </>
+    );
+  }
+
   return (
     <>
       <Styled.HeaderContainer
@@ -84,7 +100,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
         data-test={dataTest}
         title={title}
         isPlain={isDocked}
-        customTitle={showTabs ? <PeopleChatTabs panelId={panelId} /> : undefined}
+        customTitle={customTitle}
         rightButtonProps={{
           'aria-label': resolvedCloseLabel,
           'data-test': closeButtonDataTest,
@@ -95,7 +111,7 @@ const PanelHeader: React.FC<PanelHeaderProps> = ({
         }}
         customRightButton={rightButton}
       />
-      {target && <DropSide side={target} isNewSide={isNewSide} />}
+      {drag && <DragOverlay drag={drag} />}
     </>
   );
 };

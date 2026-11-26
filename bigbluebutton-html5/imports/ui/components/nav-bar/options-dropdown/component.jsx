@@ -14,6 +14,16 @@ import Session from '/imports/ui/services/storage/in-memory';
 import { ModalRegistration } from '/imports/ui/core/singletons/modalController';
 
 const intlMessages = defineMessages({
+  stackPanels: {
+    id: 'app.navBar.optionsDropdown.stackPanels',
+    description: 'Option that shows the people and chat panels together, one below the other',
+    defaultMessage: 'Show People and Chat together',
+  },
+  combinePanels: {
+    id: 'app.navBar.optionsDropdown.combinePanels',
+    description: 'Option that connects the people and chat panels as tabs',
+    defaultMessage: 'Combine People and Chat into tabs',
+  },
   movePanelLeft: {
     id: 'app.navBar.optionsDropdown.movePanelLeft',
     description: 'Option that moves the side panel to the left',
@@ -208,6 +218,7 @@ class OptionsDropdown extends PureComponent {
       intl, amIModerator, isBreakoutRoom, isConnected, audioCaptionsEnabled,
       audioCaptionsActive, audioCaptionsSet, isMobile, optionsDropdownItems,
       isDirectLeaveButtonEnabled, canMovePanel, isPanelOnRight, togglePanelSide,
+      canStackPanels, arePanelsDetached, stackPanels, combinePanels,
     } = this.props;
 
     const { isIos } = deviceInfo;
@@ -231,6 +242,18 @@ class OptionsDropdown extends PureComponent {
           ? intlMessages.movePanelLeft
           : intlMessages.movePanelRight),
         onClick: () => togglePanelSide(),
+      });
+    }
+
+    if (canStackPanels) {
+      this.menuItems.push({
+        key: 'list-item-stack-panels',
+        dataTest: 'stackPanels',
+        icon: 'user',
+        label: intl.formatMessage(arePanelsDetached
+          ? intlMessages.combinePanels
+          : intlMessages.stackPanels),
+        onClick: () => (arePanelsDetached ? combinePanels() : stackPanels()),
       });
     }
 

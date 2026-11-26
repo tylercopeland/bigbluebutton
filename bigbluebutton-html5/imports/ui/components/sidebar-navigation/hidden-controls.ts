@@ -7,6 +7,8 @@ const HIDDEN_CONTROLS = {
   minimizePresentation: true,
   /** Profile in the bottom bar */
   profile: true,
+  /** The button that opens a second column beside the side panel */
+  secondColumn: true,
 };
 
 export default HIDDEN_CONTROLS;
